@@ -1,0 +1,17 @@
+{
+  "environment": "Lua 5.1 API simulator on development machine, not WoW client FPS",
+  "lootCapture": {
+    "0.5.4": {
+      "medianMs": 438.662,
+      "maxMs": 664.851,
+      "newItems": 8,
+      "fullIndexRebuilds": 8
+    },
+    "0.6.0": {
+      "medianMs": 0.015,
+      "maxMs": 0.026,
+      "newItems": 8,
+      "fullIndexRebuilds": 0
+    }
+  }
+}

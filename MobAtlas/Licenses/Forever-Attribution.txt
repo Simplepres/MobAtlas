@@ -1,0 +1,7 @@
+Observed loot: Data from Everloot (https://everloot.app), CC BY-SA 4.0.
+https://creativecommons.org/licenses/by-sa/4.0/
+Source: https://everloot.app/database/drops
+Modifications: filtered NPC observations; JSON to Lua; rate converted to percent.
+The adapted observation layer is distributed under CC BY-SA 4.0.
+Client game data: Copyright Blizzard Entertainment, Inc., not under Everloot licence.
+Column names: WoWDBDefs, CC BY-SA 4.0.

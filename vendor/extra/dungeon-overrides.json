@@ -1,0 +1,469 @@
+{
+  "verifiedAt": "2026-11-18",
+  "sources": [
+    "https://www.wowhead.com/forever/guide/hall-of-thanes-dungeon-overview-location-rewards",
+    "https://www.wowhead.com/forever/item=274268/dark-iron-map",
+    "QuestieDB Forever quest/NPC/item traces",
+    "https://news.blizzard.com/en-gb/article/24301455/explore-the-new-dungeons-of-world-of-warcraft-forever"
+  ],
+  "instances": {
+    "16919": {
+      "name": "The Hall of Thanes (Стальгорн)",
+      "entrances": [
+        [
+          1455,
+          27.63,
+          47.83
+        ]
+      ],
+      "minLevel": 13,
+      "maxLevel": 18
+    },
+    "16611": {
+      "name": "Ruins of Lordaeron",
+      "minLevel": 15,
+      "maxLevel": 20
+    },
+    "16732": {
+      "name": "Excavation Site: Wetlands",
+      "minLevel": 24,
+      "maxLevel": 29
+    },
+    "16544": {
+      "name": "City of Dalaran",
+      "minLevel": 28,
+      "maxLevel": 33
+    },
+    "-10002": {
+      "name": "The Drowned City",
+      "minLevel": 35,
+      "maxLevel": 40,
+      "internalID": true,
+      "entrances": []
+    },
+    "-10003": {
+      "name": "Krol'dok Stronghold",
+      "minLevel": 40,
+      "maxLevel": 45,
+      "internalID": true,
+      "entrances": []
+    },
+    "-10004": {
+      "name": "Alcaz Prison",
+      "minLevel": 48,
+      "maxLevel": 53,
+      "internalID": true,
+      "entrances": []
+    },
+    "-10005": {
+      "name": "Blackmaw Hold",
+      "minLevel": 55,
+      "maxLevel": 60,
+      "internalID": true,
+      "entrances": []
+    },
+    "-10006": {
+      "name": "Shaper's Terrace",
+      "minLevel": 58,
+      "maxLevel": 60,
+      "internalID": true,
+      "entrances": []
+    }
+  },
+  "quests": {
+    "96391": {
+      "min": 9,
+      "raceMask": 77,
+      "startItems": [
+        274268
+      ],
+      "pickupHint": "Найди Dark Iron Map у Dark Iron Spy или Captain Beld в Дун Мороге; используй предмет и отнеси Фарсену.",
+      "sourceItem": 274268
+    },
+    "96393": {
+      "min": 9,
+      "raceMask": 77,
+      "dungeons": [
+        16919
+      ],
+      "preAll": [
+        96391
+      ],
+      "pickupHint": "После Underground Map — Earthseer Farsen, Дун Морог."
+    },
+    "96394": {
+      "min": 10,
+      "dungeons": [
+        16919
+      ],
+      "pickupHint": "Afadra Dunwall — Старый Стальгорн, перед входом."
+    },
+    "96403": {
+      "min": 10,
+      "raceMask": 0,
+      "dungeons": [
+        16919
+      ],
+      "pickupHint": "Thom Filch — Старый Стальгорн, перед входом."
+    },
+    "96395": {
+      "min": 10,
+      "raceMask": 0,
+      "dungeons": [
+        16919
+      ],
+      "inside": true,
+      "pickupHint": "Ghostly Attendant внутри подземелья, перед первым боссом. На карте показан только вход.",
+      "entryPoints": [
+        [
+          1455,
+          27.63,
+          47.83
+        ]
+      ]
+    },
+    "98423": {
+      "min": 9,
+      "raceMask": 77,
+      "dungeons": [
+        16919
+      ],
+      "inside": true,
+      "startItems": [
+        281030
+      ],
+      "pickupHint": "Возьми Treaty of Understanding в хранилище последнего зала и используй предмет. На карте показан только вход.",
+      "entryPoints": [
+        [
+          1455,
+          27.63,
+          47.83
+        ]
+      ]
+    },
+    "92401": {
+      "dungeons": [
+        16611
+      ],
+      "recommendedMin": 15
+    },
+    "92421": {
+      "dungeons": [
+        16611
+      ],
+      "recommendedMin": 15
+    },
+    "92422": {
+      "dungeons": [
+        16611
+      ],
+      "recommendedMin": 15
+    },
+    "95216": {
+      "dungeons": [
+        16611
+      ],
+      "recommendedMin": 15
+    },
+    "95250": {
+      "dungeons": [
+        16611
+      ],
+      "recommendedMin": 15
+    },
+    "95646": {
+      "dungeons": [
+        16732
+      ],
+      "recommendedMin": 24
+    },
+    "95647": {
+      "dungeons": [
+        16732
+      ],
+      "recommendedMin": 24
+    },
+    "95682": {
+      "dungeons": [
+        16732
+      ],
+      "recommendedMin": 24
+    },
+    "95697": {
+      "dungeons": [
+        16732
+      ],
+      "recommendedMin": 24
+    },
+    "92456": {
+      "dungeons": [
+        16544
+      ],
+      "recommendedMin": 28
+    },
+    "92457": {
+      "dungeons": [
+        16544
+      ],
+      "recommendedMin": 28
+    },
+    "92458": {
+      "dungeons": [
+        16544
+      ],
+      "recommendedMin": 28
+    },
+    "92459": {
+      "dungeons": [
+        16544
+      ],
+      "recommendedMin": 28
+    },
+    "92489": {
+      "dungeons": [
+        16544
+      ],
+      "recommendedMin": 28
+    },
+    "96984": {
+      "dungeons": [
+        16544
+      ],
+      "recommendedMin": 28
+    },
+    "96986": {
+      "dungeons": [
+        16544
+      ],
+      "recommendedMin": 28
+    },
+    "96987": {
+      "dungeons": [
+        16544
+      ],
+      "recommendedMin": 28
+    },
+    "96988": {
+      "dungeons": [
+        16544
+      ],
+      "recommendedMin": 28
+    },
+    "95775": {
+      "dungeons": [
+        -10002
+      ],
+      "recommendedMin": 35
+    },
+    "95776": {
+      "dungeons": [
+        -10002
+      ],
+      "recommendedMin": 35
+    },
+    "95787": {
+      "dungeons": [
+        -10002
+      ],
+      "recommendedMin": 35
+    },
+    "95788": {
+      "dungeons": [
+        -10002
+      ],
+      "recommendedMin": 35
+    },
+    "95789": {
+      "dungeons": [
+        -10002
+      ],
+      "recommendedMin": 35
+    },
+    "95791": {
+      "dungeons": [
+        -10002
+      ],
+      "recommendedMin": 35
+    },
+    "96774": {
+      "dungeons": [
+        -10002
+      ],
+      "recommendedMin": 35
+    },
+    "97130": {
+      "dungeons": [
+        -10002
+      ],
+      "recommendedMin": 35
+    },
+    "94968": {
+      "dungeons": [
+        -10003
+      ],
+      "recommendedMin": 40
+    },
+    "94972": {
+      "dungeons": [
+        -10003
+      ],
+      "recommendedMin": 40
+    },
+    "94975": {
+      "dungeons": [
+        -10003
+      ],
+      "recommendedMin": 40
+    },
+    "94982": {
+      "dungeons": [
+        -10003
+      ],
+      "recommendedMin": 40
+    },
+    "94983": {
+      "dungeons": [
+        -10003
+      ],
+      "recommendedMin": 40
+    },
+    "94984": {
+      "dungeons": [
+        -10003
+      ],
+      "recommendedMin": 40
+    },
+    "96771": {
+      "dungeons": [
+        -10003
+      ],
+      "recommendedMin": 40
+    },
+    "95262": {
+      "dungeons": [
+        -10004
+      ],
+      "recommendedMin": 48
+    },
+    "95309": {
+      "dungeons": [
+        -10004
+      ],
+      "recommendedMin": 48
+    },
+    "95454": {
+      "dungeons": [
+        -10004
+      ],
+      "recommendedMin": 48
+    },
+    "96332": {
+      "dungeons": [
+        -10004
+      ],
+      "recommendedMin": 48
+    },
+    "96334": {
+      "dungeons": [
+        -10004
+      ],
+      "recommendedMin": 48
+    },
+    "96335": {
+      "dungeons": [
+        -10004
+      ],
+      "recommendedMin": 48
+    },
+    "96381": {
+      "dungeons": [
+        -10004
+      ],
+      "recommendedMin": 48
+    },
+    "96772": {
+      "dungeons": [
+        -10004
+      ],
+      "recommendedMin": 48
+    },
+    "92066": {
+      "dungeons": [
+        -10005
+      ],
+      "recommendedMin": 55
+    },
+    "92343": {
+      "dungeons": [
+        -10005
+      ],
+      "recommendedMin": 55
+    },
+    "92344": {
+      "dungeons": [
+        -10005
+      ],
+      "recommendedMin": 55
+    },
+    "97173": {
+      "dungeons": [
+        -10005
+      ],
+      "recommendedMin": 55
+    },
+    "97198": {
+      "dungeons": [
+        -10005
+      ],
+      "recommendedMin": 55
+    },
+    "97327": {
+      "dungeons": [
+        -10005
+      ],
+      "recommendedMin": 55
+    },
+    "99187": {
+      "dungeons": [
+        -10005
+      ],
+      "recommendedMin": 55
+    },
+    "95790": {
+      "dungeons": [
+        -10006
+      ],
+      "recommendedMin": 58
+    },
+    "95924": {
+      "dungeons": [
+        -10006
+      ],
+      "recommendedMin": 58
+    },
+    "95925": {
+      "dungeons": [
+        -10006
+      ],
+      "recommendedMin": 58
+    },
+    "95926": {
+      "dungeons": [
+        -10006
+      ],
+      "recommendedMin": 58
+    },
+    "95928": {
+      "dungeons": [
+        -10006
+      ],
+      "recommendedMin": 58
+    },
+    "97049": {
+      "dungeons": [
+        -10006
+      ],
+      "recommendedMin": 58
+    }
+  }
+}

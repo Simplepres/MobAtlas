@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "kb": {
+    "game": "World of Warcraft: Forever",
+    "client_build": "1.60.1.70959",
+    "generated_utc": "2026-11-17T15:59:40Z",
+    "counts": {
+      "items": 22765,
+      "items_from_classic_data": 5016,
+      "items_still_hidden": 7571,
+      "quests": 4244,
+      "item_sources": 62456
+    },
+    "files": {
+      "items": "api/items.json",
+      "quests": "api/quests.json",
+      "item_sources": "api/item_sources.json",
+      "proficiency": "api/proficiency.json",
+      "items_csv": "api/items.csv",
+      "quests_csv": "api/quests.csv",
+      "item_sources_csv": "api/item_sources.csv",
+      "sqlite": "wow_forever.db"
+    },
+    "sources": {
+      "items": "WoW Forever client tables (DB2) via wago.tools",
+      "quests_vendors": "Questie addon WoW Forever database (github.com/Questie/QuestieDB, GPLv3)",
+      "loot_and_classic_items": "vmangos Classic world database (github.com/vmangos/core, GPLv2)"
+    },
+    "docs": "https://github.com/gBlaku/wow-forever-kb#readme"
+  },
+  "itemCatalog": 28271,
+  "skippedHiddenOrJunk": 0,
+  "npcSourceLinks": 37167,
+  "otherSourceLinks": 21291,
+  "ahledgerMetadataRows": 28108,
+  "dungeonQuestRecords": 1116,
+  "dungeonQuests": 852,
+  "questDungeons": 39,
+  "inputs": {
+    "ahledger-armor.json": "f51233de0884109194294bcbcda8629262dc6ce832270cfc6fb704f15a705842",
+    "ahledger-catalog.json": "bc892a5658568da13110d02fe3505be8a6e4d9b626dafdaa0776ad3d2cc49b81",
+    "ahledger-consumable.json": "7b796353bda284063e24c2aba517f4f4a2a6296a56d871b2d71f5ccaedbecd1d",
+    "ahledger-container.json": "18c1afe032226ed39bc1890d282a14b936fc6ecb8f2fadf4454b7834437fa74f",
+    "ahledger-health.json": "52f364359c3e12d08ed68a7e512c0e68488198292345d29e81ef85d7d36f0262",
+    "ahledger-key.json": "40a38fdff5c243aac34cf9b60ff1f947f471aa160aa42cf564be9445f46ef18f",
+    "ahledger-miscellaneous.json": "6e766356f497c7a82b3bc16914a9bef9ed375fa3fd3ce6e3df9be3b8a85fc108",
+    "ahledger-projectile.json": "88f7cfd376bb073ef6deaf60784590a6901d3e230fe39a660180828920652bd5",
+    "ahledger-quest.json": "1264cc39e46009e9c58345859893cfa2fca0211f9965041cb6a4b81921aae825",
+    "ahledger-quiver.json": "ee2ab4634cd3f8f63a25d475353970b6f3ec7aba432195a770a12043e386db05",
+    "ahledger-reagent.json": "e97a8bcafde572d7e55847afb19a68d0d53de72b9c400c3a1d2075e89ef598ba",
+    "ahledger-recipe.json": "c6aef30d6dbc6745a6e0dedff1f26596a90fca863f1bcfdfd4860f3f9ac179a5",
+    "ahledger-weapon.json": "5d9907dba6651acebbdaa5b8bd040a9795e18c46e30280105d590653ffd5b926",
+    "dungeon-overrides.json": "ca3fbdceb8e88fa1c7ab190dc1ab1487ccfaab12816ec1597b0edb2950431427",
+    "kb-item_sources.json": "66a2074ef9b645ffa34cf5e2d6fcb1680444945bd8bdf24addee892904803ad6",
+    "kb-items.json": "7b67435a9bfbbd393cc7cb9f8024720fd1969f0b311ebaae0f35817e9673fd72",
+    "kb-meta.json": "2699b0a622efbbb20a31825eaf05b63875ecb8e43a8cb0dbcc60dd5ce45ffd94",
+    "kb-quests.json": "c29988a03fa31e20e626a497a55ecc24e5a5f6475e86d7eaa66c1dc9a6554947"
+  },
+  "limits": "KB drop rates are Classic reference, not current Forever measurements. AHledger only item metadata; no invented spawn coordinates. Local testing build, third-party notices retained."
+}

@@ -1,0 +1,9 @@
+wow-forever-kb data snapshot: generated 2026-11-17T15:59:40Z, client 1.60.1.70959.
+Source: https://github.com/gBlaku/wow-forever-kb
+API: https://gblaku.github.io/wow-forever-kb/api/
+Item metadata originates in Blizzard client tables; estimated fields can come from Classic.
+Quest/vendor associations originate in QuestieDB (see included QuestieDB license and historical-contributor caveat).
+Classic creature/object loot originates in vMaNGOS, described upstream as GPLv2. These percentages are Classic reference, not measured Forever rates.
+No endorsement by upstream projects. No upstream project artwork or implementation code copied by the expansion importer.
+The upstream README, raw JSON inputs, transformations and hashes are retained in the source archive.
+This local testing build does not assert uniform relicensing of third-party datasets.

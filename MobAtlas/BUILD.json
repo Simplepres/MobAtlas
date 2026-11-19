@@ -1,0 +1,11 @@
+{
+  "mobs": 992,
+  "items": 1879,
+  "spawnPoints": 19097,
+  "lootRelations": 220398,
+  "failedRequests": [],
+  "levelRange": [
+    1,
+    25
+  ]
+}

@@ -1,0 +1,725 @@
+{
+  "generatedAt": "2026-11-16T12:06:28.922Z",
+  "dataAsOf": "2026-11-16T11:20:14.874Z",
+  "stats": {
+    "uploads": 716,
+    "lootWindows": 11644,
+    "records": 74164,
+    "unreachable": false,
+    "dataAsOf": "2026-11-16T11:20:14.874Z"
+  },
+  "unreachable": false,
+  "rates": [
+    {
+      "sourceNpcId": 3106,
+      "itemId": 4873,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Pygmy Surf Crawler"
+    },
+    {
+      "sourceNpcId": 3471,
+      "itemId": 14114,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3395,
+      "itemId": 2592,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3473,
+      "itemId": 5128,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3864,
+      "itemId": 6341,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3857,
+      "itemId": 3770,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3857,
+      "itemId": 1777,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3864,
+      "itemId": 932,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3857,
+      "itemId": 1210,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4789,
+      "itemId": 2592,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Fallenroot Rogue"
+    },
+    {
+      "sourceNpcId": 6243,
+      "itemId": 273840,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 6243,
+      "itemId": 15120,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250483,
+      "itemId": 271202,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250483,
+      "itemId": 275443,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 2349,
+      "itemId": 4428,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Giant Moss Creeper"
+    },
+    {
+      "sourceNpcId": 3809,
+      "itemId": 2940,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Ashenvale Bear"
+    },
+    {
+      "sourceNpcId": 3819,
+      "itemId": 878,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Wildthorn Stalker"
+    },
+    {
+      "sourceNpcId": 3819,
+      "itemId": 2251,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Wildthorn Stalker"
+    },
+    {
+      "sourceNpcId": 3819,
+      "itemId": 4428,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Wildthorn Stalker"
+    },
+    {
+      "sourceNpcId": 4789,
+      "itemId": 1819,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Fallenroot Rogue"
+    },
+    {
+      "sourceNpcId": 4789,
+      "itemId": 3193,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Fallenroot Rogue"
+    },
+    {
+      "sourceNpcId": 3106,
+      "itemId": 4874,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Pygmy Surf Crawler"
+    },
+    {
+      "sourceNpcId": 11519,
+      "itemId": 273003,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3394,
+      "itemId": 2592,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3394,
+      "itemId": 1811,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250483,
+      "itemId": 271203,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3473,
+      "itemId": 14177,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3864,
+      "itemId": 3211,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3857,
+      "itemId": 1205,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3857,
+      "itemId": 15269,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3392,
+      "itemId": 2592,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3819,
+      "itemId": 1081,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Wildthorn Stalker"
+    },
+    {
+      "sourceNpcId": 12676,
+      "itemId": 11416,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11519,
+      "itemId": 2287,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3864,
+      "itemId": 818,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 6243,
+      "itemId": 273141,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3471,
+      "itemId": 2589,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 267307,
+      "itemId": 2780,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Chol'aruk"
+    },
+    {
+      "sourceNpcId": 12676,
+      "itemId": 12037,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 12676,
+      "itemId": 5829,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3746,
+      "itemId": 16648,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3819,
+      "itemId": 3174,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Wildthorn Stalker"
+    },
+    {
+      "sourceNpcId": 3392,
+      "itemId": 211854,
+      "kills": 4,
+      "drops": 1,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceObjectId": 178204,
+      "itemId": 16745,
+      "kills": 3,
+      "drops": 3,
+      "rate": 1,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Warsong Axe Shipment"
+    },
+    {
+      "sourceNpcId": 12876,
+      "itemId": 16782,
+      "kills": 3,
+      "drops": 3,
+      "rate": 1,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3476,
+      "itemId": 5104,
+      "kills": 3,
+      "drops": 3,
+      "rate": 1,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3183,
+      "itemId": 4859,
+      "kills": 3,
+      "drops": 3,
+      "rate": 1,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceObjectId": 175708,
+      "itemId": 12708,
+      "kills": 3,
+      "drops": 3,
+      "rate": 1,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Crossroads' Supply Crates"
+    },
+    {
+      "sourceNpcId": 3475,
+      "itemId": 5100,
+      "kills": 3,
+      "drops": 3,
+      "rate": 1,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3445,
+      "itemId": 5050,
+      "kills": 3,
+      "drops": 3,
+      "rate": 1,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3474,
+      "itemId": 5099,
+      "kills": 3,
+      "drops": 3,
+      "rate": 1,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Lakota'mani"
+    },
+    {
+      "sourceNpcId": 3257,
+      "itemId": 5101,
+      "kills": 3,
+      "drops": 3,
+      "rate": 1,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceObjectId": 409700,
+      "itemId": 209847,
+      "kills": 3,
+      "drops": 3,
+      "rate": 1,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Manual"
+    },
+    {
+      "sourceObjectId": 409692,
+      "itemId": 209846,
+      "kills": 3,
+      "drops": 3,
+      "rate": 1,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Scrolls"
+    },
+    {
+      "sourceObjectId": 423895,
+      "itemId": 215683,
+      "kills": 3,
+      "drops": 3,
+      "rate": 1,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Scrolls"
+    },
+    {
+      "sourceNpcId": 3655,
+      "itemId": 5334,
+      "kills": 3,
+      "drops": 3,
+      "rate": 1,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3257,
+      "itemId": 5124,
+      "kills": 3,
+      "drops": 2,
+      "rate": 0.6666666666666666,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250631,
+      "itemId": 271207,
+      "kills": 3,
+      "drops": 2,
+      "rate": 0.6666666666666666,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3295,
+      "itemId": 14727,
+      "kills": 3,
+      "drops": 2,
+      "rate": 0.6666666666666666,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3295,
+      "itemId": 9775,
+      "kills": 3,
+      "drops": 2,
+      "rate": 0.6666666666666666,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4827,
+      "itemId": 14176,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3475,
+      "itemId": 5135,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3474,
+      "itemId": 5467,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Lakota'mani"
+    },
+    {
+      "sourceNpcId": 3257,
+      "itemId": 1210,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4827,
+      "itemId": 15500,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4827,
+      "itemId": 6308,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4827,
+      "itemId": 17057,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4827,
+      "itemId": 5516,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3183,
+      "itemId": 1370,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3474,
+      "itemId": 5121,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Lakota'mani"
+    },
+    {
+      "sourceNpcId": 10758,
+      "itemId": 2592,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250631,
+      "itemId": 271216,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3295,
+      "itemId": 3669,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3295,
+      "itemId": 15248,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3295,
+      "itemId": 6563,
+      "kills": 3,
+      "drops": 1,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    }
+  ],
+  "measuredZeros": [],
+  "queued": 2806,
+  "offset": 2000,
+  "limit": 500,
+  "total": 2075,
+  "totalRates": 2075,
+  "totalMeasuredZeros": 0,
+  "next": null,
+  "attribution": {
+    "licence": "CC BY-SA 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "credit": "Data from Everloot (https://everloot.app), CC BY-SA 4.0.",
+    "source": "https://everloot.app/database/drops",
+    "terms": "https://everloot.app/terms#licences"
+  }
+}

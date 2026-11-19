@@ -1,0 +1,18 @@
+## Interface: 16001
+## Title: MobAtlas | Следопыт: Атлас добычи
+## Notes: Offline loot atlas, Forever reference sources, map focus and filters.
+## Notes-ruRU: Атлас добычи, источники Forever, поиск вещей и выделение на карте.
+## Version: 0.6.2
+## Author: MobAtlas
+## SavedVariables: MobAtlasDB
+Data.lua
+ClassGear.lua
+Forever.lua
+Catalog.lua
+Expansion.lua
+Preparation.lua
+Observations.lua
+Atlas.lua
+Core.lua
+Presentation.lua
+UI.lua

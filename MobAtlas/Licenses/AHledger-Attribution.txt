@@ -1,0 +1,6 @@
+Item metadata from AHledger (https://ahledger.com), public catalog fetched 2026-11-18.
+https://ahledger.com/data
+https://ahledger.com/developers
+Game-file catalog metadata is not observed loot-source evidence.
+Published terms permit personal use/community tools with attribution; restrictions include resale, commercial use and cache retention. Terms change 2026-12-10; review the source terms before any future redistribution/monetization.
+This build is for the user's local testing; source inputs and metadata provenance are kept separate from loot observations.

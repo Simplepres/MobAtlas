@@ -1,0 +1,4660 @@
+{
+  "generatedAt": "2026-11-15T18:00:46.160Z",
+  "dataAsOf": "2026-11-15T17:40:15.265Z",
+  "stats": {
+    "uploads": 643,
+    "lootWindows": 10385,
+    "records": 67453,
+    "unreachable": false,
+    "dataAsOf": "2026-11-15T17:40:15.265Z"
+  },
+  "unreachable": false,
+  "rates": [
+    {
+      "sourceNpcId": 547,
+      "itemId": 723,
+      "kills": 20,
+      "drops": 7,
+      "rate": 0.35,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Great Goretusk"
+    },
+    {
+      "sourceNpcId": 5763,
+      "itemId": 3669,
+      "kills": 20,
+      "drops": 6,
+      "rate": 0.3,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5763,
+      "itemId": 3670,
+      "kills": 20,
+      "drops": 6,
+      "rate": 0.3,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5763,
+      "itemId": 6464,
+      "kills": 20,
+      "drops": 5,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 547,
+      "itemId": 2677,
+      "kills": 20,
+      "drops": 4,
+      "rate": 0.2,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Great Goretusk"
+    },
+    {
+      "sourceNpcId": 547,
+      "itemId": 2296,
+      "kills": 20,
+      "drops": 4,
+      "rate": 0.2,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Great Goretusk"
+    },
+    {
+      "sourceNpcId": 5763,
+      "itemId": 3676,
+      "kills": 20,
+      "drops": 2,
+      "rate": 0.1,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 547,
+      "itemId": 771,
+      "kills": 20,
+      "drops": 2,
+      "rate": 0.1,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Great Goretusk"
+    },
+    {
+      "sourceNpcId": 5763,
+      "itemId": 14367,
+      "kills": 20,
+      "drops": 1,
+      "rate": 0.05,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 547,
+      "itemId": 2295,
+      "kills": 20,
+      "drops": 1,
+      "rate": 0.05,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Great Goretusk"
+    },
+    {
+      "sourceNpcId": 547,
+      "itemId": 6528,
+      "kills": 20,
+      "drops": 1,
+      "rate": 0.05,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Great Goretusk"
+    },
+    {
+      "sourceNpcId": 5763,
+      "itemId": 3378,
+      "kills": 20,
+      "drops": 1,
+      "rate": 0.05,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 118,
+      "kills": 19,
+      "drops": 11,
+      "rate": 0.5789473684210527,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 5756,
+      "itemId": 6444,
+      "kills": 19,
+      "drops": 10,
+      "rate": 0.5263157894736842,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 159,
+      "kills": 19,
+      "drops": 7,
+      "rate": 0.3684210526315789,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 3285,
+      "itemId": 2589,
+      "kills": 19,
+      "drops": 6,
+      "rate": 0.3157894736842105,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Venture Co. Peon"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 4540,
+      "kills": 19,
+      "drops": 5,
+      "rate": 0.2631578947368421,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 2835,
+      "kills": 19,
+      "drops": 5,
+      "rate": 0.2631578947368421,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 2318,
+      "kills": 19,
+      "drops": 4,
+      "rate": 0.21052631578947367,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 2070,
+      "kills": 19,
+      "drops": 4,
+      "rate": 0.21052631578947367,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 2589,
+      "kills": 19,
+      "drops": 4,
+      "rate": 0.21052631578947367,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 5756,
+      "itemId": 17056,
+      "kills": 19,
+      "drops": 4,
+      "rate": 0.21052631578947367,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 4604,
+      "kills": 19,
+      "drops": 3,
+      "rate": 0.15789473684210525,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 5756,
+      "itemId": 6443,
+      "kills": 19,
+      "drops": 3,
+      "rate": 0.15789473684210525,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5756,
+      "itemId": 6445,
+      "kills": 19,
+      "drops": 3,
+      "rate": 0.15789473684210525,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 8177,
+      "kills": 19,
+      "drops": 2,
+      "rate": 0.10526315789473684,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 1429,
+      "kills": 19,
+      "drops": 2,
+      "rate": 0.10526315789473684,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 3456,
+      "itemId": 858,
+      "kills": 19,
+      "drops": 2,
+      "rate": 0.10526315789473684,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3456,
+      "itemId": 2592,
+      "kills": 19,
+      "drops": 2,
+      "rate": 0.10526315789473684,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3853,
+      "itemId": 2982,
+      "kills": 19,
+      "drops": 2,
+      "rate": 0.10526315789473684,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3456,
+      "itemId": 5093,
+      "kills": 19,
+      "drops": 2,
+      "rate": 0.10526315789473684,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5756,
+      "itemId": 6470,
+      "kills": 19,
+      "drops": 2,
+      "rate": 0.10526315789473684,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 211785,
+      "kills": 19,
+      "drops": 2,
+      "rate": 0.10526315789473684,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 117,
+      "kills": 19,
+      "drops": 2,
+      "rate": 0.10526315789473684,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 3853,
+      "itemId": 1210,
+      "kills": 19,
+      "drops": 2,
+      "rate": 0.10526315789473684,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3853,
+      "itemId": 3770,
+      "kills": 19,
+      "drops": 2,
+      "rate": 0.10526315789473684,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 211787,
+      "kills": 19,
+      "drops": 2,
+      "rate": 0.10526315789473684,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 3370,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 765,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 818,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 3285,
+      "itemId": 3283,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Venture Co. Peon"
+    },
+    {
+      "sourceNpcId": 3456,
+      "itemId": 2783,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3456,
+      "itemId": 4537,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3456,
+      "itemId": 1775,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 774,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 1416,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 3853,
+      "itemId": 248683,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3853,
+      "itemId": 2764,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3853,
+      "itemId": 1811,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3853,
+      "itemId": 1712,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3853,
+      "itemId": 3377,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 8182,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 2774,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 1419,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 211786,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 5756,
+      "itemId": 15504,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3853,
+      "itemId": 1205,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3456,
+      "itemId": 2455,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3456,
+      "itemId": 1740,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3853,
+      "itemId": 10407,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5756,
+      "itemId": 1210,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5756,
+      "itemId": 14121,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 2213,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 1427,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 5756,
+      "itemId": 4348,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 2842,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 3285,
+      "itemId": 4564,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Venture Co. Peon"
+    },
+    {
+      "sourceNpcId": 3285,
+      "itemId": 858,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Venture Co. Peon"
+    },
+    {
+      "sourceObjectId": 106318,
+      "itemId": 2643,
+      "kills": 19,
+      "drops": 1,
+      "rate": 0.05263157894736842,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 1723,
+      "itemId": 3502,
+      "kills": 18,
+      "drops": 18,
+      "rate": 1,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Mudsnout Blossom"
+    },
+    {
+      "sourceNpcId": 1548,
+      "itemId": 2672,
+      "kills": 18,
+      "drops": 14,
+      "rate": 0.7777777777777778,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Cursed Darkhound"
+    },
+    {
+      "sourceNpcId": 3238,
+      "itemId": 5470,
+      "kills": 18,
+      "drops": 10,
+      "rate": 0.5555555555555556,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3238,
+      "itemId": 5133,
+      "kills": 18,
+      "drops": 7,
+      "rate": 0.3888888888888889,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1548,
+      "itemId": 3300,
+      "kills": 18,
+      "drops": 6,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Cursed Darkhound"
+    },
+    {
+      "sourceNpcId": 11319,
+      "itemId": 2589,
+      "kills": 18,
+      "drops": 6,
+      "rate": 0.3333333333333333,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1548,
+      "itemId": 2858,
+      "kills": 18,
+      "drops": 5,
+      "rate": 0.2777777777777778,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Cursed Darkhound"
+    },
+    {
+      "sourceNpcId": 3238,
+      "itemId": 4898,
+      "kills": 18,
+      "drops": 3,
+      "rate": 0.16666666666666666,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1548,
+      "itemId": 278243,
+      "kills": 18,
+      "drops": 3,
+      "rate": 0.16666666666666666,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Cursed Darkhound"
+    },
+    {
+      "sourceNpcId": 11319,
+      "itemId": 818,
+      "kills": 18,
+      "drops": 1,
+      "rate": 0.05555555555555555,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3238,
+      "itemId": 248687,
+      "kills": 18,
+      "drops": 1,
+      "rate": 0.05555555555555555,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11319,
+      "itemId": 1507,
+      "kills": 18,
+      "drops": 1,
+      "rate": 0.05555555555555555,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11319,
+      "itemId": 1503,
+      "kills": 18,
+      "drops": 1,
+      "rate": 0.05555555555555555,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11319,
+      "itemId": 15499,
+      "kills": 18,
+      "drops": 1,
+      "rate": 0.05555555555555555,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11319,
+      "itemId": 1510,
+      "kills": 18,
+      "drops": 1,
+      "rate": 0.05555555555555555,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11319,
+      "itemId": 3283,
+      "kills": 18,
+      "drops": 1,
+      "rate": 0.05555555555555555,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11319,
+      "itemId": 14561,
+      "kills": 18,
+      "drops": 1,
+      "rate": 0.05555555555555555,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1548,
+      "itemId": 3299,
+      "kills": 18,
+      "drops": 1,
+      "rate": 0.05555555555555555,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Cursed Darkhound"
+    },
+    {
+      "sourceNpcId": 11319,
+      "itemId": 15303,
+      "kills": 18,
+      "drops": 1,
+      "rate": 0.05555555555555555,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11319,
+      "itemId": 1179,
+      "kills": 18,
+      "drops": 1,
+      "rate": 0.05555555555555555,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3238,
+      "itemId": 1705,
+      "kills": 18,
+      "drops": 1,
+      "rate": 0.05555555555555555,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3238,
+      "itemId": 5128,
+      "kills": 18,
+      "drops": 1,
+      "rate": 0.05555555555555555,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3282,
+      "itemId": 2589,
+      "kills": 17,
+      "drops": 8,
+      "rate": 0.47058823529411764,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5056,
+      "itemId": 6444,
+      "kills": 17,
+      "drops": 8,
+      "rate": 0.47058823529411764,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3375,
+      "itemId": 2592,
+      "kills": 17,
+      "drops": 6,
+      "rate": 0.35294117647058826,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3111,
+      "itemId": 2589,
+      "kills": 17,
+      "drops": 5,
+      "rate": 0.29411764705882354,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1529,
+      "itemId": 4604,
+      "kills": 17,
+      "drops": 4,
+      "rate": 0.23529411764705882,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5056,
+      "itemId": 17056,
+      "kills": 17,
+      "drops": 4,
+      "rate": 0.23529411764705882,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3111,
+      "itemId": 4536,
+      "kills": 17,
+      "drops": 3,
+      "rate": 0.17647058823529413,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5056,
+      "itemId": 6445,
+      "kills": 17,
+      "drops": 3,
+      "rate": 0.17647058823529413,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5056,
+      "itemId": 6443,
+      "kills": 17,
+      "drops": 3,
+      "rate": 0.17647058823529413,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1529,
+      "itemId": 2589,
+      "kills": 17,
+      "drops": 3,
+      "rate": 0.17647058823529413,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4798,
+      "itemId": 2592,
+      "kills": 17,
+      "drops": 2,
+      "rate": 0.11764705882352941,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4798,
+      "itemId": 3770,
+      "kills": 17,
+      "drops": 2,
+      "rate": 0.11764705882352941,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1529,
+      "itemId": 3319,
+      "kills": 17,
+      "drops": 2,
+      "rate": 0.11764705882352941,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1529,
+      "itemId": 4663,
+      "kills": 17,
+      "drops": 2,
+      "rate": 0.11764705882352941,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4798,
+      "itemId": 4306,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3282,
+      "itemId": 2287,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3282,
+      "itemId": 1741,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3282,
+      "itemId": 14727,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3375,
+      "itemId": 2782,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3375,
+      "itemId": 1818,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4798,
+      "itemId": 14574,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4798,
+      "itemId": 5952,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4798,
+      "itemId": 2589,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4798,
+      "itemId": 15269,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3111,
+      "itemId": 767,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3111,
+      "itemId": 159,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5056,
+      "itemId": 15018,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5056,
+      "itemId": 1206,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3375,
+      "itemId": 4306,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3375,
+      "itemId": 2589,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3375,
+      "itemId": 11039,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4798,
+      "itemId": 15116,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3282,
+      "itemId": 3314,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3282,
+      "itemId": 1733,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5056,
+      "itemId": 211784,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5056,
+      "itemId": 15248,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5056,
+      "itemId": 6470,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1529,
+      "itemId": 774,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1529,
+      "itemId": 1420,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1529,
+      "itemId": 6517,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1529,
+      "itemId": 1416,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1529,
+      "itemId": 159,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1529,
+      "itemId": 1427,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1529,
+      "itemId": 1411,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3375,
+      "itemId": 789,
+      "kills": 17,
+      "drops": 1,
+      "rate": 0.058823529411764705,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 2958,
+      "itemId": 2672,
+      "kills": 16,
+      "drops": 11,
+      "rate": 0.6875,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Prairie Wolf"
+    },
+    {
+      "sourceNpcId": 2958,
+      "itemId": 4758,
+      "kills": 16,
+      "drops": 7,
+      "rate": 0.4375,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Prairie Wolf"
+    },
+    {
+      "sourceNpcId": 1532,
+      "itemId": 2589,
+      "kills": 16,
+      "drops": 7,
+      "rate": 0.4375,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250624,
+      "itemId": 268580,
+      "kills": 16,
+      "drops": 5,
+      "rate": 0.3125,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1083,
+      "itemId": 730,
+      "kills": 16,
+      "drops": 5,
+      "rate": 0.3125,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1083,
+      "itemId": 1468,
+      "kills": 16,
+      "drops": 5,
+      "rate": 0.3125,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1083,
+      "itemId": 1467,
+      "kills": 16,
+      "drops": 4,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 2958,
+      "itemId": 3300,
+      "kills": 16,
+      "drops": 3,
+      "rate": 0.1875,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Prairie Wolf"
+    },
+    {
+      "sourceNpcId": 1083,
+      "itemId": 5784,
+      "kills": 16,
+      "drops": 3,
+      "rate": 0.1875,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1532,
+      "itemId": 4604,
+      "kills": 16,
+      "drops": 3,
+      "rate": 0.1875,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 2958,
+      "itemId": 4804,
+      "kills": 16,
+      "drops": 2,
+      "rate": 0.125,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Prairie Wolf"
+    },
+    {
+      "sourceNpcId": 250624,
+      "itemId": 1210,
+      "kills": 16,
+      "drops": 2,
+      "rate": 0.125,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1083,
+      "itemId": 5523,
+      "kills": 16,
+      "drops": 2,
+      "rate": 0.125,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250624,
+      "itemId": 1813,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250624,
+      "itemId": 2764,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250624,
+      "itemId": 4571,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250624,
+      "itemId": 858,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1532,
+      "itemId": 1732,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250624,
+      "itemId": 3012,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250624,
+      "itemId": 2970,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250624,
+      "itemId": 955,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250624,
+      "itemId": 2592,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250624,
+      "itemId": 1179,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250624,
+      "itemId": 14174,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1083,
+      "itemId": 5212,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1083,
+      "itemId": 1740,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1083,
+      "itemId": 2079,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250624,
+      "itemId": 286981,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1532,
+      "itemId": 1514,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1532,
+      "itemId": 9745,
+      "kills": 16,
+      "drops": 1,
+      "rate": 0.0625,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceObjectId": 19541,
+      "itemId": 5570,
+      "kills": 15,
+      "drops": 15,
+      "rate": 1,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Deepmoss Eggs"
+    },
+    {
+      "sourceNpcId": 3254,
+      "itemId": 5062,
+      "kills": 15,
+      "drops": 14,
+      "rate": 0.9333333333333333,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Sunscale Lashtail"
+    },
+    {
+      "sourceObjectId": 19541,
+      "itemId": 5601,
+      "kills": 15,
+      "drops": 14,
+      "rate": 0.9333333333333333,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Deepmoss Eggs"
+    },
+    {
+      "sourceObjectId": 19541,
+      "itemId": 5602,
+      "kills": 15,
+      "drops": 14,
+      "rate": 0.9333333333333333,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Deepmoss Eggs"
+    },
+    {
+      "sourceNpcId": 3416,
+      "itemId": 5135,
+      "kills": 15,
+      "drops": 9,
+      "rate": 0.6,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Savannah Matriarch"
+    },
+    {
+      "sourceNpcId": 548,
+      "itemId": 730,
+      "kills": 15,
+      "drops": 7,
+      "rate": 0.4666666666666667,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3254,
+      "itemId": 5165,
+      "kills": 15,
+      "drops": 6,
+      "rate": 0.4,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Sunscale Lashtail"
+    },
+    {
+      "sourceNpcId": 548,
+      "itemId": 1468,
+      "kills": 15,
+      "drops": 6,
+      "rate": 0.4,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3416,
+      "itemId": 4893,
+      "kills": 15,
+      "drops": 6,
+      "rate": 0.4,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Savannah Matriarch"
+    },
+    {
+      "sourceNpcId": 3771,
+      "itemId": 4306,
+      "kills": 15,
+      "drops": 5,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 548,
+      "itemId": 1467,
+      "kills": 15,
+      "drops": 5,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 548,
+      "itemId": 5784,
+      "kills": 15,
+      "drops": 5,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 548,
+      "itemId": 5523,
+      "kills": 15,
+      "drops": 5,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3771,
+      "itemId": 5481,
+      "kills": 15,
+      "drops": 4,
+      "rate": 0.26666666666666666,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 858,
+      "kills": 15,
+      "drops": 4,
+      "rate": 0.26666666666666666,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 118,
+      "kills": 15,
+      "drops": 4,
+      "rate": 0.26666666666666666,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 1179,
+      "kills": 15,
+      "drops": 4,
+      "rate": 0.26666666666666666,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 2318,
+      "kills": 15,
+      "drops": 4,
+      "rate": 0.26666666666666666,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 2455,
+      "kills": 15,
+      "drops": 4,
+      "rate": 0.26666666666666666,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4810,
+      "itemId": 5879,
+      "kills": 15,
+      "drops": 4,
+      "rate": 0.26666666666666666,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 2455,
+      "kills": 15,
+      "drops": 4,
+      "rate": 0.26666666666666666,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 4810,
+      "itemId": 2592,
+      "kills": 15,
+      "drops": 3,
+      "rate": 0.2,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3770,
+      "itemId": 4306,
+      "kills": 15,
+      "drops": 3,
+      "rate": 0.2,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3770,
+      "itemId": 5481,
+      "kills": 15,
+      "drops": 3,
+      "rate": 0.2,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3114,
+      "itemId": 2589,
+      "kills": 15,
+      "drops": 3,
+      "rate": 0.2,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Battleguard"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 414,
+      "kills": 15,
+      "drops": 3,
+      "rate": 0.2,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 2996,
+      "kills": 15,
+      "drops": 3,
+      "rate": 0.2,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 2452,
+      "kills": 15,
+      "drops": 3,
+      "rate": 0.2,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3771,
+      "itemId": 16645,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3770,
+      "itemId": 2592,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3254,
+      "itemId": 5123,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Sunscale Lashtail"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 4605,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 2287,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 1515,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 1764,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 1179,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 1210,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 4537,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 2453,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 4541,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 858,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 2835,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 4537,
+      "kills": 15,
+      "drops": 2,
+      "rate": 0.13333333333333333,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 4810,
+      "itemId": 4542,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3770,
+      "itemId": 3770,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3114,
+      "itemId": 774,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Battleguard"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 2778,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 2978,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 1498,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 4541,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 2770,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 783,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 15926,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 2318,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 211787,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 1507,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 1733,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 1788,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4810,
+      "itemId": 15330,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4810,
+      "itemId": 954,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4810,
+      "itemId": 1797,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 2592,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3771,
+      "itemId": 16654,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3770,
+      "itemId": 929,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4810,
+      "itemId": 15515,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3114,
+      "itemId": 14093,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Battleguard"
+    },
+    {
+      "sourceNpcId": 3114,
+      "itemId": 1425,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Battleguard"
+    },
+    {
+      "sourceNpcId": 3114,
+      "itemId": 818,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Battleguard"
+    },
+    {
+      "sourceNpcId": 3114,
+      "itemId": 1418,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Battleguard"
+    },
+    {
+      "sourceNpcId": 3114,
+      "itemId": 2773,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Battleguard"
+    },
+    {
+      "sourceNpcId": 3416,
+      "itemId": 5635,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Savannah Matriarch"
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 6375,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 1740,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 1814,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 2770,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 1766,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 2450,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 2407,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 765,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 785,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 6552,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4810,
+      "itemId": 14573,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 2996,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 211786,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 2447,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 9762,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 2214,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 1503,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 548,
+      "itemId": 6289,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 548,
+      "itemId": 1813,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 548,
+      "itemId": 2216,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 548,
+      "itemId": 1179,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 548,
+      "itemId": 1791,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 3577,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 2450,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceObjectId": 106319,
+      "itemId": 211780,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true,
+      "sourceName": "Battered Chest"
+    },
+    {
+      "sourceNpcId": 4810,
+      "itemId": 3417,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3114,
+      "itemId": 1415,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Battleguard"
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 6539,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 9777,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 2771,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 1741,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 15222,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 1815,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 14173,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 2589,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 9788,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceObjectId": 75293,
+      "itemId": 6559,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3114,
+      "itemId": 4563,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Battleguard"
+    },
+    {
+      "sourceNpcId": 3416,
+      "itemId": 5134,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Savannah Matriarch"
+    },
+    {
+      "sourceNpcId": 3254,
+      "itemId": 14102,
+      "kills": 15,
+      "drops": 1,
+      "rate": 0.06666666666666667,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Sunscale Lashtail"
+    },
+    {
+      "sourceObjectId": 657382,
+      "itemId": 2447,
+      "kills": 14,
+      "drops": 14,
+      "rate": 1,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 266850,
+      "itemId": 1476,
+      "kills": 14,
+      "drops": 8,
+      "rate": 0.5714285714285714,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 266850,
+      "itemId": 5465,
+      "kills": 14,
+      "drops": 5,
+      "rate": 0.35714285714285715,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 266850,
+      "itemId": 2590,
+      "kills": 14,
+      "drops": 5,
+      "rate": 0.35714285714285715,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3457,
+      "itemId": 2592,
+      "kills": 14,
+      "drops": 5,
+      "rate": 0.35714285714285715,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3112,
+      "itemId": 2589,
+      "kills": 14,
+      "drops": 4,
+      "rate": 0.2857142857142857,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3397,
+      "itemId": 2589,
+      "kills": 14,
+      "drops": 4,
+      "rate": 0.2857142857142857,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Kolkar Bloodcharger"
+    },
+    {
+      "sourceNpcId": 3112,
+      "itemId": 774,
+      "kills": 14,
+      "drops": 2,
+      "rate": 0.14285714285714285,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3112,
+      "itemId": 4536,
+      "kills": 14,
+      "drops": 2,
+      "rate": 0.14285714285714285,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3397,
+      "itemId": 818,
+      "kills": 14,
+      "drops": 2,
+      "rate": 0.14285714285714285,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Kolkar Bloodcharger"
+    },
+    {
+      "sourceNpcId": 3457,
+      "itemId": 4538,
+      "kills": 14,
+      "drops": 2,
+      "rate": 0.14285714285714285,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3457,
+      "itemId": 5093,
+      "kills": 14,
+      "drops": 2,
+      "rate": 0.14285714285714285,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3112,
+      "itemId": 1422,
+      "kills": 14,
+      "drops": 1,
+      "rate": 0.07142857142857142,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3112,
+      "itemId": 3013,
+      "kills": 14,
+      "drops": 1,
+      "rate": 0.07142857142857142,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3112,
+      "itemId": 1429,
+      "kills": 14,
+      "drops": 1,
+      "rate": 0.07142857142857142,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3457,
+      "itemId": 2589,
+      "kills": 14,
+      "drops": 1,
+      "rate": 0.07142857142857142,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3457,
+      "itemId": 4306,
+      "kills": 14,
+      "drops": 1,
+      "rate": 0.07142857142857142,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3457,
+      "itemId": 2765,
+      "kills": 14,
+      "drops": 1,
+      "rate": 0.07142857142857142,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3397,
+      "itemId": 15013,
+      "kills": 14,
+      "drops": 1,
+      "rate": 0.07142857142857142,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Kolkar Bloodcharger"
+    },
+    {
+      "sourceNpcId": 3397,
+      "itemId": 15016,
+      "kills": 14,
+      "drops": 1,
+      "rate": 0.07142857142857142,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Kolkar Bloodcharger"
+    },
+    {
+      "sourceNpcId": 3112,
+      "itemId": 118,
+      "kills": 14,
+      "drops": 1,
+      "rate": 0.07142857142857142,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3239,
+      "itemId": 5470,
+      "kills": 13,
+      "drops": 9,
+      "rate": 0.6923076923076923,
+      "reporters": 5,
+      "public": true,
+      "sourceName": "Thunderhead"
+    },
+    {
+      "sourceNpcId": 1778,
+      "itemId": 3173,
+      "kills": 13,
+      "drops": 8,
+      "rate": 0.6153846153846154,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3239,
+      "itemId": 5143,
+      "kills": 13,
+      "drops": 6,
+      "rate": 0.46153846153846156,
+      "reporters": 5,
+      "public": true,
+      "sourceName": "Thunderhead"
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 2589,
+      "kills": 13,
+      "drops": 5,
+      "rate": 0.38461538461538464,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4811,
+      "itemId": 2592,
+      "kills": 13,
+      "drops": 5,
+      "rate": 0.38461538461538464,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3239,
+      "itemId": 5128,
+      "kills": 13,
+      "drops": 4,
+      "rate": 0.3076923076923077,
+      "reporters": 5,
+      "public": true,
+      "sourceName": "Thunderhead"
+    },
+    {
+      "sourceNpcId": 1778,
+      "itemId": 3253,
+      "kills": 13,
+      "drops": 4,
+      "rate": 0.3076923076923077,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1778,
+      "itemId": 3169,
+      "kills": 13,
+      "drops": 2,
+      "rate": 0.15384615384615385,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 5071,
+      "kills": 13,
+      "drops": 2,
+      "rate": 0.15384615384615385,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4811,
+      "itemId": 1775,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 14395,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 267308,
+      "itemId": 14122,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Flesheater"
+    },
+    {
+      "sourceNpcId": 3855,
+      "itemId": 2783,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 1735,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 15015,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 1512,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 3309,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 1510,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 15309,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3855,
+      "itemId": 1206,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4811,
+      "itemId": 5879,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4811,
+      "itemId": 15515,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4811,
+      "itemId": 14573,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4811,
+      "itemId": 2034,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4811,
+      "itemId": 1748,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4811,
+      "itemId": 8183,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3239,
+      "itemId": 5125,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true,
+      "sourceName": "Thunderhead"
+    },
+    {
+      "sourceNpcId": 1778,
+      "itemId": 2940,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 267308,
+      "itemId": 2589,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Flesheater"
+    },
+    {
+      "sourceNpcId": 3855,
+      "itemId": 6563,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3855,
+      "itemId": 954,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 14396,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 1495,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 1497,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3855,
+      "itemId": 929,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3855,
+      "itemId": 1823,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3855,
+      "itemId": 3193,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 3307,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3855,
+      "itemId": 6575,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4811,
+      "itemId": 929,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 3374,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 267308,
+      "itemId": 3196,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Flesheater"
+    },
+    {
+      "sourceNpcId": 1778,
+      "itemId": 5635,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 1778,
+      "itemId": 3170,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11324,
+      "itemId": 1730,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 267308,
+      "itemId": 1814,
+      "kills": 13,
+      "drops": 1,
+      "rate": 0.07692307692307693,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Flesheater"
+    },
+    {
+      "sourceObjectId": 3743,
+      "itemId": 5066,
+      "kills": 12,
+      "drops": 12,
+      "rate": 1,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Fissure Plant"
+    },
+    {
+      "sourceObjectId": 1619,
+      "itemId": 2449,
+      "kills": 12,
+      "drops": 11,
+      "rate": 0.9166666666666666,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4127,
+      "itemId": 3301,
+      "kills": 12,
+      "drops": 7,
+      "rate": 0.5833333333333334,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Hecklefang Hyena"
+    },
+    {
+      "sourceNpcId": 5762,
+      "itemId": 6445,
+      "kills": 12,
+      "drops": 6,
+      "rate": 0.5,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5762,
+      "itemId": 6444,
+      "kills": 12,
+      "drops": 6,
+      "rate": 0.5,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3246,
+      "itemId": 17056,
+      "kills": 12,
+      "drops": 6,
+      "rate": 0.5,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Fleeting Plainstrider"
+    },
+    {
+      "sourceNpcId": 4819,
+      "itemId": 5524,
+      "kills": 12,
+      "drops": 5,
+      "rate": 0.4166666666666667,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4823,
+      "itemId": 2674,
+      "kills": 12,
+      "drops": 5,
+      "rate": 0.4166666666666667,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4823,
+      "itemId": 17057,
+      "kills": 12,
+      "drops": 5,
+      "rate": 0.4166666666666667,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 255964,
+      "itemId": 268580,
+      "kills": 12,
+      "drops": 5,
+      "rate": 0.4166666666666667,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4819,
+      "itemId": 17057,
+      "kills": 12,
+      "drops": 4,
+      "rate": 0.3333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4819,
+      "itemId": 1468,
+      "kills": 12,
+      "drops": 4,
+      "rate": 0.3333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4819,
+      "itemId": 17058,
+      "kills": 12,
+      "drops": 4,
+      "rate": 0.3333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3246,
+      "itemId": 5087,
+      "kills": 12,
+      "drops": 4,
+      "rate": 0.3333333333333333,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Fleeting Plainstrider"
+    },
+    {
+      "sourceNpcId": 4819,
+      "itemId": 730,
+      "kills": 12,
+      "drops": 3,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4819,
+      "itemId": 5784,
+      "kills": 12,
+      "drops": 3,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4823,
+      "itemId": 5569,
+      "kills": 12,
+      "drops": 3,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4823,
+      "itemId": 2675,
+      "kills": 12,
+      "drops": 3,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4823,
+      "itemId": 5524,
+      "kills": 12,
+      "drops": 3,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250625,
+      "itemId": 3167,
+      "kills": 12,
+      "drops": 3,
+      "rate": 0.25,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3246,
+      "itemId": 4775,
+      "kills": 12,
+      "drops": 3,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Fleeting Plainstrider"
+    },
+    {
+      "sourceNpcId": 4127,
+      "itemId": 3299,
+      "kills": 12,
+      "drops": 3,
+      "rate": 0.25,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Hecklefang Hyena"
+    },
+    {
+      "sourceNpcId": 250625,
+      "itemId": 9757,
+      "kills": 12,
+      "drops": 2,
+      "rate": 0.16666666666666666,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3246,
+      "itemId": 5469,
+      "kills": 12,
+      "drops": 2,
+      "rate": 0.16666666666666666,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Fleeting Plainstrider"
+    },
+    {
+      "sourceNpcId": 4819,
+      "itemId": 1778,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4819,
+      "itemId": 14127,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4819,
+      "itemId": 15329,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4823,
+      "itemId": 11994,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 255964,
+      "itemId": 286978,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4819,
+      "itemId": 15891,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4819,
+      "itemId": 1801,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4823,
+      "itemId": 3010,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 255964,
+      "itemId": 6540,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 255964,
+      "itemId": 1794,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 255964,
+      "itemId": 2409,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4823,
+      "itemId": 10287,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3246,
+      "itemId": 4894,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Fleeting Plainstrider"
+    },
+    {
+      "sourceNpcId": 250625,
+      "itemId": 4684,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250625,
+      "itemId": 1495,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 255964,
+      "itemId": 2216,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250625,
+      "itemId": 1732,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250625,
+      "itemId": 6543,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 255964,
+      "itemId": 286981,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 255964,
+      "itemId": 1744,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 255964,
+      "itemId": 4570,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250625,
+      "itemId": 1512,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250625,
+      "itemId": 2975,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250625,
+      "itemId": 2763,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250625,
+      "itemId": 6550,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 5762,
+      "itemId": 6470,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4819,
+      "itemId": 6308,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4819,
+      "itemId": 2765,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4823,
+      "itemId": 248707,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4823,
+      "itemId": 14375,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250625,
+      "itemId": 818,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250625,
+      "itemId": 4566,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 255964,
+      "itemId": 6541,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250625,
+      "itemId": 211786,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceObjectId": 1619,
+      "itemId": 249399,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4127,
+      "itemId": 14365,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Hecklefang Hyena"
+    },
+    {
+      "sourceNpcId": 5762,
+      "itemId": 6443,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3246,
+      "itemId": 5114,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Fleeting Plainstrider"
+    },
+    {
+      "sourceNpcId": 3246,
+      "itemId": 4680,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Fleeting Plainstrider"
+    },
+    {
+      "sourceNpcId": 4127,
+      "itemId": 5635,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Hecklefang Hyena"
+    },
+    {
+      "sourceObjectId": 1619,
+      "itemId": 268415,
+      "kills": 12,
+      "drops": 1,
+      "rate": 0.08333333333333333,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3120,
+      "itemId": 2589,
+      "kills": 11,
+      "drops": 6,
+      "rate": 0.5454545454545454,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3467,
+      "itemId": 2592,
+      "kills": 11,
+      "drops": 5,
+      "rate": 0.45454545454545453,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Baron Longshore"
+    },
+    {
+      "sourceNpcId": 3113,
+      "itemId": 2589,
+      "kills": 11,
+      "drops": 4,
+      "rate": 0.36363636363636365,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Razormane Dustrunner"
+    },
+    {
+      "sourceNpcId": 4818,
+      "itemId": 17057,
+      "kills": 11,
+      "drops": 3,
+      "rate": 0.2727272727272727,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4818,
+      "itemId": 1468,
+      "kills": 11,
+      "drops": 3,
+      "rate": 0.2727272727272727,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4809,
+      "itemId": 2592,
+      "kills": 11,
+      "drops": 3,
+      "rate": 0.2727272727272727,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4818,
+      "itemId": 730,
+      "kills": 11,
+      "drops": 3,
+      "rate": 0.2727272727272727,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4818,
+      "itemId": 5524,
+      "kills": 11,
+      "drops": 3,
+      "rate": 0.2727272727272727,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4799,
+      "itemId": 2592,
+      "kills": 11,
+      "drops": 3,
+      "rate": 0.2727272727272727,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 267314,
+      "itemId": 2589,
+      "kills": 11,
+      "drops": 3,
+      "rate": 0.2727272727272727,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Berserker"
+    },
+    {
+      "sourceNpcId": 4818,
+      "itemId": 5784,
+      "kills": 11,
+      "drops": 2,
+      "rate": 0.18181818181818182,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4799,
+      "itemId": 1205,
+      "kills": 11,
+      "drops": 2,
+      "rate": 0.18181818181818182,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3467,
+      "itemId": 5084,
+      "kills": 11,
+      "drops": 2,
+      "rate": 0.18181818181818182,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Baron Longshore"
+    },
+    {
+      "sourceNpcId": 9524,
+      "itemId": 2589,
+      "kills": 11,
+      "drops": 2,
+      "rate": 0.18181818181818182,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 9524,
+      "itemId": 1179,
+      "kills": 11,
+      "drops": 2,
+      "rate": 0.18181818181818182,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3877,
+      "itemId": 4606,
+      "kills": 11,
+      "drops": 2,
+      "rate": 0.18181818181818182,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 9524,
+      "itemId": 2592,
+      "kills": 11,
+      "drops": 2,
+      "rate": 0.18181818181818182,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4818,
+      "itemId": 262888,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4799,
+      "itemId": 1800,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4809,
+      "itemId": 248706,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4809,
+      "itemId": 1823,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4809,
+      "itemId": 15527,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3120,
+      "itemId": 2213,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3120,
+      "itemId": 767,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3120,
+      "itemId": 117,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3120,
+      "itemId": 1433,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3467,
+      "itemId": 2589,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Baron Longshore"
+    },
+    {
+      "sourceNpcId": 267314,
+      "itemId": 2781,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Berserker"
+    },
+    {
+      "sourceNpcId": 9524,
+      "itemId": 2287,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4818,
+      "itemId": 1747,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4799,
+      "itemId": 3770,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4809,
+      "itemId": 5879,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4799,
+      "itemId": 3012,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4799,
+      "itemId": 2589,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4809,
+      "itemId": 2589,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4799,
+      "itemId": 929,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250630,
+      "itemId": 268580,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3877,
+      "itemId": 2589,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4799,
+      "itemId": 14373,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3120,
+      "itemId": 1413,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3113,
+      "itemId": 211786,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Razormane Dustrunner"
+    },
+    {
+      "sourceNpcId": 3275,
+      "itemId": 2589,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3275,
+      "itemId": 858,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250630,
+      "itemId": 6528,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250630,
+      "itemId": 6550,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3877,
+      "itemId": 2592,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3877,
+      "itemId": 248682,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3877,
+      "itemId": 3378,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4818,
+      "itemId": 6308,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4799,
+      "itemId": 14742,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 4809,
+      "itemId": 4542,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250630,
+      "itemId": 4570,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250630,
+      "itemId": 2592,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250630,
+      "itemId": 1740,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250630,
+      "itemId": 6537,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3877,
+      "itemId": 2982,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250630,
+      "itemId": 3205,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3275,
+      "itemId": 5030,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3467,
+      "itemId": 4293,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Baron Longshore"
+    },
+    {
+      "sourceNpcId": 3275,
+      "itemId": 15495,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 9524,
+      "itemId": 3396,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3113,
+      "itemId": 15477,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 3,
+      "public": true,
+      "sourceName": "Razormane Dustrunner"
+    },
+    {
+      "sourceNpcId": 267314,
+      "itemId": 1766,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Berserker"
+    },
+    {
+      "sourceNpcId": 267314,
+      "itemId": 1767,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Berserker"
+    },
+    {
+      "sourceNpcId": 267314,
+      "itemId": 14160,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 4,
+      "public": true,
+      "sourceName": "Razormane Berserker"
+    },
+    {
+      "sourceNpcId": 3275,
+      "itemId": 2217,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3275,
+      "itemId": 2287,
+      "kills": 11,
+      "drops": 1,
+      "rate": 0.09090909090909091,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11320,
+      "itemId": 3669,
+      "kills": 10,
+      "drops": 5,
+      "rate": 0.5,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3653,
+      "itemId": 13245,
+      "kills": 10,
+      "drops": 5,
+      "rate": 0.5,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250657,
+      "itemId": 271215,
+      "kills": 10,
+      "drops": 5,
+      "rate": 0.5,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3862,
+      "itemId": 1015,
+      "kills": 10,
+      "drops": 3,
+      "rate": 0.3,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3653,
+      "itemId": 6447,
+      "kills": 10,
+      "drops": 3,
+      "rate": 0.3,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250657,
+      "itemId": 271214,
+      "kills": 10,
+      "drops": 3,
+      "rate": 0.3,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3862,
+      "itemId": 3402,
+      "kills": 10,
+      "drops": 2,
+      "rate": 0.2,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 250657,
+      "itemId": 271213,
+      "kills": 10,
+      "drops": 2,
+      "rate": 0.2,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3653,
+      "itemId": 5523,
+      "kills": 10,
+      "drops": 2,
+      "rate": 0.2,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3653,
+      "itemId": 6443,
+      "kills": 10,
+      "drops": 2,
+      "rate": 0.2,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11320,
+      "itemId": 14115,
+      "kills": 10,
+      "drops": 2,
+      "rate": 0.2,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3653,
+      "itemId": 273084,
+      "kills": 10,
+      "drops": 2,
+      "rate": 0.2,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3653,
+      "itemId": 252775,
+      "kills": 10,
+      "drops": 1,
+      "rate": 0.1,
+      "reporters": 6,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3862,
+      "itemId": 6044,
+      "kills": 10,
+      "drops": 1,
+      "rate": 0.1,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3862,
+      "itemId": 9778,
+      "kills": 10,
+      "drops": 1,
+      "rate": 0.1,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3862,
+      "itemId": 3301,
+      "kills": 10,
+      "drops": 1,
+      "rate": 0.1,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3862,
+      "itemId": 3193,
+      "kills": 10,
+      "drops": 1,
+      "rate": 0.1,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11320,
+      "itemId": 14114,
+      "kills": 10,
+      "drops": 1,
+      "rate": 0.1,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11320,
+      "itemId": 15484,
+      "kills": 10,
+      "drops": 1,
+      "rate": 0.1,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3862,
+      "itemId": 3040,
+      "kills": 10,
+      "drops": 1,
+      "rate": 0.1,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 11320,
+      "itemId": 3676,
+      "kills": 10,
+      "drops": 1,
+      "rate": 0.1,
+      "reporters": 5,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3862,
+      "itemId": 1210,
+      "kills": 10,
+      "drops": 1,
+      "rate": 0.1,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3862,
+      "itemId": 1206,
+      "kills": 10,
+      "drops": 1,
+      "rate": 0.1,
+      "reporters": 4,
+      "public": true
+    },
+    {
+      "sourceNpcId": 3653,
+      "itemId": 15893,
+      "kills": 10,
+      "drops": 1,
+      "rate": 0.1,
+      "reporters": 6,
+      "public": true
+    }
+  ],
+  "measuredZeros": [],
+  "queued": 2423,
+  "offset": 1000,
+  "limit": 500,
+  "total": 1925,
+  "totalRates": 1925,
+  "totalMeasuredZeros": 0,
+  "next": "https://everloot.app/api/rollups/drops?limit=500&offset=1500",
+  "attribution": {
+    "licence": "CC BY-SA 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "credit": "Data from Everloot (https://everloot.app), CC BY-SA 4.0.",
+    "source": "https://everloot.app/database/drops",
+    "terms": "https://everloot.app/terms#licences"
+  }
+}
