@@ -134,8 +134,9 @@ function A:AtlasSources(iid,scope)
  end)
  return rows
 end
-function A:ClearFocus(refresh)
- self.focus=nil;self.focusGroup=nil;self.pinned=nil;self.inspectPin=nil;self.hoverPin=nil;self:ClearHabitat()
+function A:ClearFocus(refresh,keepQuest)
+ if not keepQuest then self.questFocus=nil;if self.db then self.db.questPin=nil end end
+ self.focus=keepQuest and self.questFocus or nil;self.focusGroup=nil;self.pinned=nil;self.inspectPin=nil;self.hoverPin=nil;self:ClearHabitat()
  if self.tip then self.tip:Hide() end
  if self.focusButton then self.focusButton:Hide() end
  if self.atlas and self.atlas.clearFocus then self.atlas.clearFocus:Hide() end
@@ -147,7 +148,7 @@ function A:FocusSource(iid,npcID,mapID)
  for _,source in ipairs(self.itemSources[iid] or {}) do if not npcID or source.npcID==npcID then ids[source.npcID]=true end end
  if not next(ids) then return false,'Источник не найден.' end
  local opened,reason=self:OpenMapAt(mapID);if not opened then return false,reason end
- self:ClearFocus(false)
+ self:ClearFocus(false,true)
  self.focus={ids=ids,itemID=iid,label=self:ItemDisplay(iid)}
  if self.settings then self.settings:Hide() end
 
@@ -175,7 +176,7 @@ function A:ShowItemOnMap(iid)
  if not best then return false,#rows>0 and 'Источник известен, координаты пока нет. Открой список источников.' or 'Предмет есть в каталоге, источник пока неизвестен.' end
  if not map or not map.SetMapID then return false,'Карта сейчас недоступна.' end
  local opened,reason=self:OpenMapAt(best);if not opened then return false,reason end
- self:ClearFocus(false);local ids,points={},{}
+ self:ClearFocus(false,true);local ids,points={},{}
  for _,row in ipairs(rows) do
   if row.npcID then ids[row.npcID]=true end
   for _,p in ipairs(row.location.points or {}) do points[#points+1]=p end
@@ -206,10 +207,7 @@ function A:OpenMapAt(mapID)
   local map=WorldMapFrame
   if not map or not map:IsShown() then return false,'В бою открой карту клавишей M и повтори.' end
   if map.GetMapID and map:GetMapID()==mapID then return true end
-  if not map.SetMapID or (map.IsProtected and map:IsProtected()) then return false,'В бою выбери нужную зону на карте вручную.' end
-  local ok=pcall(map.SetMapID,map,mapID)
-  if not ok then return false,'В бою выбери нужную зону на карте вручную.' end
-  return true
+  return false,'В бою выбери нужную зону на карте вручную.'
  end
  if C_Map and C_Map.OpenWorldMap then self:Safe(C_Map.OpenWorldMap,mapID) end
  local map=WorldMapFrame
@@ -219,6 +217,7 @@ function A:OpenMapAt(mapID)
   if ShowUIPanel then self:Safe(ShowUIPanel,map) elseif OpenWorldMap then self:Safe(OpenWorldMap) elseif ToggleWorldMap then self:Safe(ToggleWorldMap) end
  end
  if not map:IsShown() or not map.SetMapID then return false,'Карта не открылась. Открой её клавишей M и повтори.' end
+ if map.GetMapID and map:GetMapID()==mapID then return true end
  local ok=pcall(map.SetMapID,map,mapID);if not ok then return false,'Не удалось выбрать карту.' end
  return true
 end

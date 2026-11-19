@@ -282,6 +282,23 @@ en['Ghostly Attendant внутри подземелья, перед первым
 en['Возьми Treaty of Understanding в хранилище последнего зала и используй предмет. На карте показан только вход.']='Take Treaty of Understanding from a vault in the last room and use it. Only the entrance is marked.'
 en['В бою открой карту клавишей M и повтори.']='In combat, open the map with M and try again.'
 en['В бою выбери нужную зону на карте вручную.']='In combat, choose the required map zone manually.'
+en['Подземелья и задания']='Dungeons and quests'
+en['Нет заданий для взятия на твоём уровне.']='No quests to pick up at your level.'
+en['Ещё заданий: ']='More quests: '
+en['Нажми значок заданий, чтобы выбрать квест.']='Click the quest icon to choose a quest.'
+en['MobAtlas · задания перед данжем']='MobAtlas · dungeon quests'
+en['Подземелья и задания']='Dungeons and quests'
+en['Нет заданий для взятия на твоём уровне.']='No quests to pick up at your level.'
+en['Ещё заданий: ']='More quests: '
+en['Нажми значок заданий, чтобы выбрать квест.']='Click the quest marker to choose a quest.'
+en['MobAtlas · задания перед данжем']='MobAtlas · dungeon quests'
+en['Нажми метку, чтобы открепить.']='Click the marker to unpin.'
+en['MobAtlas · задания перед данжем']='MobAtlas · dungeon quests'
+en['Нет заданий для взятия на твоём уровне.']='No quests to pick up at your level.'
+en['Ещё заданий: ']='More quests: '
+en['Нажми значок заданий, чтобы выбрать квест.']='Click the quest icon to choose a quest.'
+en['Нажми метку, чтобы открепить.']='Click the marker to unpin.'
+en['только подземелья']='dungeons only'
 local keys={};for key in pairs(en) do keys[#keys+1]=key end
 table.sort(keys,function(a,b) return #a>#b end)
 function A:GetLanguage()

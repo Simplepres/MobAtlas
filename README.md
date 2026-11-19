@@ -6,7 +6,7 @@
 
 Look up an item, check which creatures drop it or which vendors sell it, and mark known locations on your map. Heading into a dungeon? Check the quest list before you leave.
 
-**Beta · 0.6.4** — still growing, with bugs to fix and gaps in the database. Your feedback helps.
+**Beta · 0.6.5** — still growing, with bugs to fix and gaps in the database. Your feedback helps.
 
 [**Download**](https://github.com/Simplepres/MobAtlas/releases/latest) · [Русский](#на-русском) · [Screenshots](#screenshots--скриншоты) · [Report a bug](https://github.com/Simplepres/MobAtlas/issues)
 
@@ -15,19 +15,22 @@ Look up an item, check which creatures drop it or which vendors sell it, and mar
 - Search items by name or ID, then find their known sources on the map.
 - Hover over a creature to see its loot. Filter by rarity, class, level or profession materials.
 - Browse groups of creatures and vendors, and pin the source you want to track — also during combat on an open map.
-- Check dungeon quests and the steps needed to pick them up, including The Hall of Thanes.
+- Find dungeon entrances on the map. Hover for quests, click to choose one, and pin its pickup location.
+- Keep a quest pinned until you remove it — even after accepting it or reloading.
 
 The database is included. You don't need Questie, an account or an API key. Personal loot finds and merchant visits stay on your computer.
 
 ## Install and play
 
-1. Download **MobAtlas-0.6.4.zip** from [Releases](https://github.com/Simplepres/MobAtlas/releases/latest).
+1. Download **MobAtlas-0.6.5.zip** from [Releases](https://github.com/Simplepres/MobAtlas/releases/latest).
 2. Put the **MobAtlas** folder in your Forever client's `Interface/AddOns/` folder.
 3. Restart WoW and enable the addon. The file should be at `Interface/AddOns/MobAtlas/MobAtlas.toc`.
 
 Click the book by the minimap or type **`/mobatlas`**. Right-click the book for tracking options. **`/mobatlas prep`** opens dungeon preparation; **`/mobatlas settings`** opens settings.
 
 The interface follows your game language: Russian or English, with English for other locales. Change it anytime with **Auto / RU / EN** at the top of the atlas. Item names and native tooltips come from WoW.
+
+Leatrix Maps users keep their existing entrance and transport markers. MobAtlas adds quest details and a small quest button next to supported entrances, without a second entrance icon. Toggle this layer by right-clicking the minimap book → **Dungeons and quests**.
 
 ## Screenshots / Скриншоты
 
@@ -61,9 +64,11 @@ Inspect loot, hover over an item for its stats, and pin the creature you want to
 
 **Следопыт помогает понять, где достать нужную вещь в WoW Forever.** Найди её в атласе, посмотри мобов или торговцев и выдели известные места на карте. Добычу можно смотреть прямо при наведении на моба, а перед данжем — проверить задания и первые шаги цепочек.
 
+На карте отмечены известные входы в подземелья. Наведи на вход, чтобы увидеть задания, и нажми, чтобы выбрать квест. Его точка останется закреплённой до клика по метке, повторного выбора или кнопки «Открепить» — даже после принятия задания и `/reload`. С Leatrix Maps сохраняются его значки и транспорт, а рядом со входом появляется маленькая кнопка заданий.
+
 Есть фильтры по редкости, классу, уровню и материалам профессий. База уже внутри: отдельно ставить Questie не нужно.
 
-**Как установить:** скачай [MobAtlas-0.6.4.zip](https://github.com/Simplepres/MobAtlas/releases/latest), положи папку `MobAtlas` в `Interface/AddOns/` клиента Forever и перезапусти WoW.
+**Как установить:** скачай [MobAtlas-0.6.5.zip](https://github.com/Simplepres/MobAtlas/releases/latest), положи папку `MobAtlas` в `Interface/AddOns/` клиента Forever и перезапусти WoW.
 
 Карта работает и в бою: можно смотреть добычу, выбирать и закреплять источники. Если WoW блокирует открытие карты из аддона, открой её клавишей **M**.
 

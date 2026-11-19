@@ -3,7 +3,7 @@ from lupa.lua51 import LuaRuntime
 r=Path(__file__).resolve().parents[1];l=LuaRuntime(unpack_returned_tuples=True)
 for n in ['wow_mock','journal_mock']:l.execute((r/'tests'/f'{n}.lua').read_text())
 l.execute('getmetatable(UIParent).__index.EnableMouseWheel=function() end');ns=l.table();load=l.eval('function(s,n,ns) assert(loadstring(s,n))("MobAtlas",ns) end')
-for name in ['Data.lua','ClassGear.lua','Forever.lua','Catalog.lua','Expansion.lua','Preparation.lua','Observations.lua','Atlas.lua','Core.lua','Presentation.lua','Locale.lua','UI.lua']:load((r/'MobAtlas'/name).read_text(),'@'+name,ns)
+for name in ['Data.lua','ClassGear.lua','Forever.lua','Catalog.lua','Expansion.lua','Preparation.lua','Observations.lua','Atlas.lua','Core.lua','Presentation.lua','Locale.lua','UI.lua','DungeonPins.lua','DungeonPins.lua']:load((r/'MobAtlas'/name).read_text(),'@'+name,ns)
 l.execute('''
 local A=MobAtlas;A:Init();MOCK.playerLevel=18
 local n=0;for _ in pairs(A.items) do n=n+1 end;assert(n>28000,'broad catalog integrated')
@@ -30,8 +30,8 @@ local pin=A.habitatPins[1];assert(pin:IsShown() and math.abs(pin.point[4]*pin.sc
 canvas:SetScale(2);A:Update();assert(A.focus.questID==167 and A.habitatPins[1]:IsShown(),'zoom preserves quest target')
 A:QuestLogChanged();local fn=table.remove(MOCK.timers);fn();assert(A.focus.questID==167,'ordinary quest log updates do not clear navigation')
 C_QuestLog.IsOnQuest=function(id) return id==167 end
-A:QuestLogChanged();fn=table.remove(MOCK.timers);fn();assert(not A.focus,'accepting the quest clears completed pickup navigation')
-C_QuestLog.IsOnQuest=nil
+A:QuestLogChanged();fn=table.remove(MOCK.timers);fn();assert(A.questFocus and A.focus.questID==167,'accepting a quest keeps explicit pin')
+C_QuestLog.IsOnQuest=nil;A:UnpinQuest()
 MOCK.combat=true;assert(A:ShowQuestOnMap(167),'quest location on open combat map');MOCK.combat=false
 local a=A:ShowQuestOnMap(166);assert(a and A.focus.questID==65,'chain map goes to available first step')
 -- Non-creature sources are distinct, with their own geometry and no fake drop percent.
@@ -66,7 +66,7 @@ assert(A:ShowQuestOnMap(96395) and mapID==1455 and A.focus.kind=='entrance','ins
 assert(A.focus.label:find('внутри',1,true))
 assert(A:ShowQuestOnMap(98423) and A.focus.kind=='entrance','vault item maps entrance')
 assert(A:ShowQuestOnMap(96393) and A.focus.questID==96391,'prerequisite item drop sources navigable')
-MOCK.done[96391]=true;assert(A:ShowQuestOnMap(96393) and mapID==1426,'completed map leads to Farsen');MOCK.done[96391]=nil
+MOCK.done[96391]=true;A:UnpinQuest();assert(A:ShowQuestOnMap(96393) and mapID==1426,'completed map leads to Farsen');MOCK.done[96391]=nil
 MOCK.faction='Horde';assert(#A:DungeonQuestList(16919,false)==2,'only two neutral Hall quests');MOCK.faction='Alliance'
 local expectedDungeons={16919,16611,16732,16544,-10002,-10003,-10004,-10005,-10006}
 for _,id in ipairs(expectedDungeons) do

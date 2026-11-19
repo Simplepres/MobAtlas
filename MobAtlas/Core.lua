@@ -1,6 +1,6 @@
 local _,A=...
 _G.MobAtlas=A
-A.version='0.6.4';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
+A.version='0.6.5';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
 A.profNames={[129]='Первая помощь',[164]='Кузнечное дело',[165]='Кожевничество',[171]='Алхимия',[185]='Кулинария',[197]='Портняжное дело',[202]='Инженерное дело',[333]='Наложение чар'}
 A.methods={[1]='Добыча',[2]='Снятие шкур',[3]='Карманная кража',[4]='Forever · способ не разделён',[5]='Продажа · справочник QuestieDB',[6]='Продажа · личное наблюдение',[7]='Добыча · справочник Forever',[8]='Личная находка · способ не определён',[9]='Classic · vMaNGOS через KB',[10]='Награда за задание',[11]='Изготовление',[12]='Сундук / объект · Classic',[13]='Содержимое предмета'}
 function A:Safe(fn,...)
@@ -109,17 +109,17 @@ function A:BuildMap(mapID)
  for _,id in ipairs(self.zoneIndex[mapID] or {}) do
   for _,p in ipairs(self.mobs[id].points) do if p[1]==mapID then add(id,p[2],p[3]) end end
  end
- for _,p in ipairs((self.entranceIndex or {})[mapID] or {}) do add(p.npcID,p.x,p.y,p.area) end
+ for _,p in ipairs((self.entranceIndex or {})[mapID] or {}) do if self.focus or not self.db.dungeonPins or not (self.dungeonPinAreas or {})[p.area] then add(p.npcID,p.x,p.y,p.area) end end
  local out={};for _,cell in pairs(cells) do table.sort(cell.ids);out[#out+1]=cell end
  table.sort(out,function(a,b) if a.y~=b.y then return a.y<b.y end;if a.x~=b.x then return a.x<b.x end;return (a.dungeon or 0)<(b.dungeon or 0) end)
  return out,total
 end
 function A:Invalidate()
- self:ClearFocus(false);self:Update()
+ self:ClearFocus(false,true);self:Update()
 end
 function A:Init()
  MobAtlasDB=type(MobAtlasDB)=='table' and MobAtlasDB or {};self.db=MobAtlasDB
- local defaults={language='auto',enabled=true,quality='all',classOnly=false,prof=0,skinning=true,pickpocket=false,visibleItems=5,sort='chance',unitLoot=true,observed=true,minimapAngle=225,sharedLoot=false,vendorLevel=true,vendorRelevant=true,mapLayer='all',specialFirst=true}
+ local defaults={dungeonPins=true,language='auto',enabled=true,quality='all',classOnly=false,prof=0,skinning=true,pickpocket=false,visibleItems=5,sort='chance',unitLoot=true,observed=true,minimapAngle=225,sharedLoot=false,vendorLevel=true,vendorRelevant=true,mapLayer='all',specialFirst=true}
  for k,v in pairs(defaults) do if self.db[k]==nil then self.db[k]=v end end
  if self.db.language~='auto' and self.db.language~='ruRU' and self.db.language~='enUS' then self.db.language='auto' end
  if not ({all=true,green=true,blue=true,both=true})[self.db.quality] then self.db.quality='all' end
@@ -129,13 +129,13 @@ function A:Init()
  end
  if self.db.prof~=0 and self.db.prof~=-1 and self.db.prof~=-2 and not self.profNames[self.db.prof] then self.db.prof=0 end
  if not ({[3]=true,[5]=true,[7]=true})[self.db.visibleItems] then self.db.visibleItems=5 end
- if not ({all=true,mobs=true,vendors=true})[self.db.mapLayer] then self.db.mapLayer='all' end
+ if not ({all=true,mobs=true,vendors=true,none=true})[self.db.mapLayer] then self.db.mapLayer='all' end
  if self.db.sort~='quality' then self.db.sort='chance' end
  self:MergeForever();self:ApplyCatalog();self:ApplyExpansion();self:RestoreMerchants();self:RestoreLoot();self:ApplyForeverItems()
  self.zoneIndex={}
  for id,mob in pairs(self.mobs) do local seen={};for _,p in ipairs(mob.points) do if not seen[p[1]] then seen[p[1]]=true;self.zoneIndex[p[1]]=self.zoneIndex[p[1]] or {};table.insert(self.zoneIndex[p[1]],id) end end end
  for _,ids in pairs(self.zoneIndex) do table.sort(ids) end
- self:BuildAtlasIndex();self:HookItemSearch();self:CreateSettings();self:CreateMinimapButton();self:HookUnitLoot();self.dirty=true
+ self:BuildAtlasIndex();self:HookItemSearch();self:CreateSettings();self:CreateMinimapButton();self:HookUnitLoot();self:RestoreQuestPin();self.dirty=true
  SLASH_MOBATLAS1='/mobatlas';SLASH_MOBATLAS2='/следопыт'
  SlashCmdList.MOBATLAS=function(msg)
   if msg=='clear' then self:ClearFocus()

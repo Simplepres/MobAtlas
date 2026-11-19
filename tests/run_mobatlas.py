@@ -4,7 +4,7 @@ r=Path(__file__).resolve().parents[1];l=LuaRuntime(unpack_returned_tuples=True)
 l.execute((r/'tests/wow_mock.lua').read_text());l.execute((r/'tests/journal_mock.lua').read_text())
 l.execute("getmetatable(UIParent).__index.EnableMouseWheel=function() end")
 ns=l.table();load=l.eval('function(s,n,ns) return assert(loadstring(s,n))("MobAtlas",ns) end')
-for name in ['Preparation.lua','Observations.lua','Atlas.lua','Core.lua','Presentation.lua','Locale.lua','UI.lua']:load((r/'MobAtlas'/name).read_text(),'@'+name,ns)
+for name in ['Preparation.lua','Observations.lua','Atlas.lua','Core.lua','Presentation.lua','Locale.lua','UI.lua','DungeonPins.lua','DungeonPins.lua']:load((r/'MobAtlas'/name).read_text(),'@'+name,ns)
 l.execute('''
 local A=MobAtlas
 A.classData={classes={rogue={gear={{4,1,0},{4,2,0},{2,15,0}}}},restricted={}}
@@ -106,7 +106,7 @@ assert(A.tip.unpin.point[3]==A.tip.mobNext.point[3],'footer actions share a base
 -- Idle pinned maps must not rebuild habitats and portraits on every ticker.
 A:ClearFocus(false);A:ShowTooltip(pin,true);A:PinInspection();A.dirty=false
 local render=A.RenderFocus;A.RenderFocus=function() error('idle focus redraw') end;A:Update();A.RenderFocus=render;A:ClearFocus(false)
-A:ToggleTrackingMenu(A.minimapButton);assert(A.trackingMenu:IsShown());A.trackingMenu.mobs:SetChecked(false);A.trackingMenu.vendors:SetChecked(false);A.trackingMenu.mobs.scripts.OnClick();assert(A.db.enabled==false)
+A:ToggleTrackingMenu(A.minimapButton);assert(A.trackingMenu:IsShown());A.trackingMenu.mobs:SetChecked(false);A.trackingMenu.vendors:SetChecked(false);A.trackingMenu.mobs.scripts.OnClick();assert(A.db.enabled and A.db.mapLayer=='none','dungeons-only layer');A.trackingMenu.dungeons:SetChecked(false);A.trackingMenu.dungeons.scripts.OnClick();assert(A.db.enabled==false)
 A.trackingMenu.mobs:SetChecked(true);A.trackingMenu.mobs.scripts.OnClick();assert(A.db.enabled and A.db.mapLayer=='mobs');A.trackingMenu:Hide()
 -- Portraits use the visible unit, then the cached native display, with a family fallback.
 A.db.portraits={};A.mobs[834]={name='Coyote',family='Wolf',kind='Beast'}

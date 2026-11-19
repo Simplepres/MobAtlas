@@ -9,7 +9,7 @@ for version,folder in [('0.5.4',root/'outputs/MobAtlas-0.5.4/MobAtlas'),('0.6.0'
  for f in ['wow_mock.lua','journal_mock.lua']:l.execute((root/'work/tests'/f).read_text())
  l.execute('getmetatable(UIParent).__index.EnableMouseWheel=function() end')
  a=l.table();load=l.eval('function(s,a) assert(loadstring(s))("MobAtlas",a) end')
- for name in ['Data','ClassGear','Forever','Catalog','Expansion','Preparation','Observations','Atlas','Core','Presentation','Locale','UI']:
+ for name in ['Data','ClassGear','Forever','Catalog','Expansion','Preparation','Observations','Atlas','Core','Presentation','Locale','UI','DungeonPins']:
   path=folder/(name+'.lua')
   if path.exists():load(path.read_text(),a)
  l.execute('''MobAtlas:Init();local A=MobAtlas;A.fullRebuilds=0;local build=A.BuildAtlasIndex;A.BuildAtlasIndex=function(self,...) self.fullRebuilds=self.fullRebuilds+1;return build(self,...) end

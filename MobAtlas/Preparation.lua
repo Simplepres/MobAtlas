@@ -118,12 +118,12 @@ function A:FocusLocation(points,label,questID,kind)
  for _,p in ipairs(points) do if p[1]==current then chosen=current;break end end
  if not map or not map.SetMapID then return false,'Карта сейчас недоступна.' end
  local opened,reason=self:OpenMapAt(chosen);if not opened then return false,reason end
- self:ClearFocus(false);self.focus={ids={},points=points,label=label,questID=questID,kind=kind or 'source'}
+ self:ClearFocus(false,true);self.focus={ids={},points=points,label=label,questID=questID,kind=kind or 'source'}
  self.db.enabled=true
  if self.atlas then self.atlas:Hide() end;if self.prep then self.prep:Hide() end
  self.dirty=true;self:Update();return true
 end
-function A:ShowQuestOnMap(id)
+function A:NavigateQuestOnMap(id)
  local step=self:FirstQuestStep(id);local q=self.dungeonQuests[step]
  if not q then return false,'Задание пока не добавлено.' end
  local state,why=self:QuestState(step)
@@ -162,11 +162,52 @@ function A:QuestLogChanged()
  self.questRefreshPending=true
  C_Timer.After(.2,function()
   self.questRefreshPending=false
-  if self.focus and self.focus.questID then local state=self:QuestState(self.focus.questID);if state=='active' or state=='done' then self:ClearFocus() end end
+  -- A pinned pickup survives acceptance, completion and ordinary quest updates.
   if self.prep and self.prep:IsShown() then self:RefreshPreparation() end
  end)
 end
 local dungeonNames={[717]='Тюрьма (Штормград)',[1581]='Мёртвые копи',[718]='Пещеры Стенаний',[2437]='Огненная Пропасть',[209]='Крепость Тёмного Клыка',[719]='Непроглядная Пучина',[491]='Лабиринты Иглошкурых',[722]='Курганы Иглошкурых',[721]='Гномреган',[796]='Монастырь Алого ордена',[1337]='Ульдаман',[1176]='Зул\'Фаррак',[1477]='Затонувший храм',[1584]='Глубины Чёрной горы',[1583]='Пик Чёрной горы',[2017]='Стратхольм',[2057]='Некроситет',[2100]='Мародон',[2557]='Забытый Город'}
 function A:DungeonName(area)
  return dungeonNames[area] or (self.instances[area] or {}).name or ('Подземелье #'..area)
+end
+
+function A:IsQuestPinned(id)
+ return self.questFocus and (self.questFocus.selectedQuestID or self.questFocus.questID)==id
+end
+function A:UnpinQuest()
+ local previous=self.questFocus;self.questFocus=nil;self.db.questPin=nil
+ if self.focus==previous then self.focus=nil end
+ self:ClearHabitat();self.dirty=true;self:Update()
+ if self.prep and self.prep:IsShown() then self:RefreshPreparation() end
+end
+function A:ShowQuestOnMap(id)
+ if self:IsQuestPinned(id) then self:UnpinQuest();return true end
+ local ok,why=self:NavigateQuestOnMap(id);if not ok then return false,why end
+ local focus=self.focus;if not focus then return false,'Координаты пока неизвестны.' end
+ focus.selectedQuestID=id;self.questFocus=focus
+ local points={};for _,p in ipairs(focus.points or {}) do points[#points+1]={p[1],p[2],p[3]} end
+ -- Item-start prerequisites can be pinned to their verified creature sources.
+ if #points==0 then
+  local seen={}
+  for npcID in pairs(focus.ids or {}) do
+   local mob=self.mobs[npcID]
+   for _,p in ipairs(mob and mob.points or {}) do local key=table.concat(p,':');if not seen[key] then seen[key]=true;points[#points+1]={p[1],p[2],p[3]} end end
+  end
+ end
+ focus.points=points
+ local ids={};for npcID in pairs(focus.ids or {}) do ids[npcID]=true end
+ self.db.questPin={selectedQuestID=id,questID=focus.questID,points=points,ids=ids,label=focus.label,kind=focus.kind}
+ self.dirty=true;self:Update();return true
+end
+function A:RestoreQuestPin()
+ local saved=self.db.questPin
+ if type(saved)~='table' or not (self.dungeonQuests or {})[saved.selectedQuestID] then self.db.questPin=nil;return end
+ local points={}
+ for _,p in ipairs(type(saved.points)=='table' and saved.points or {}) do
+  if type(p)=='table' and type(p[1])=='number' and type(p[2])=='number' and type(p[3])=='number' and p[1]>0 and p[2]>=0 and p[2]<=100 and p[3]>=0 and p[3]<=100 then points[#points+1]={p[1],p[2],p[3]} end
+ end
+ if #points==0 then self.db.questPin=nil;return end
+ local ids={};for id in pairs(type(saved.ids)=='table' and saved.ids or {}) do if self.mobs[id] then ids[id]=true end end
+ self.questFocus={ids=ids,points=points,selectedQuestID=saved.selectedQuestID,questID=saved.questID or saved.selectedQuestID,kind=saved.kind=='entrance' and 'entrance' or 'quest',label=type(saved.label)=='string' and saved.label or self:QuestName(saved.selectedQuestID)}
+ self.focus=self.questFocus
 end

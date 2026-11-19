@@ -3,7 +3,7 @@ from lupa.lua51 import LuaRuntime
 r=Path(__file__).resolve().parents[1];l=LuaRuntime(unpack_returned_tuples=True)
 l.execute((r/'tests/wow_mock.lua').read_text());l.execute((r/'tests/journal_mock.lua').read_text());l.execute('getmetatable(UIParent).__index.EnableMouseWheel=function() end')
 ns=l.table();load=l.eval('function(s,n,ns) return assert(loadstring(s,n))("MobAtlas",ns) end')
-for name in ['Data.lua','ClassGear.lua','Forever.lua','Catalog.lua','Expansion.lua','Preparation.lua','Observations.lua','Atlas.lua','Core.lua','Presentation.lua','Locale.lua','UI.lua']:load((r/'MobAtlas'/name).read_text(),'@'+name,ns)
+for name in ['Data.lua','ClassGear.lua','Forever.lua','Catalog.lua','Expansion.lua','Preparation.lua','Observations.lua','Atlas.lua','Core.lua','Presentation.lua','Locale.lua','UI.lua','DungeonPins.lua','DungeonPins.lua']:load((r/'MobAtlas'/name).read_text(),'@'+name,ns)
 l.execute('''
 local A=MobAtlas;A:Init()
 assert(A:SpecialRank(8499)==50,'pet from client taxonomy')
@@ -76,7 +76,7 @@ assert(A:ShowQuestOnMap(167) and WorldMapFrame:IsShown() and mapID==1453)
 A:ClearFocus(false);C_Map=nil;WorldMapFrame:Hide()
 function ShowUIPanel(f) f:Show() end
 assert(A:ShowQuestOnMap(167) and WorldMapFrame:IsShown(),'UI panel fallback opens a hidden map')
-ShowUIPanel=nil;WorldMapFrame:Hide();assert(not A:ShowQuestOnMap(167),'failed open must not report success')
+A:UnpinQuest();ShowUIPanel=nil;WorldMapFrame:Hide();assert(not A:ShowQuestOnMap(167),'failed open must not report success')
 function OpenWorldMap() WorldMapFrame:Show() end
 A:ClearFocus(false);A.atlas=nil;A:OpenAtlas();assert(A.atlas.category=='gear' and A.atlas.myLevel and A.atlas.knownOnly)
 for _,iid in ipairs(A.atlas.results) do local item=A.items[iid];assert((item.classID==2 or item.classID==4) and A:AtlasLevelFits(item) and A:HasKnownSource(iid)) end

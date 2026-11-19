@@ -55,7 +55,7 @@ function A:CreateSettings()
  f:Hide();self:CreateLootCard();self:RefreshSettings()
 end
 function A:RefreshSettings()
- self.layerButton:SetText('Карта: '..(({all='мобы и торговцы',mobs='только мобы',vendors='только торговцы'})[self.db.mapLayer] or 'мобы и торговцы'))
+ self.layerButton:SetText('Карта: '..(({all='мобы и торговцы',mobs='только мобы',vendors='только торговцы',none='только подземелья'})[self.db.mapLayer] or 'мобы и торговцы'))
  for _,pair in ipairs({{self.toggle,'enabled'},{self.unitButton,'unitLoot'},{self.classButton,'classOnly'},{self.skinButton,'skinning'},{self.pickButton,'pickpocket'},{self.observedButton,'observed'},{self.sharedButton,'sharedLoot'},{self.vendorLevelButton,'vendorLevel'},{self.relevantButton,'vendorRelevant'}}) do pair[1]:SetChecked(self.db[pair[2]]) end
  local names={};for _,v in ipairs(qualityChoices) do self.qualityButtons[v[1]]:SetChecked(self.db.qualities[v[1]]);if self.db.qualities[v[1]] then names[#names+1]=v[2] end end
  self.qualitySelect:SetText((#names==9 and 'Все качества' or #names==0 and 'Ничего не выбрано' or #names<=2 and table.concat(names,' + ') or ('Выбрано качеств: '..#names))..'  ▾')
@@ -209,14 +209,23 @@ function A:Update()
  if not map or not map:IsShown() or not map.GetCanvas or not map.GetMapID then
   if self.tip then self.tip:Hide() end;self:ClearHabitat()
   for _,pin in ipairs(self.pins or {}) do pin:Hide() end
+  for _,pin in ipairs(self.dungeonPins or {}) do pin:Hide() end
   self.lastMap=nil;return
  end
  local canvas=map:GetCanvas();if not canvas then return end
+ if self.IsExternalDungeonPreview and self:IsExternalDungeonPreview(canvas) then
+  for _,pin in ipairs(self.pins or {}) do pin:Hide() end
+  for _,pin in ipairs(self.dungeonPins or {}) do pin:Hide() end
+  self:ClearHabitat();if self.tip then self.tip:Hide() end
+  if self.mapButton then self.mapButton:Hide();self.mapStatus:Hide();self.focusButton:Hide() end
+  self.lastMap=nil;return
+ end
+ if self.mapButton then self.mapButton:Show();self.mapStatus:Show() end
  if not self.mapButton then
   self.mapButton=button(map,'Следопыт · атлас',15,-35,160,function() self:OpenAtlas() end)
   self.mapButton:ClearAllPoints();self.mapButton:SetPoint('BOTTOMLEFT',map,'BOTTOMLEFT',18,30);self.mapButton:SetFrameLevel(map:GetFrameLevel()+30)
   self.mapStatus=label(map,'',208,-35,500,11,{1,.9,.65});self.mapStatus:ClearAllPoints();self.mapStatus:SetPoint('BOTTOMLEFT',map,'BOTTOMLEFT',188,62)
-  self.focusButton=button(map,'Снять выделение',188,-35,155,function() self:ClearFocus() end)
+  self.focusButton=button(map,'Снять выделение',188,-35,155,function() if self.questFocus then self:UnpinQuest() else self:ClearFocus() end end)
   self.focusButton:ClearAllPoints();self.focusButton:SetPoint('BOTTOMLEFT',map,'BOTTOMLEFT',188,30);self.focusButton:Hide()
  end
  local pinLevel,pinStrata=self:MapPinLayer(map,canvas)
@@ -225,6 +234,8 @@ function A:Update()
  for _,pin in ipairs(self.pins or {}) do pin:SetFrameLevel(pinLevel);pin:SetFrameStrata(pinStrata);pin:SetScale(pinScale) end
  for _,point in ipairs(self.habitatPins or {}) do point:SetFrameLevel(pinLevel+1);point:SetFrameStrata(pinStrata) end
  local mapID=map:GetMapID();local width,height=canvas:GetWidth(),canvas:GetHeight()
+ if self.UpdateDungeonPins then self:UpdateDungeonPins(canvas,pinScale,pinLevel,pinStrata) end
+ self.focusButton:SetText(self.questFocus and 'Открепить' or 'Снять выделение');self.focusButton:SetShown(self.focus~=nil or self.questFocus~=nil)
  -- While inspecting a habitat, zoom its same source members instead of replacing the selection.
  if self.focusGroup and self.pinned and not self.dirty and self.lastMap==mapID and self.lastCanvas==canvas then
   if self.lastWidth==width and self.lastHeight==height and self.lastPinScale==pinScale then return end
@@ -239,7 +250,7 @@ function A:Update()
  self:ClearHabitat();self.pins=self.pins or {};for _,pin in ipairs(self.pins) do pin:Hide() end
  if not self.db.enabled then self.mapStatus:SetText('Метки выключены');return end
  local cells,total=self:BuildMap(mapID);cells=self:CompactPoints(cells,width/pinScale,height/pinScale)
- self.focusButton:SetShown(self.focus~=nil)
+ self.focusButton:SetShown(self.focus~=nil or self.questFocus~=nil)
  local customHere=false;for _,p in ipairs(self.focus and self.focus.points or {}) do if p[1]==mapID then customHere=true end end
  self.mapStatus:SetText(self.focus and ('Выбрано: '..self.focus.label..(total==0 and not customHere and ' · нет точек на этой карте' or '')) or total>0 and ('Групп: '..#cells..' · NPC: '..total..' · QuestieDB · выбранная зона') or self.zoneIndex[mapID] and 'Нет добычи по фильтрам — измените настройки' or 'Для этой карты пока нет подходящих точек')
  for i,cell in ipairs(cells) do
@@ -514,18 +525,19 @@ function A:RefreshAtlas()
 end
 
 function A:RenderLocationFocus(canvas,scale,level,strata,used)
+ local target=self.questFocus or self.focus
  local mapID=WorldMapFrame:GetMapID();local seen={}
- for _,p in ipairs(self.focus and self.focus.points or {}) do if p[1]==mapID then
+ for _,p in ipairs(target and target.points or {}) do if p[1]==mapID then
   local key=p[2]..':'..p[3]
   if not seen[key] then
    seen[key]=true;used=used+1;local point=self.habitatPins[used]
    if not point then point=CreateFrame('Frame',nil,canvas);point.mobAtlasPin=true;point.dot=point:CreateTexture(nil,'OVERLAY');point.dot:SetAllPoints();self.habitatPins[used]=point end
    point:SetSize(22,22);point:EnableMouse(true);point:SetParent(canvas);point:SetScale(scale);point:SetFrameLevel(level+2);point:SetFrameStrata(strata)
-   point.dot:SetTexture(self.focus.kind=='quest' and 'Interface\\GossipFrame\\AvailableQuestIcon' or self.focus.kind=='entrance' and 'Interface\\AddOns\\MobAtlas\\Art\\TrackDungeon.tga' or 'Interface\\Minimap\\Tracking\\Object')
+   point.dot:SetTexture(target.kind=='quest' and 'Interface\\GossipFrame\\AvailableQuestIcon' or target.kind=='entrance' and 'Interface\\AddOns\\MobAtlas\\Art\\TrackDungeon.tga' or 'Interface\\Minimap\\Tracking\\Object')
    point:ClearAllPoints();point:SetPoint('CENTER',canvas,'TOPLEFT',canvas:GetWidth()*p[2]/100/scale,-canvas:GetHeight()*p[3]/100/scale)
    point.sourceX=p[2];point.sourceY=p[3]
-   point:SetScript('OnEnter',function(b) if not self.focus then return end;GameTooltip:SetOwner(b,'ANCHOR_RIGHT');self:AddTooltipLine(GameTooltip,self.focus.label,1,.85,.35);self:AddTooltipLine(GameTooltip,self:MapName(mapID)..string.format(' · %.1f, %.1f',p[2],p[3]),.8,.8,.7);if self.focus.questID then local _,why=self:QuestState(self.focus.questID);self:AddTooltipLine(GameTooltip,why,.8,.8,.7) end;GameTooltip:Show() end)
-   point:SetScript('OnLeave',function() GameTooltip:Hide() end);point:Show()
+   point:SetScript('OnEnter',function(b) if not target then return end;GameTooltip:SetOwner(b,'ANCHOR_RIGHT');self:AddTooltipLine(GameTooltip,target.label,1,.85,.35);self:AddTooltipLine(GameTooltip,self:MapName(mapID)..string.format(' · %.1f, %.1f',p[2],p[3]),.8,.8,.7);if target.questID then local _,why=self:QuestState(target.questID);self:AddTooltipLine(GameTooltip,why,.8,.8,.7);self:AddTooltipLine(GameTooltip,'Нажми метку, чтобы открепить.',.8,.85,.7) end;GameTooltip:Show() end)
+   point:SetScript('OnLeave',function() GameTooltip:Hide() end);point:SetScript('OnMouseUp',function() if self.questFocus==target then GameTooltip:Hide();self:UnpinQuest() end end);point:Show()
   end
  end end
 end
@@ -535,7 +547,7 @@ function A:CreatePreparation()
  label(f,'Перед походом в данж',18,-16,375,18,{1,.8,.35})
  local close=CreateFrame('Button',nil,f,'UIPanelCloseButton');close:SetPoint('TOPRIGHT',-4,-4);close:SetScript('OnClick',function() f:Hide() end)
  f.sub=label(f,'',18,-48,410,11,{.8,.8,.7})
- f.mode=button(f,'',18,-73,265,function() f.allLevels=not f.allLevels;f.area=nil;f.page=1;self:RefreshPreparation() end)
+ f.mode=button(f,'',18,-73,265,function() f.allLevels=not f.allLevels;f.area=nil;f.entranceAreas=nil;f.page=1;self:RefreshPreparation() end)
  button(f,'Атлас вещей',295,-73,137,function() f:Hide();self:OpenAtlas() end)
  f.heading=label(f,'',18,-112,410,13,{1,.87,.5});f.heading:SetWordWrap(false)
  f.hint=label(f,'',18,-136,410,10,{.7,.76,.7});f.hint:SetWordWrap(false)
@@ -576,7 +588,9 @@ function A:OpenPreparation()
 end
 function A:RefreshPreparation()
  local f=self.prep;if not f then return end
- local values=f.area and self:DungeonQuestList(f.area,true) or self:DungeonChoices(f.allLevels)
+ local values=f.area and self:DungeonQuestList(f.area,true) or self:DungeonChoices(f.entranceAreas and true or f.allLevels)
+ if not f.area and f.entranceAreas then local allowed={};for _,id in ipairs(f.entranceAreas) do allowed[id]=true end;local filtered={};for _,v in ipairs(values) do if allowed[v.id] then filtered[#filtered+1]=v end end;values=filtered end
+ if not f.area and f.entranceAreas then local allowed={};for _,id in ipairs(f.entranceAreas) do allowed[id]=true end;local filtered={};for _,entry in ipairs(values) do if allowed[entry.id] then filtered[#filtered+1]=entry end end;values=filtered end
  f.mode:SetText(f.allLevels and 'Все уровни моей фракции' or ('Мой уровень и ближайшие · '..UnitLevel('player')))
  f.sub:SetText('Задания, цепочки и подготовка · без выполненных квестов')
  f.heading:SetText(f.area and self:DungeonName(f.area) or 'Выбери подземелье')
@@ -587,9 +601,10 @@ function A:RefreshPreparation()
   if value then
    if f.area then
     local q=self.dungeonQuests[value.id];row.questID=value.id;row.title:SetText(self:QuestName(value.id));row.icon:SetTexture(value.state=='active' and 'Interface\\GossipFrame\\ActiveQuestIcon' or 'Interface\\GossipFrame\\AvailableQuestIcon')
-    local _,why=self:QuestState(value.id);row.detail:SetText('Ур. '..q.level..' · '..(value.step~=value.id and 'Сначала цепочка: '..self:QuestName(value.step) or why))
-    row.action:SetText(value.state=='active' and 'Взято' or value.state=='level' and 'С '..q.min..' ур.' or q.inside and 'Вход' or value.step~=value.id and 'Начать' or 'Карта');if value.state=='active' or value.state=='level' then row.action:Disable() end
+    local pinned=self:IsQuestPinned(value.id);local _,why=self:QuestState(value.id);row.detail:SetText('Ур. '..q.level..' · '..(value.step~=value.id and 'Сначала цепочка: '..self:QuestName(value.step) or why))
+    row.action:SetText(pinned and 'Открепить' or value.state=='active' and 'Взято' or value.state=='level' and 'С '..q.min..' ур.' or q.inside and 'Вход' or value.step~=value.id and 'Начать' or 'Карта');if not pinned and (value.state=='active' or value.state=='level') then row.action:Disable() end
     row.scriptsAction=function()
+     if self:IsQuestPinned(value.id) then self:UnpinQuest();return end
      if value.state=='active' then f.status:SetText('Задание уже в журнале. Подробности — в журнале заданий.');return end
      local ok,why=self:ShowQuestOnMap(value.id);if not ok then f.status:SetText(why) end
     end
@@ -610,22 +625,23 @@ end
 
 function A:ToggleTrackingMenu(owner)
  if not self.trackingMenu then
-  local f=panel('MobAtlasTrackingMenu',UIParent,260,230);self.trackingMenu=f;f:SetFrameStrata('TOOLTIP');f:EnableMouse(true);tinsert(UISpecialFrames,'MobAtlasTrackingMenu')
+  local f=panel('MobAtlasTrackingMenu',UIParent,260,262);self.trackingMenu=f;f:SetFrameStrata('TOOLTIP');f:EnableMouse(true);tinsert(UISpecialFrames,'MobAtlasTrackingMenu')
   label(f,'Отслеживание',15,-15,220,14,{1,.82,.4})
   local close=CreateFrame('Button',nil,f,'UIPanelCloseButton');close:SetPoint('TOPRIGHT',-3,-3);close:SetScript('OnClick',function() f:Hide() end)
   local function layer()
    local mobs,vendors=f.mobs:GetChecked(),f.vendors:GetChecked()
-   self.db.enabled=not not (mobs or vendors);self.db.mapLayer=mobs and vendors and 'all' or mobs and 'mobs' or 'vendors';self:Invalidate()
+   self.db.enabled=not not (mobs or vendors or f.dungeons:GetChecked());self.db.mapLayer=mobs and vendors and 'all' or mobs and 'mobs' or vendors and 'vendors' or 'none';self:Invalidate()
   end
   f.mobs=check(f,'Мобы',14,-49,225,layer)
   f.vendors=check(f,'Продавцы',14,-81,225,layer)
   f.prof=check(f,'Мои профессии',14,-113,225,function(v) self.db.prof=v and -1 or 0;self:Invalidate() end)
   f.unit=check(f,'Добыча при наведении',14,-145,225,function(v) self.db.unitLoot=v end)
-  button(f,'Все настройки',14,-187,232,function() f:Hide();self.settings:Show();self:RefreshSettings() end)
+  f.dungeons=check(f,'Подземелья и задания',14,-177,225,function(v) self.db.dungeonPins=v;layer() end)
+  button(f,'Все настройки',14,-219,232,function() f:Hide();self.settings:Show();self:RefreshSettings() end)
   f:Hide()
  end
  local f=self.trackingMenu
  if f:IsShown() then f:Hide();return end
- f.mobs:SetChecked(self.db.enabled and self.db.mapLayer~='vendors');f.vendors:SetChecked(self.db.enabled and self.db.mapLayer~='mobs');f.prof:SetChecked(self.db.prof==-1);f.unit:SetChecked(self.db.unitLoot)
+ f.mobs:SetChecked(self.db.enabled and (self.db.mapLayer=='all' or self.db.mapLayer=='mobs'));f.vendors:SetChecked(self.db.enabled and (self.db.mapLayer=='all' or self.db.mapLayer=='vendors'));f.prof:SetChecked(self.db.prof==-1);f.unit:SetChecked(self.db.unitLoot);f.dungeons:SetChecked(self.db.dungeonPins)
  f:ClearAllPoints();f:SetPoint('TOPRIGHT',owner,'BOTTOMRIGHT',0,-5);f:Show()
 end
