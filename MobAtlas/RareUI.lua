@@ -135,7 +135,7 @@ function A:RenderHabitatArea(cells,canvas,scale,level,strata)
     occupied[key]=true;used=used+1;local f=self.habitatAreas[used]
     if not f then f=CreateFrame('Frame',nil,canvas);f.mobAtlasPin=true;f:EnableMouse(false);f.fill=f:CreateTexture(nil,'BACKGROUND');f.fill:SetTexture(glow);f.fill:SetAllPoints();self.habitatAreas[used]=f end
     f:SetParent(canvas);f:SetScale(scale);f:SetFrameStrata(strata);f:SetFrameLevel(math.max(1,level-1));f:SetSize(52,52)
-    if f.fill.SetVertexColor then f.fill:SetVertexColor(.63,.42,.86,.2) end
+    if f.fill.SetVertexColor then f.fill:SetVertexColor(.67,.45,.9,.29) end
     f:ClearAllPoints();f:SetPoint('CENTER',canvas,'TOPLEFT',canvas:GetWidth()*cell.x/100/scale,-canvas:GetHeight()*cell.y/100/scale);f:Show()
    end
   end

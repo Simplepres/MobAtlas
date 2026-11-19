@@ -104,7 +104,7 @@ function A:CreateLootCard()
  -- Provenance is available in settings and individual item tooltips.
  t:SetScript('OnEnter',function() self.previewSerial=(self.previewSerial or 0)+1 end)
  t:SetScript('OnLeave',function() self:SchedulePreviewHide(self.hoverPin) end)
- t:SetScript('OnHide',function() if self.HideHabitatAreas and not self.focus then self:HideHabitatAreas() end;self.inspectPin=nil;self.hoverPin=nil;self.pinned=nil;self.focusGroup=nil;t.stableAnchor=nil;t.stablePin=nil;t.anchorPin=nil;GameTooltip:Hide() end)
+ t:SetScript('OnHide',function() self:ClearHabitat();self.inspectPin=nil;self.hoverPin=nil;self.pinned=nil;self.focusGroup=nil;t.stableAnchor=nil;t.stablePin=nil;t.anchorPin=nil;GameTooltip:Hide();if self.focus then self:RenderFocus() end end)
  t:EnableMouseWheel(true);t:SetScript('OnMouseWheel',function(_,delta) local p=self.inspectPin or self.hoverPin;if p then p.page=(p.page or 1)-delta;self:ShowTooltip(p,true) end end)
  t:Hide()
 end

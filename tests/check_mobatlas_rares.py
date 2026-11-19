@@ -72,6 +72,15 @@ cvars.rotateMinimap='1';A:UpdateRareMinimap()
 for key,p in pairs(owners) do assert(A.rareMiniByKey[key]==p,'stable ownership on rotation') end
 for i=1,30 do playerX=.5+i*.0001;A:UpdateRareMinimap() end
 assert(#A.rareMiniPins<=24,'bounded minimap frame pool')
+-- Closing a temporary preview must remove it even when another focus exists.
+local render=A.RenderFocus
+A.focus=nil;A:RenderHabitatArea({{x=20,y=20}},canvas,1,20,'HIGH');A.tip:Show();A.tip:Hide()
+for _,f in ipairs(A.habitatAreas) do assert(not f:IsShown(),'closed preview cleared') end
+A.focus={ids={999501}};A.RenderFocus=function(self) self:RenderHabitatArea({{x=80,y=80}},canvas,1,20,'HIGH') end
+A:RenderHabitatArea({{x=20,y=20}},canvas,1,20,'HIGH');A.tip:Show();A.tip:Hide()
+assert(A.habitatAreas[1].point[4]==800,'restore pinned area, never retain temporary preview')
+A.RenderFocus=render;A:ClearFocus(false)
+for _,f in ipairs(A.habitatAreas) do assert(not f:IsShown(),'unpin removes glow') end
 A.db.rareEnabled=false;A:RareTick();for _,p in ipairs(A.rareMiniPins) do assert(not p:IsShown()) end
 A.BuildAtlasIndex=build
 print('PASS rares: event detection, no invented positions, classification/dead checks, cooldown, exact/reference separation, minimap scale/rotation, loot+soft habitat, CVars defer/restore, no full indexing')
