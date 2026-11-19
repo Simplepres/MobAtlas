@@ -92,8 +92,8 @@ A.mobs[900001]={name='Focus A',min=1,max=2,points={{1429,20,30},{1429,21,30}},lo
 A.mobs[900002]={name='Focus B',min=1,max=2,points={{1429,22,30}},loot={{999,1,10,false}}}
 A.zoneIndex[1429]={900001,900002};A.db.mapLayer='all'
 local p=CreateFrame('Button');p.dot=p:CreateTexture();p.cell={x=20,y=30,vendor=false,ids={900001,900002}};p.page=1
-local other=CreateFrame('Button');A.pins={p,other};A.pinned=p
-A:ShowTooltip(p,true);assert(A.habitatPins[2]:IsShown() and not other:IsShown())
+local other=CreateFrame('Button');A.pins={p,other};A:InspectPin(p);A:PinInspection()
+assert(A.habitatPins[2]:IsShown() and not other:IsShown())
 assert(not A.tip.rows[1].rarityBorder:IsShown(),'NPC rows have no item rarity')
 A.tip.rows[1].scripts.OnClick(A.tip.rows[1]);assert(A.habitatPins[1].npcID==900001)
 assert(A.tip.rows[1].rarityBorder:IsShown(),'item rarity frame shown')

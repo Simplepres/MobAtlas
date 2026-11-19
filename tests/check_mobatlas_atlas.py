@@ -31,7 +31,7 @@ assert(A:FocusSource(5191,639,1436));assert(A.focus.ids[639] and A.focusButton:I
 local cells,total=A:BuildMap(1436);assert(total==1 and #cells>0)
 for _,c in ipairs(cells) do assert(c.dungeon==1581 and #c.ids==1 and c.ids[1]==639) end
 local pin=A.pins[1];assert(pin:IsShown() and pin.cell.dungeon==1581)
-pin.scripts.OnClick(pin,'LeftButton');assert(A.tip.rows[1].itemID==5191);assert(A.tip.unpin:GetText()=='Открепить');A:PinInspection();assert(A.pinned==pin)
+pin.scripts.OnClick(pin,'LeftButton');assert(A.tip.rows[1].itemID==5191);assert(A.tip.unpin:GetText()=='Закрепить');A:PinInspection();assert(A.pinned==pin)
 A.tip:Hide();A:Update();assert(A.focus and not A.inspectPin,'closing details preserves explicitly pinned tracking');assert(A:FocusSource(5191,639,1436))
 canvas:SetScale(2);A:Update();assert(A.focus and math.abs(A.pins[1].point[4]*A.pins[1].scale-canvas:GetWidth()*A.pins[1].cell.x/100)<.001)
 A.focusButton.scripts.OnClick();assert(not A.focus and not A.focusButton:IsShown())

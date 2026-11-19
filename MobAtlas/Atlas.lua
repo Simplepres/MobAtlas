@@ -66,6 +66,7 @@ function A:FindItems(query,category,scope,relevant,options)
   local item=self.items[iid];local rank=self:SpecialRank(iid)
   local matches=(exact and iid==exact) or (not exact and (query=='' or self.searchTerms[iid]:find(query,1,true)))
   matches=matches and (not category or category=='all' or category=='pets' and rank==50 or category=='rare' and item.quality==3 or category=='epic' and item.quality>=4 and item.quality<=5 or category=='useful' and self:UsefulItem(iid) or category=='gear' and (item.classID==2 or item.classID==4) or category=='bags' and item.classID==1 or category=='materials' and item.classID==7 or category=='recipes' and item.classID==9 or category=='consumables' and item.classID==0)
+  if (self.db.classOnly or self.db.specOnly) and not self:ClassFits(item,iid,false,true) then matches=false end
   if options.known and not self:HasKnownSource(iid) then matches=false end
   if options.recent and not recent[iid] then matches=false end
   if options.level and not self:AtlasLevelFits(item) then matches=false end

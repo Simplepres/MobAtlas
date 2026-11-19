@@ -25,6 +25,23 @@ L.execute('''modules={QuestieDB={npcKeys=setmetatable({},{__index=function(_,k)r
 QuestieLoader={CreateModule=function(_,n) modules[n]={};return modules[n] end,ImportModule=function(_,n)return assert(modules[n],n) end}
 function UnitFactionGroup() return 'Alliance' end''')
 trace_paths=[]
+# Generated delta-base contains Forever replacements absent from the inherited raw tables.
+# Apply declarative fields before static traces, which retain their higher precedence.
+L.globals().modules.QuestieDB.npcRanks=L.table_from({'ELITE':1,'RARE_ELITE':2,'BOSS':3,'RARE':4})
+L.globals().modules.ZoneDB.zoneIDs=L.table() # symbolic zoneID hints are ignored; explicit spawn areas drive geometry
+for kind,table,fields,additions in [
+ ('Npc',npcs,{'name':1,'minLevel':4,'maxLevel':5,'rank':6,'spawns':7,'questStarts':10,'questEnds':11,'friendlyToFaction':13,'npcFlags':15}, {'questStarts_add':10,'questEnds_add':11}),
+ ('Item',items,{'name':1,'npcDrops':2,'objectDrops':3,'itemDrops':4,'startQuest':5,'questRewards':6,'itemLevel':9,'requiredLevel':10,'class':12,'subClass':13,'vendors':14}, {'npcDrops_add':2,'objectDrops_add':3,'itemDrops_add':4,'questRewards_add':6,'vendors_add':14})]:
+ path=Q/f'src/corrections/Forever/generated/foreverBase{kind}.lua';trace_paths.append(path)
+ L.execute(path.read_text());module=L.globals().modules['ForeverBase'+kind]
+ for id,c in module.Load(module).items():
+  row=table[id]
+  if row is None:row=L.table();table[id]=row
+  for key,idx in fields.items():
+   if c[key] is not None:row[idx]=c[key]
+  for key,idx in additions.items():
+   if c[key]:
+    values=set(row[idx].values()) if row[idx] else set();values.update(c[key].values());row[idx]=L.table_from(sorted(values))
 for kind,table,fields in [('Npc',npcs,{'name':1,'minLevel':4,'maxLevel':5,'rank':6,'spawns':7,'zoneID':9,'friendlyToFaction':13,'npcFlags':15,'factionID':12}),('Item',items,{'name':1})]:
  path=Q/f'src/corrections/Forever/traces/forever{kind}Traces.lua';trace_paths.append(path)
  L.execute(path.read_text());module=L.globals().modules['Forever'+kind+'Traces'];corrections=module.Load(module)
@@ -86,7 +103,7 @@ for id,override in curated.items():
   row[7]=L.table_from({int(area):L.table_from([L.table_from(p) for p in positions]) for area,positions in override['spawns'].items()})
   row[9]=override.get('zoneID',row[9])
 catalog={};bad=0;points=0
-new_metadata={id for id,npc in npcs.items() if id>=200000 and npc[7] and any(zones[area] in allowed and area not in area_instance for area in npc[7].keys())}
+new_metadata={id for id,npc in npcs.items() if id>=200000 and npc[1]}
 for id in sorted(set(classic)|set(vendors)|set(drops)|new_metadata):
  npc=npcs[id]
  if npc is None:continue
@@ -112,7 +129,7 @@ if (Q/'snapshot.json').exists() and not (Q/'.git').exists():rev=json.loads((Q/'s
 else:
  try:rev=subprocess.check_output(['git','-C',str(Q),'rev-parse','HEAD'],text=True,stderr=subprocess.DEVNULL).strip()
  except (subprocess.CalledProcessError,FileNotFoundError):rev=json.loads((Q/'snapshot.json').read_text())['revision']
-report={'schemaVersion':2,'questieDBRevision':rev,'geometry':'Explicit areaId -> uiMapId; Forever raw + trace coordinates; no rectangle inference','corrections':'Forever NPC/Item static traces applied; character-dependent and full authored correction stack not applied','catalogNPCs':len(catalog),'referenceDropItems':len({iid for ids in drops.values() for iid in ids}),'referenceDropLinks':sum(len(ids) for ids in drops.values()),'dungeonSourceNPCs':sum(bool(c['instances']) and bool(c.get('referenceLoot')) for c in catalog.values()),'dungeonsWithDrops':len({a for c in catalog.values() if c.get('referenceLoot') for a in c['instances']}),'vendorNPCs':sum(x['vendor'] for x in catalog.values()),'points':points,'rejectedCoordinates':bad,'foreverIdFloor':200000,'foreverMetadata':sum(id>=200000 for id in catalog),'foreverWithCoordinates':sum(id>=200000 and bool(v['points']) for id,v in catalog.items()),'foreverWithReferenceLoot':sum(id>=200000 and bool(v.get('referenceLoot')) for id,v in catalog.items()),'inputs':{str(p.relative_to(R)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [np,ip,zp,dp,curated_path]+trace_paths+locale_paths},'vendorSource':'QuestieDB reference; prices/stock unknown until observed in game','dungeonGeometry':'Outside entrances only; no invented boss floor coordinates'}
+report={'schemaVersion':2,'questieDBRevision':rev,'geometry':'Explicit areaId -> uiMapId; Forever raw + trace coordinates; no rectangle inference','corrections':'Generated Forever NPC/Item delta-base then static traces applied; character-dependent and full authored correction stack not applied','catalogNPCs':len(catalog),'referenceDropItems':len({iid for ids in drops.values() for iid in ids}),'referenceDropLinks':sum(len(ids) for ids in drops.values()),'dungeonSourceNPCs':sum(bool(c['instances']) and bool(c.get('referenceLoot')) for c in catalog.values()),'dungeonsWithDrops':len({a for c in catalog.values() if c.get('referenceLoot') for a in c['instances']}),'vendorNPCs':sum(x['vendor'] for x in catalog.values()),'points':points,'rejectedCoordinates':bad,'foreverIdFloor':200000,'foreverMetadata':sum(id>=200000 for id in catalog),'foreverWithCoordinates':sum(id>=200000 and bool(v['points']) for id,v in catalog.items()),'foreverWithReferenceLoot':sum(id>=200000 and bool(v.get('referenceLoot')) for id,v in catalog.items()),'inputs':{str(p.relative_to(R)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [np,ip,zp,dp,curated_path]+trace_paths+locale_paths},'vendorSource':'QuestieDB reference; prices/stock unknown until observed in game','dungeonGeometry':'Outside entrances only; no invented boss floor coordinates'}
 (out/'Catalog-BUILD.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 for f in ['LICENSE.md','gpl-3.0.md','PROVENANCE.md']:shutil.copy2(Q/f,out/'Licenses'/('QuestieDB-'+f))
 print(json.dumps({k:v for k,v in report.items() if k not in ['inputs','corrections','geometry']},ensure_ascii=False))

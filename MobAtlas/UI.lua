@@ -34,7 +34,19 @@ function A:CreateSettings()
  self.profMenu=panel(nil,f,235,326);self.profMenu:SetPoint('TOPLEFT',self.profSelect,'BOTTOMLEFT',0,-2);self.profMenu:SetFrameLevel(f:GetFrameLevel()+40);self.profMenu:EnableMouse(true)
  local choices={{0,'Любая добыча'},{-2,'Все материалы'},{-1,'Мои профессии'},{197,'Портняжное дело'},{165,'Кожевничество'},{171,'Алхимия'},{164,'Кузнечное дело'},{202,'Инженерия'},{333,'Наложение чар'},{185,'Кулинария'},{129,'Первая помощь'}}
  self.profLabels={};for i,v in ipairs(choices) do local id=v[1];self.profLabels[id]=v[2];button(self.profMenu,v[2],8,-8-(i-1)*28,219,function() self.db.prof=id;self.profMenu:Hide();changed() end) end;self.profMenu:Hide()
- self.classButton=check(f,'Экипировка только моего класса',18,-166,340,function(v) self.db.classOnly=v;changed() end)
+ self.classButton=check(f,'Экипировка моего класса',18,-166,340,function(v) self.db.classOnly=v;if not v then self.db.specOnly=false end;changed() end)
+ self.specButton=button(f,'',202,-166,158,function() self.specMenu:SetShown(not self.specMenu:IsShown()) end)
+ local _,class=UnitClass('player');local specs=self.gearSpecs[class] or {}
+ self.specMenu=panel(nil,f,235,78+#specs*28);self.specMenu:SetPoint('TOPRIGHT',self.specButton,'BOTTOMRIGHT',0,-2);self.specMenu:SetFrameLevel(f:GetFrameLevel()+45);self.specMenu:EnableMouse(true)
+ local function choose(index,enabled) self.db.gearSpec=index;self.db.specOnly=enabled;if enabled then self.db.classOnly=true end;self:RefreshGearProfile();self.specMenu:Hide();if self.atlas then self.atlas.results=nil;self.atlas.page=1 end;changed();if self.atlas and self.atlas:IsShown() then self:RefreshAtlas() end end
+ self.specChoices={}
+ local function specChoice(text,y,action,index)
+  local row=button(self.specMenu,text,8,y,219,action);if index and self:SetSpecIcon(row,index) then row:GetFontString():SetPoint('CENTER',row,'CENTER',10,0) end;self.specChoices[#self.specChoices+1]=row
+ end
+ specChoice('Без учёта спека',-8,function() choose(nil,false) end)
+ specChoice('Авто: мои таланты',-36,function() choose(nil,true) end)
+ for i,p in ipairs(specs) do local index=i;specChoice(p[1],-36-i*28,function() choose(index,true) end,index) end
+ self.specMenu:Hide();self.specButton:Hide()
  self.sortButton=button(f,'',18,-204,342,function() if self.db.specialFirst then self.db.specialFirst=false;self.db.sort='chance' elseif self.db.sort=='chance' then self.db.sort='quality' else self.db.specialFirst=true;self.db.sort='chance' end;changed() end)
  self.layerButton=button(f,'',18,-242,342,function() self.db.mapLayer=({all='mobs',mobs='vendors',vendors='all'})[self.db.mapLayer] or 'all';changed() end)
  button(f,'Дополнительно',18,-288,166,function() self.qualityMenu:Hide();self.profMenu:Hide();self.advanced:SetShown(not self.advanced:IsShown());f:SetHeight(self.advanced:IsShown() and 635 or 338) end)
@@ -51,10 +63,11 @@ function A:CreateSettings()
  label(self.advanced,'Точки: QuestieDB Forever, справочник.\nForever: окна добычи, способ не разделён.\nДанные Everloot · CC BY-SA 4.0 · everloot.app',18,-209,342,10,{.75,.75,.7})
  self.advanced:Hide()
  f:SetScript('OnShow',function() if self.tip then self.tip:Hide() end end)
- f:SetScript('OnHide',function() self.qualityMenu:Hide();self.profMenu:Hide() end)
+ f:SetScript('OnHide',function() self.qualityMenu:Hide();self.profMenu:Hide();self.specMenu:Hide() end)
  f:Hide();self:CreateLootCard();self:RefreshSettings()
 end
 function A:RefreshSettings()
+ self.specButton:SetText(not self.db.specOnly and 'Спек: любой  v' or self.gearProfile and ((self.db.gearSpec and '' or 'Авто: ')..self.gearProfile[1]..'  v') or 'Спек: выбери  v')
  self.layerButton:SetText('Карта: '..(({all='мобы и торговцы',mobs='только мобы',vendors='только торговцы',none='только подземелья'})[self.db.mapLayer] or 'мобы и торговцы'))
  for _,pair in ipairs({{self.toggle,'enabled'},{self.unitButton,'unitLoot'},{self.classButton,'classOnly'},{self.skinButton,'skinning'},{self.pickButton,'pickpocket'},{self.observedButton,'observed'},{self.sharedButton,'sharedLoot'},{self.vendorLevelButton,'vendorLevel'},{self.relevantButton,'vendorRelevant'}}) do pair[1]:SetChecked(self.db[pair[2]]) end
  local names={};for _,v in ipairs(qualityChoices) do self.qualityButtons[v[1]]:SetChecked(self.db.qualities[v[1]]);if self.db.qualities[v[1]] then names[#names+1]=v[2] end end
@@ -154,7 +167,9 @@ end
 function A:UnitLootTooltip(tooltip)
  if not self.db.unitLoot then return end
  local _,unit=tooltip:GetUnit();unit=unit or 'mouseover';local id=self:NpcID(unit)
- if not id or not self.mobs[id] or tooltip.mobAtlasID==id then return end
+ if not id or tooltip.mobAtlasID==id then return end
+ if not self.mobs[id] and self.EnsureObservedNpc then self:EnsureObservedNpc(id) end
+ if not self.mobs[id] then return end
  tooltip.mobAtlasID=id;local rows=self:Loot(id,self:Professions(),true)
  self:AddTooltipLine(tooltip,' ');self:AddTooltipLine(tooltip,self.mobs[id].vendor and 'Следопыт · в продаже' or 'Следопыт · возможная добыча',1,.8,.35)
  if #rows==0 then self:AddTooltipLine(tooltip,#(self.mobs[id].loot or {})==0 and 'Добыча пока неизвестна. Находки будут сохраняться.' or 'Нет вещей по текущим фильтрам',.7,.7,.7) end
@@ -396,7 +411,7 @@ function A:RenderFocus()
  if not self.focus or not canvas or not map:IsShown() then return end
  local cells=self:BuildMap(map:GetMapID());self.habitatPins=self.habitatPins or {}
  local scale=map:GetEffectiveScale()/math.max(.01,canvas:GetEffectiveScale());local level,strata=self:MapPinLayer(map,canvas);local used=0
- local showHabitat=self.HasHabitatSelection and self:HasHabitatSelection()
+ local showHabitat=not self.HasHabitatSelection or self:HasHabitatSelection()
  if showHabitat and self.RenderHabitatArea then self:RenderHabitatArea(cells,canvas,scale,level,strata) end
  for _,cell in ipairs(showHabitat and self:ReadableFocusCells(cells,canvas,scale) or {}) do if not cell.dungeon then
   used=used+1;local point=self.habitatPins[used]
@@ -410,6 +425,31 @@ function A:RenderFocus()
   point:ClearAllPoints();point:SetPoint('CENTER',canvas,'TOPLEFT',canvas:GetWidth()*cell.x/100/scale,-canvas:GetHeight()*cell.y/100/scale);point:Show()
  end end
  self:RenderLocationFocus(canvas,scale,level,strata,used)
+end
+
+local classCoords={WARRIOR={0,.25,0,.25},MAGE={.25,.5,0,.25},ROGUE={.5,.75,0,.25},DRUID={.75,1,0,.25},HUNTER={0,.25,.25,.5},SHAMAN={.25,.5,.25,.5},PRIEST={.5,.75,.25,.5},WARLOCK={.75,1,.25,.5},PALADIN={0,.25,.5,.75},DEATHKNIGHT={.25,.5,.5,.75}}
+local specIcons={
+ ROGUE={'Ability_Rogue_Eviscerate','Ability_BackStab','Ability_Stealth'},
+ WARRIOR={'Ability_Warrior_SavageBlow','Ability_Warrior_InnerRage','Ability_Warrior_DefensiveStance'},
+ PALADIN={'Spell_Holy_HolyBolt','Spell_Holy_DevotionAura','Spell_Holy_AuraOfLight'},
+ HUNTER={'Ability_Hunter_BeastTaming','Ability_Marksmanship','Ability_Hunter_SwiftStrike'},
+ PRIEST={'Spell_Holy_WordFortitude','Spell_Holy_HolyBolt','Spell_Shadow_ShadowWordPain'},
+ SHAMAN={'Spell_Nature_Lightning','Spell_Nature_LightningShield','Spell_Nature_MagicImmunity'},
+ MAGE={'Spell_Holy_MagicalSentry','Spell_Fire_FireBolt02','Spell_Frost_FrostBolt02'},
+ WARLOCK={'Spell_Shadow_DeathCoil','Spell_Shadow_Metamorphosis','Spell_Shadow_RainOfFire'},
+ DRUID={'Spell_Nature_StarFall','Ability_Racial_BearForm','Spell_Nature_HealingTouch'},
+ DEATHKNIGHT={'Spell_Deathknight_BloodPresence','Spell_Deathknight_FrostPresence','Spell_Deathknight_UnholyPresence'}}
+function A:SetSpecIcon(owner,index)
+ local _,class=UnitClass('player');local _,native=self:Safe(GetTalentTabInfo,index)
+ local fallback=specIcons[class] and specIcons[class][index]
+ local icon=(type(native)=='string' or type(native)=='number') and native or fallback and ('Interface\\Icons\\'..fallback)
+ if not icon then return false end
+ local t=owner:CreateTexture(nil,'ARTWORK');owner.specIcon=t;owner.specIconPath=icon;t:SetTexture(icon);t:SetSize(18,18);t:SetPoint('LEFT',owner,'LEFT',7,0);return true
+end
+function A:SetClassIcon(owner)
+ local _,class=UnitClass('player');local coords=CLASS_ICON_TCOORDS and CLASS_ICON_TCOORDS[class] or classCoords[class]
+ local t=owner.classIcon or owner:CreateTexture(nil,'ARTWORK');owner.classIcon=t;t:SetSize(18,18);t:SetPoint('LEFT',owner,'LEFT',7,0)
+ if coords then t:SetTexture('Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes');t:SetTexCoord(unpack(coords));t:Show() else t:Hide() end
 end
 
 -- Atlas browsing is separate from the map's filters: finding an item must not hide its sources.
@@ -434,8 +474,8 @@ function A:CreateAtlas()
   local mode=choice[1];button(f.languageMenu,choice[2],6,-6-(i-1)*29,138,function() f.languageMenu:Hide();self:SetLanguage(mode) end)
  end
  f.languageMenu:Hide()
- f.languageButton=button(f,'',225,-10,68,function() f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:SetShown(not f.languageMenu:IsShown()) end)
- f.languageButton:SetText(self.db.language=='ruRU' and 'RU ▾' or self.db.language=='enUS' and 'EN ▾' or 'Auto ▾')
+ f.languageButton=button(f,'',225,-10,68,function() self.specMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:SetShown(not f.languageMenu:IsShown()) end)
+ f.languageButton:SetText(self.db.language=='ruRU' and 'RU v' or self.db.language=='enUS' and 'EN v' or 'Auto v')
  f.languageButton:SetScript('OnEnter',function(b) GameTooltip:SetOwner(b,'ANCHOR_RIGHT');self:AddTooltipLine(GameTooltip,'Язык интерфейса');self:AddTooltipLine(GameTooltip,'Авто: по языку WoW. Другие языки используют English.');GameTooltip:Show() end)
  f.languageButton:SetScript('OnLeave',function() GameTooltip:Hide() end)
  f.clearFocus=button(f,'Снять выбор',300,-10,124,function() self:ClearFocus();self:RefreshAtlas() end);f.clearFocus:Hide()
@@ -446,17 +486,30 @@ function A:CreateAtlas()
  f.categoryMenu=panel(nil,f,245,12+#categories*28);f.categoryMenu:SetPoint('TOPLEFT',16,-134);f.categoryMenu:SetFrameLevel(f:GetFrameLevel()+40);f.categoryMenu:EnableMouse(true)
  for i,v in ipairs(categories) do local id=v[1];button(f.categoryMenu,v[2],6,-6-(i-1)*28,233,function() f.category=id;f.categoryMenu:Hide();search() end) end
  f.categoryMenu:Hide()
- f.scopeMenu=panel(nil,f,201,124);f.scopeMenu:SetPoint('TOPLEFT',223,-134);f.scopeMenu:SetFrameLevel(f:GetFrameLevel()+40);f.scopeMenu:EnableMouse(true)
+ f.scopeMenu=panel(nil,f,201,124);f.scopeMenu:SetPoint('TOPLEFT',180,-134);f.scopeMenu:SetFrameLevel(f:GetFrameLevel()+40);f.scopeMenu:EnableMouse(true)
  for i,v in ipairs({{'all','Все источники'},{'world','Открытый мир'},{'dungeons','Данжи и рейды'},{'recent','Недавно выбраны'}}) do local id=v[1];button(f.scopeMenu,v[2],6,-6-(i-1)*28,189,function() f.scope=id;f.scopeMenu:Hide();search() end) end
  f.scopeMenu:Hide()
- f.categoryButton=button(f,'',16,-104,195,function()
+ f.categoryButton=button(f,'',16,-104,158,function()
   if f.selectedItem then local ok,why=self:ShowItemOnMap(f.selectedItem);if not ok then f.status:SetText(why) end
-  else f.scopeMenu:Hide();f.categoryMenu:SetShown(not f.categoryMenu:IsShown()) end
+  else self.specMenu:Hide();f.scopeMenu:Hide();f.categoryMenu:SetShown(not f.categoryMenu:IsShown()) end
  end)
- f.scopeButton=button(f,'',223,-104,201,function()
+ f.scopeButton=button(f,'',180,-104,112,function()
   if f.selectedItem then f.selectedItem=nil;f.page=f.searchPage or 1;self:RefreshAtlas()
-  else f.categoryMenu:Hide();f.scopeMenu:SetShown(not f.scopeMenu:IsShown()) end
+  else self.specMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:SetShown(not f.scopeMenu:IsShown()) end
  end)
+ f.specButton=button(f,'',298,-104,126,function()
+  local menu=self.specMenu;local open=menu:IsShown() and menu:GetParent()==f
+  f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:Hide();GameTooltip:Hide()
+  menu:Hide();menu:SetParent(f);menu:ClearAllPoints();menu:SetPoint('TOPRIGHT',f.specButton,'BOTTOMRIGHT',0,-3);menu:SetFrameLevel(f:GetFrameLevel()+50);menu:SetShown(not open)
+ end)
+ self:SetClassIcon(f.specButton)
+ local font=f.specButton:GetFontString();font:ClearAllPoints();font:SetPoint('CENTER',f.specButton,'CENTER',9,0);font:SetWidth(90);font:SetWordWrap(false);font:SetFont(self.font,10,'')
+ f.specButton:SetScript('OnEnter',function(b)
+  GameTooltip:SetOwner(b,'ANCHOR_RIGHT');local className=UnitClass('player');self:AddTooltipLine(GameTooltip,className,1,.86,.56)
+  self:AddTooltipLine(GameTooltip,not self.db.specOnly and 'Спек отключён. Выбери авто или свою ветку талантов.' or self.gearProfile and ((self.db.gearSpec and 'Выбран спек: ' or 'Авто: ')..self.gearProfile[1]) or 'Таланты ещё не выбраны. Укажи спек вручную.',.8,.85,.8)
+  self:AddTooltipLine(GameTooltip,'Подбор по классу, оружию и известным характеристикам.',.7,.75,.7);GameTooltip:Show()
+ end)
+ f.specButton:SetScript('OnLeave',function() GameTooltip:Hide() end)
  f.heading=label(f,'',17,-143,330,12,{1,.86,.56});f.heading:SetWordWrap(false)
  f.allItems=button(f,'Сброс',350,-137,74,function() f.category='all';f.scope='all';f.myLevel=false;f.knownOnly=false;f.results=nil;f.page=1;self:RefreshAtlas() end)
  f.rows={}
@@ -490,7 +543,7 @@ function A:CreateAtlas()
  button(f,'Настройки',261,-467,118,function() f:Hide();self.settings:Show();self:RefreshSettings() end)
  f.status=label(f,'',17,-506,407,10,{.67,.72,.68})
  f:EnableMouseWheel(true);f:SetScript('OnMouseWheel',function(_,d) f.page=f.page-d;self:RefreshAtlas() end)
- f:SetScript('OnHide',function() GameTooltip:Hide();f.search:ClearFocus();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:Hide() end)
+ f:SetScript('OnHide',function() GameTooltip:Hide();f.search:ClearFocus();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:Hide();self.specMenu:Hide() end)
  f:Hide()
 end
 function A:OpenAtlas(query)
@@ -502,16 +555,17 @@ function A:OpenAtlas(query)
 end
 function A:RefreshAtlas()
  local f=self.atlas;if not f then return end
+ f.specButton:SetText(not self.db.specOnly and 'Спек: откл.  v' or not self.db.gearSpec and 'Спек: авто  v' or self.gearProfile and (self.gearProfile[1]..'  v') or 'Спек: авто  v')
  local selected=f.selectedItem;local values;f.allItems:SetShown(not selected);f.clearFocus:SetShown(self.focus~=nil);f.myLevelCheck:SetShown(not selected);f.knownCheck:SetShown(not selected);f.myLevelCheck:SetChecked(f.myLevel);f.knownCheck:SetChecked(f.knownOnly)
  if selected then
-  values=self:AtlasSources(selected,f.scope);f.heading:SetText(self:ItemDisplay(selected));f.categoryButton:SetText('Все источники на карте');f.scopeButton:SetText('‹ К результатам')
+  values=self:AtlasSources(selected,f.scope);f.heading:SetText(self:ItemDisplay(selected));f.categoryButton:SetText('Источники вещи');f.scopeButton:SetText('‹ К вещам')
   f.hint:SetText('Выбери источник, чтобы выделить его на карте.')
  else
   f.showingRecent=f.scope=='recent';f.recentResults=f.showingRecent
   if not f.results then f.results=self:FindItems(f.search:GetText(),f.category,f.scope,nil,{level=f.myLevel,known=f.knownOnly,recent=f.showingRecent}) end
   values=f.results;f.heading:SetText((f.showingRecent and 'Недавно выбраны: ' or 'Найдено: ')..#values)
   f.categoryButton:SetText((f.categoryNames[f.category] or 'Все предметы')..'  v')
-  f.scopeButton:SetText((({all='Все источники',world='Открытый мир',dungeons='Данжи и рейды',recent='Недавно выбраны'})[f.scope] or 'Все источники')..'  v')
+  f.scopeButton:SetText((({all='Источники',world='Мир',dungeons='Данжи',recent='Недавние'})[f.scope] or 'Все источники')..'  v')
   f.hint:SetText('')
  end
  local pages=math.max(1,math.ceil(#values/6));f.page=math.max(1,math.min(pages,f.page));f.pager:SetText(f.page..' / '..pages)
@@ -532,7 +586,7 @@ function A:RefreshAtlas()
  end
  if #values==0 then f.status:SetText('Ничего не найдено. Попробуй часть названия, другой раздел или ID.')
  elseif selected then f.status:SetText('Клик по источнику → карта. «Снять выделение» вернёт остальных.')
- else f.status:SetText('«Карта» → источники · «Перед данжем» → задания') end
+ else f.status:SetText('Карта: источники · Перед данжем: задания') end
 end
 
 function A:RenderLocationFocus(canvas,scale,level,strata,used)

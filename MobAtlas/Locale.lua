@@ -1,6 +1,31 @@
 local _,A=...
 -- Source phrases stay intact; translation is confined to addon-owned UI text.
 local en={
+ ["Спек: откл."]="Spec: off",
+ ["Спек: авто"]="Spec: auto",
+ ["Источники вещи"]="Item sources",
+ ["‹ К вещам"]="‹ Items",
+ ["Источники"]="Sources",
+ ["Недавние"]="Recent",
+ ["Мир"]="World",
+ ["Данжи"]="Dungeons",
+ ["Экипировка моего класса"]="Gear for my class",
+ ["Без учёта спека"]="Ignore spec",
+ ["Авто: мои таланты"]="Auto: my talents",
+ ["Спек отключён. Выбери авто или свою ветку талантов."]="Spec filtering is off. Choose auto or your talent tree.",
+ ["Таланты ещё не выбраны. Укажи спек вручную."]="No talent tree detected. Choose your spec manually.",
+ ["Выбран спек: "]="Selected spec: ",
+ ["Подбор по классу, оружию и известным характеристикам."]="Filters by class, weapon type and known stats.",
+
+ ["Спек: откл."]="Spec: off",["Спек: авто"]="Spec: auto",["Экипировка моего класса"]="Gear for my class",
+ ["Источники вещи"]="Item sources",["‹ К вещам"]="‹ Items",["Источники"]="Sources",["Мир"]="World",["Данжи"]="Dungeons",["Недавние"]="Recent",
+ ["Спек отключён. Выбери авто или свою ветку талантов."]="Spec is off. Choose auto or your talent tree.",
+ ["Выбран спек: "]="Selected spec: ",["Авто: "]="Auto: ",
+ ["Таланты ещё не выбраны. Укажи спек вручную."]="No talent tree detected. Choose a spec manually.",
+ ["Подбор по классу, оружию и известным характеристикам."]="Filters by class, weapon and known stats.",
+ ["Без учёта спека"]="Spec off",["Авто: мои таланты"]="Auto: my talents",
+ ["Ликвидация"]="Assassination",["Скрытность"]="Subtlety",["Бой"]="Combat",
+
  ["Неизвестное"]="Unknown",
  ["Серое"]="Poor",
  ["Белое"]="Common",

@@ -1,6 +1,6 @@
 local _,A=...
 _G.MobAtlas=A
-A.version='0.7.8';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
+A.version='0.7.9';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
 A.profNames={[129]='Первая помощь',[164]='Кузнечное дело',[165]='Кожевничество',[171]='Алхимия',[185]='Кулинария',[197]='Портняжное дело',[202]='Инженерное дело',[333]='Наложение чар'}
 A.methods={[1]='Добыча',[2]='Снятие шкур',[3]='Карманная кража',[4]='Forever · способ не разделён',[5]='Продажа · справочник QuestieDB',[6]='Продажа · личное наблюдение',[7]='Добыча · справочник Forever',[8]='Личная находка · способ не определён',[9]='Classic · vMaNGOS через KB',[10]='Награда за задание',[11]='Изготовление',[12]='Сундук / объект · Classic',[13]='Содержимое предмета',[14]='Forever · сообщение игрока',[14]='Forever · сообщение игрока'}
 function A:Safe(fn,...)
@@ -19,15 +19,61 @@ function A:Professions()
  end
  return result
 end
-function A:ClassFits(item,id,force)
- if not force and not self.db.classOnly then return true end
+-- Conservative spec filtering: unknown stats remain visible; this is not a BiS score.
+A.gearSpecs={
+ ROGUE={{'Ликвидация','agility',true},{'Бой','agility'},{'Скрытность','agility',true}},
+ WARRIOR={{'Оружие','strength'},{'Неистовство','strength'},{'Защита','strength'}},
+ PALADIN={{'Свет','intellect'},{'Защита','strength'},{'Воздаяние','strength'}},
+ HUNTER={{'Повелитель зверей','agility'},{'Стрельба','agility'},{'Выживание','agility'}},
+ PRIEST={{'Послушание','intellect'},{'Свет','intellect'},{'Тьма','intellect'}},
+ SHAMAN={{'Стихии','intellect'},{'Совершенствование','agility'},{'Исцеление','intellect'}},
+ MAGE={{'Тайная магия','intellect'},{'Огонь','intellect'},{'Лёд','intellect'}},
+ WARLOCK={{'Колдовство','intellect'},{'Демонология','intellect'},{'Разрушение','intellect'}},
+ DRUID={{'Баланс','intellect'},{'Сила зверя','agility'},{'Исцеление','intellect'}},
+ DEATHKNIGHT={{'Кровь','strength'},{'Лёд','strength'},{'Нечестивость','strength'}}}
+local specIDs={ [259]=1,[260]=2,[261]=3,[71]=1,[72]=2,[73]=3,[65]=1,[66]=2,[70]=3,[253]=1,[254]=2,[255]=3,[256]=1,[257]=2,[258]=3,[262]=1,[263]=2,[264]=3,[62]=1,[63]=2,[64]=3,[265]=1,[266]=2,[267]=3,[102]=1,[103]=2,[104]=2,[105]=3,[250]=1,[251]=2,[252]=3 }
+function A:RefreshGearProfile()
+ local _,class=UnitClass('player');local choices=self.gearSpecs[class] or {};local index=self.db.gearSpec
+ if not choices[index] then
+  index=nil
+  local getSpec=GetSpecialization or C_SpecializationInfo and C_SpecializationInfo.GetSpecialization
+  local getInfo=GetSpecializationInfo or C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo
+  local current=self:Safe(getSpec);local id=current and self:Safe(getInfo,current)
+  index=specIDs[id]
+  if not index and GetNumTalentTabs and GetTalentTabInfo then
+   local most=0;for i=1,(self:Safe(GetNumTalentTabs) or 0) do local _,_,points=self:Safe(GetTalentTabInfo,i);if type(points)=='number' and points>most then index=i;most=points end end
+  end
+ end
+ self.gearProfile=choices[index];self.gearProfileClass=class;self.gearProfileResolved=true
+end
+function A:SpecFits(item,id,cacheOnly)
+ if not self.db.specOnly or item.classID~=2 and item.classID~=4 then return true end
+ if not self.gearProfileResolved then self:RefreshGearProfile() end
+ local p=self.gearProfile;if not p then return true end
+ -- Assassination/Subtlety melee techniques require daggers; ranged stat sticks stay available.
+ if self.gearProfileClass=='ROGUE' and p[3] and item.classID==2 then
+  local melee=({[0]=true,[1]=true,[4]=true,[5]=true,[6]=true,[7]=true,[8]=true,[10]=true,[13]=true,[15]=true,[17]=true})[item.subclass]
+  if melee and item.subclass~=15 then return false end
+ end
+ self.gearStatCache=self.gearStatCache or {};local stats=self.gearStatCache[id]
+ if stats==nil and not cacheOnly and id and id>0 then stats=self:Safe(C_Item and C_Item.GetItemStats or GetItemStats,'item:'..id);if type(stats)~='table' or not next(stats) then stats=false end;self.gearStatCache[id]=stats end
+ if not stats then return true end
+ local function stat(k) return stats['ITEM_MOD_'..k..'_SHORT'] or 0 end
+ local agi,str,int=stat('AGILITY'),stat('STRENGTH'),stat('INTELLECT')
+ local caster=int+stat('SPIRIT')+stat('SPELL_POWER')+stat('HEALING_DONE')
+ if p[2]=='intellect' then return caster>0 or agi+str==0 end
+ if p[2]=='agility' then return agi>0 or str+caster==0 end
+ return str>0 or agi+caster==0
+end
+function A:ClassFits(item,id,force,cacheOnly)
+ if not force and not self.db.classOnly and not self.db.specOnly then return true end
  if item.classID==-1 then return false end
  if item.classID~=2 and item.classID~=4 then return true end
  local _,class,classID=UnitClass('player');local data=self.classData.classes[(class or ''):lower()]
  local restrictions=self.classData.restricted or {};local mask=restrictions[tostring(id)] or restrictions[id]
  if mask and classID and math.floor(mask/2^(classID-1))%2==0 then return false end
- if item.classID==4 and (item.subclass==0 or item.slot=='Back' or item.slot=='Cloak') then return true end
- for _,g in ipairs(data and data.gear or {}) do if g[1]==item.classID and g[2]==item.subclass and g[3]<=UnitLevel('player') then return true end end
+ if item.classID==4 and (item.subclass==0 or item.slot=='Back' or item.slot=='Cloak') then return self:SpecFits(item,id,cacheOnly) end
+ for _,g in ipairs(data and data.gear or {}) do if g[1]==item.classID and g[2]==item.subclass and g[3]<=UnitLevel('player') then return self:SpecFits(item,id,cacheOnly) end end
  return false
 end
 function A:Matches(entry,skills)
@@ -116,11 +162,12 @@ function A:BuildMap(mapID)
  return out,total
 end
 function A:Invalidate()
+ if self.atlas then self.atlas.results=nil end
  self:ClearFocus(false,true);self:Update()
 end
 function A:Init()
  MobAtlasDB=type(MobAtlasDB)=='table' and MobAtlasDB or {};self.db=MobAtlasDB
- local defaults={rareEnabled=true,rareAlerts=true,rareSound=true,rareMap=true,rareMinimap=true,rareMaxRange=true,habitatGlow=true,dungeonPins=true,language='auto',enabled=true,quality='all',classOnly=false,prof=0,skinning=true,pickpocket=false,visibleItems=5,sort='chance',unitLoot=true,observed=true,minimapAngle=225,sharedLoot=false,vendorLevel=true,vendorRelevant=true,mapLayer='all',specialFirst=true}
+ local defaults={specOnly=false,rareEnabled=true,rareAlerts=true,rareSound=true,rareMap=true,rareMinimap=true,rareMaxRange=true,habitatGlow=true,dungeonPins=true,language='auto',enabled=true,quality='all',classOnly=false,prof=0,skinning=true,pickpocket=false,visibleItems=5,sort='chance',unitLoot=true,observed=true,minimapAngle=225,sharedLoot=false,vendorLevel=true,vendorRelevant=true,mapLayer='all',specialFirst=true}
  for k,v in pairs(defaults) do if self.db[k]==nil then self.db[k]=v end end
  if self.db.language~='auto' and self.db.language~='ruRU' and self.db.language~='enUS' then self.db.language='auto' end
  if not ({all=true,green=true,blue=true,both=true})[self.db.quality] then self.db.quality='all' end
@@ -136,7 +183,7 @@ function A:Init()
  self.zoneIndex={}
  for id,mob in pairs(self.mobs) do local seen={};for _,p in ipairs(mob.points) do if not seen[p[1]] then seen[p[1]]=true;self.zoneIndex[p[1]]=self.zoneIndex[p[1]] or {};table.insert(self.zoneIndex[p[1]],id) end end end
  for _,ids in pairs(self.zoneIndex) do table.sort(ids) end
- self:BuildAtlasIndex();self:HookItemSearch();self:CreateSettings();self:CreateMinimapButton();self:HookUnitLoot();self:RestoreQuestPin();if self.StartNpcObservation then self:StartNpcObservation() end;if self.StartRareTracking then self:StartRareTracking() end;self.dirty=true
+ self:BuildAtlasIndex();self:HookItemSearch();self:CreateSettings();self:CreateMinimapButton();self:HookUnitLoot();self:RefreshGearProfile();self:RestoreQuestPin();if self.StartNpcObservation then self:StartNpcObservation() end;if self.StartRareTracking then self:StartRareTracking() end;self.dirty=true
  SLASH_MOBATLAS1='/mobatlas';SLASH_MOBATLAS2='/следопыт'
  SlashCmdList.MOBATLAS=function(msg)
   if msg=='clear' then self:ClearFocus()
@@ -152,10 +199,11 @@ function A:Init()
 end
 A.events=CreateFrame('Frame')
 A.events:SetScript('OnEvent',function(_,event,arg)
- if event=='GET_ITEM_INFO_RECEIVED' and A.db then A:RefreshObservedLootItem(arg)
+ if event=='GET_ITEM_INFO_RECEIVED' and A.db then if A.gearStatCache then A.gearStatCache[arg]=nil end;A:RefreshObservedLootItem(arg);if A.db.specOnly then A.dirty=true;if A.atlas then A.atlas.results=nil end end
+ elseif (event=='PLAYER_TALENT_UPDATE' or event=='ACTIVE_TALENT_GROUP_CHANGED') and A.db then A:RefreshGearProfile();if A.db.specOnly then A:RefreshSettings();A:Invalidate() end
  elseif event=='PLAYER_LOGIN' then A:Init() elseif A.db and (event=='QUEST_LOG_UPDATE' or event=='QUEST_ACCEPTED' or event=='QUEST_TURNED_IN') then A:QuestLogChanged() elseif A.db and (event=='LOOT_OPENED' or event=='LOOT_READY' or event=='LOOT_SLOT_CHANGED') then A:CaptureLoot() elseif A.db and (event=='MERCHANT_SHOW' or event=='MERCHANT_UPDATE') then A:CaptureMerchant() elseif A.db then A:Invalidate() end
 end)
-for _,event in ipairs({'PLAYER_LOGIN','SKILL_LINES_CHANGED','PLAYER_LEVEL_UP','PLAYER_ENTERING_WORLD','MERCHANT_SHOW','MERCHANT_UPDATE','LOOT_OPENED','LOOT_READY','LOOT_SLOT_CHANGED','GET_ITEM_INFO_RECEIVED','QUEST_LOG_UPDATE','QUEST_TURNED_IN','QUEST_ACCEPTED'}) do A.events:RegisterEvent(event) end
+for _,event in ipairs({'PLAYER_TALENT_UPDATE','ACTIVE_TALENT_GROUP_CHANGED','PLAYER_LOGIN','SKILL_LINES_CHANGED','PLAYER_LEVEL_UP','PLAYER_ENTERING_WORLD','MERCHANT_SHOW','MERCHANT_UPDATE','LOOT_OPENED','LOOT_READY','LOOT_SLOT_CHANGED','GET_ITEM_INFO_RECEIVED','QUEST_LOG_UPDATE','QUEST_TURNED_IN','QUEST_ACCEPTED'}) do A.events:RegisterEvent(event) end
 
 -- Observations stay separate from Classic methods: this feed does not identify the method.
 function A:MergeForever()

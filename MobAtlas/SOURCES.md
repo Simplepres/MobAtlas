@@ -69,3 +69,10 @@ Original procedural map icons: paw for mobs, pouch for vendors, doorway for dung
 0.7.7: Restored the original separate 52-pixel feathered spawn patches, with violet opacity .32 for stronger contrast. Removed the union/contour renderer. At most 80 pooled patches; preview and explicit-pin lifecycle fixes remain.
 
 0.7.8: Separate violet spawn highlights use 60% vertex opacity (previously 32%), multiplied by the feathered texture alpha toward each patch edge.
+
+Local 0.7.9-dev.1 (unpublished): Builder now consumes QuestieDB generated Forever NPC/Item delta-base BEFORE static traces. Full replacement lists and additive drop operations are applied; schema indices are explicit. Missing symbolic zone IDs are not inferred; no new dungeon floor positions are fabricated. Dark Iron Looter 263396 has 19 reference item associations; Bloodhound Runt 263470 has 17. Reference rates remain unknown. Tooltip fallback registers an unknown NPC and displays the missing-data message.
+Spec-aware gear filter: modern specialization API, otherwise dominant classic talent tree; manual per-class override. Class equip data checked first; Assassination/Subtlety rogue melee weapons restricted to daggers, primary-stat-only mismatches rejected when stats are known. Missing stats remain visible. Statistics cached per item, atlas scans avoid querying every item, talent changes refresh the profile. This is a suitability filter, not a BiS/upgrade guarantee.
+
+Local 0.7.9-dev.2 (unpublished): Spec dropdown moved to the atlas filter row next to category and source. Shows off/auto/manual state and native Blizzard class-sheet icons; full detected spec appears on hover. Settings spec control hidden. Atlas size unchanged. UI checks cover auto/off/manual changes, icon presence, sibling-menu dismissal, closing and localization.
+
+0.7.9 release: Specialization menu uses distinct native talent-tab icons, falling back to Blizzard spell icons per class/tree. Auto/off options have no misleading class icon. Class badge retained only on the main control. README screenshots replaced with player captures from November 19, 2026; rare marker/detection limitations documented.
