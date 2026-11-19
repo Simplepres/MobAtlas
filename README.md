@@ -1,143 +1,86 @@
 <p align="center"><img src="docs/images/icon.png" width="96" alt="MobAtlas"></p>
 
-# MobAtlas · Следопыт — Beta / Бета
+# MobAtlas · Следопыт
 
-**Beta:** the addon is actively being developed. Bugs, incomplete data and interface changes are expected. Questions or feedback? Contact [@brunotwin on Telegram](https://t.me/brunotwin) or [@teur_person on Threads](https://www.threads.com/@teur_person).
+**Find gear, see what drops, and plan where to go next in WoW Forever.**
 
-**Find an item. Discover its sources. Track them on your map.**
+Look up an item, check which creatures drop it or which vendors sell it, and mark known locations on your map. Heading into a dungeon? Check the quest list before you leave.
 
-An offline loot atlas for World of Warcraft: Forever, with creature and vendor map markers, searchable items and dungeon quest preparation. Early test release **0.6.3**, targeting Interface **16001**.
+**Beta · 0.6.3** — still growing, with bugs to fix and gaps in the database. Your feedback helps.
 
-[Download the addon](https://github.com/Simplepres/MobAtlas/releases/latest) · [Report a bug](https://github.com/Simplepres/MobAtlas/issues) · [Русский](#на-русском)
+[**Download**](https://github.com/Simplepres/MobAtlas/releases/latest) · [Русский](#на-русском) · [Screenshots](#screenshots--скриншоты) · [Report a bug](https://github.com/Simplepres/MobAtlas/issues)
 
-## What it does
+## What you can do
 
-- Search by English or Russian item name, item ID, or an item link pasted into the search field.
-- Browse known creature drops and vendor inventories, then highlight the available source locations on the world map.
-- Explore grouped map markers, inspect NPCs and items, and explicitly pin or unpin a selection.
-- Filter by multiple item qualities, class, level and profession materials. Give rare and special loot priority.
-- See known loot in creature tooltips while playing.
-- Prepare for a dungeon with known quests, prerequisite steps and pickup locations. Includes quest associations for the nine new Forever dungeons, including The Hall of Thanes.
-- Keep personal loot finds and visited merchant inventories locally to improve your own reference data.
+- Search items by name or ID, then find their known sources on the map.
+- Hover over a creature to see its loot. Filter by rarity, class, level or profession materials.
+- Browse groups of creatures and vendors, and pin the source you want to track.
+- Check dungeon quests and the steps needed to pick them up, including The Hall of Thanes.
 
-No separate Questie installation, account, API key or background application is required to use the addon. Bundled reference data works offline.
+The database is included. You don't need Questie, an account or an API key. Personal loot finds and merchant visits stay on your computer.
+
+## Install and play
+
+1. Download **MobAtlas-0.6.3.zip** from [Releases](https://github.com/Simplepres/MobAtlas/releases/latest).
+2. Put the **MobAtlas** folder in your Forever client's `Interface/AddOns/` folder.
+3. Restart WoW and enable the addon. The file should be at `Interface/AddOns/MobAtlas/MobAtlas.toc`.
+
+Click the book by the minimap or type **`/mobatlas`**. Right-click the book for tracking options. **`/mobatlas prep`** opens dungeon preparation; **`/mobatlas settings`** opens settings.
+
+The interface follows your game language: Russian or English, with English for other locales. Change it anytime with **Auto / RU / EN** at the top of the atlas. Item names and native tooltips come from WoW.
 
 ## Screenshots / Скриншоты
 
-Captured in the player's WoW Forever client on November 19, 2026. MobAtlas appears alongside other enabled addons; the surrounding unit frames, action bars, quest tracker and quest map overlays are not all features of MobAtlas.
+Taken in-game on November 19, 2026. The surrounding interface includes other addons.
 
-### 1. Creature loot tooltip / Добыча при наведении на моба
+### Loot on hover · Добыча при наведении
 
-![MobAtlas loot added to the in-world Leech Stalker tooltip](docs/images/creature-loot-tooltip.png)
+![Creature loot tooltip](docs/images/creature-loot-tooltip.png)
 
-Hovering **Leech Stalker** shows MobAtlas's known loot beneath the normal creature information: item icons, rarity-colored names and source labels. The list distinguishes Classic reference percentages from an unknown Forever chance.
+See known drops without opening the atlas. / Наведи на моба — известная добыча появится в подсказке.
 
-**На русском:** при наведении на паука Leech Stalker в обычной подсказке появляется список известной добычи. Видны иконки, цвет редкости и источник данных. Неизвестный шанс не подменяется процентом из Classic.
+### Find an item · Поиск вещей
 
-### 2. Searchable item atlas / Атлас вещей и фильтры
+![Item atlas and filters](docs/images/item-atlas-filters.png)
 
-![MobAtlas equipment list with current-level and known-source filters](docs/images/item-atlas-filters.png)
+Narrow the list by level and category, then open a source on the map. A grey Map button means coordinates are missing. / Выбери вещи под свой уровень и посмотри, где их достать. Серая кнопка «Карта» означает, что координат пока нет.
 
-The atlas shows equipment with **My level** and **Known source** enabled. Each row includes an icon, rarity, required level and source count. **Карта** opens source navigation when map coordinates are available; a known source can still lack coordinates, leaving that button disabled. Category and source dropdowns narrow the list.
+### Before a dungeon · Перед данжем
 
-**На русском:** список экипировки отфильтрован по уровню персонажа и наличию известного источника. В строке указаны требуемый уровень и число источников. Активная кнопка «Карта» ведёт к источникам с координатами; серая означает, что подходящей точки пока нет. Категории и поиск помогают сузить список.
+![Dungeon quest preparation](docs/images/dungeon-preparation.png)
 
-### 3. Dungeon preparation / Подготовка к подземелью
+Check known quests, prerequisite steps, bag space and repairs. / Посмотри задания и цепочки перед походом, проверь сумки и ремонт.
 
-![MobAtlas dungeon preparation list for a level 22 character](docs/images/dungeon-preparation.png)
+### Choose a source · Выбор на карте
 
-The preparation window lists nearby or level-relevant dungeons for a **level 22** character. Counts separate quests shown for the current level from later ones. Open a dungeon to inspect its known quests and prerequisite steps. The bottom reminders report free bag space and equipment repair status.
+![Creature map markers and loot card](docs/images/map-loot-inspection.png)
 
-**На русском:** раздел «Перед походом в данж» показывает подходящие подземелья, количество заданий сейчас и на будущее. После выбора открывается список известных квестов и шагов цепочек. Внизу — напоминания о месте в сумках и ремонте. Справочные условия ещё требуют сверки в игре.
-
-### 4. Map markers and loot inspection / Карта и просмотр добычи
-
-![MobAtlas creature markers and Mosshide Mongrel loot card with an item tooltip](docs/images/map-loot-inspection.png)
-
-Creature markers are shown on the Wetlands map, while the **Mosshide Mongrel** card displays its level, creature type and paginated known loot. Hovering **Sealed Journeyman's Writ** opens the game's item tooltip. **Закрепить** keeps the inspected source selected; **К группе мобов** returns to the group. Existing quest overlays remain visible alongside the addon.
-
-**На русском:** на карте Болотины видны метки мобов и карточка Mosshide Mongrel: уровень, тип существа, добыча и страницы списка. Наведение на вещь открывает игровые характеристики. «Закрепить» сохраняет выбранный источник, «К группе мобов» возвращает к списку группы. Синие квестовые области и трекер справа относятся к остальному игровому интерфейсу.
-
-## Install
-
-1. Download **MobAtlas-0.6.3.zip** from [Releases](https://github.com/Simplepres/MobAtlas/releases/latest). Use this asset rather than GitHub's automatic “Source code” ZIP.
-2. Extract the **MobAtlas** folder into your Forever client's `Interface/AddOns/` folder.
-3. Check that the path ends in `Interface/AddOns/MobAtlas/MobAtlas.toc`.
-4. Restart WoW and enable **MobAtlas** in the AddOns list.
-
-For the client layout used during development, the installation folder is `_forever_/Interface/AddOns/MobAtlas/`.
-
-## Quick start
-
-| Action | How |
-| --- | --- |
-| Open the atlas | Left-click the minimap book or type `/mobatlas` |
-| Search directly | `/mobatlas <item name or ID>` |
-| Prepare for a dungeon | `/mobatlas prep` or **Перед данжем** |
-| Open tracking controls | Right-click the minimap book |
-| Open full settings | `/mobatlas settings` |
-| Inspect a map group | Hover, then click and choose an NPC |
-| Keep a selection on the map | **Закрепить** |
-| Return to the map overview | **Открепить** / clear the selection |
-
-The addon interface follows your WoW client by default: Russian for ruRU, English otherwise. Use the **Auto / RU / EN** button at the top of the atlas to choose **Auto**, **Русский** or **English**. Changes apply immediately and your choice is saved. Item names and native item tooltips remain supplied by your game client.
-
-## Data and accuracy
-
-MobAtlas combines reference catalogs with local observations. It is **not a live creature radar** and is not a complete or fully verified database of the current Forever build.
-
-- Map markers are recorded spawn locations or known dungeon entrances, not guaranteed current spawns.
-- Classic reference percentages are labeled separately from Forever observations. An unknown chance remains unknown.
-- Shared world-drop pools are hidden by default; a large potential loot table does not mean every item is a unique drop from that NPC.
-- Some quest requirements, giver coordinates, entrances and dungeon sources are incomplete. Indoor quest markers show an entrance with an explanation, not an invented indoor NPC position.
-- Quest associations exist for all nine announced new Forever dungeons; this is not a claim that every quest, prerequisite or drop is covered. Five later dungeons currently lack verified entrance coordinates in this build.
-- Filters can hide items. Try other quality, class, level or source filters when investigating a missing result.
-
-The test suite uses simulated WoW APIs. In-game compatibility and visual checks still need player testing. Please include your client build, zone, NPC/item ID if known, active filters and error text when reporting problems. Never upload your entire WTF folder or account information.
-
-## Privacy
-
-The addon does not make network requests or upload your gameplay. Settings, personal loot observations and merchant visits are stored in the local `MobAtlasDB` SavedVariables table. Data refresh scripts run separately, outside the game.
-
-## Credits and licensing
-
-Data sources include QuestieDB/Questie contributors, Everloot contributors, Classic reference datasets, WoW Forever KB and AHledger. **Item metadata from [AHledger](https://ahledger.com)**; no auction prices are claimed here. Noto Sans is distributed under the SIL Open Font License.
-
-Third-party data and fonts retain their own terms; the bundled dataset is not presented as our original work or relicensed under one blanket license. See [license scope](LICENSE.md), [source details](MobAtlas/SOURCES.md) and [upstream notices](MobAtlas/Licenses/). QuestieDB's historical-contributor licensing caveat is preserved. AHledger's published terms include changes effective December 10, 2026; review them before rebuilding, redistributing or monetizing its data after that date.
-
-Independent community project. Not affiliated with Blizzard Entertainment or the upstream data projects. World of Warcraft and its game assets belong to their respective owners.
-
-## Development
-
-The repository includes addon Lua files, generators, tests and the source snapshots used for this build. Source history is separate from personal SavedVariables.
-
-```sh
-python3 -m venv .venv
-.venv/bin/pip install -r requirements-dev.txt
-.venv/bin/python tests/run_mobatlas.py
-.venv/bin/python tests/check_mobatlas_catalog.py
-.venv/bin/python tests/check_mobatlas_data.py
-.venv/bin/python tests/check_mobatlas_atlas.py
-.venv/bin/python tests/check_mobatlas_preparation.py
-.venv/bin/python tests/check_mobatlas_locale.py
-```
-
-Build an installable ZIP with `python3 tools/package.py`. See [development notes](docs/DEVELOPMENT-NOTES.ru.md) for data generation history and known limitations. Network refreshes are optional and may be rate-limited; offline snapshots are retained when an update fails validation.
+Inspect loot, hover over an item for its stats, and pin the creature you want to find. / Открой добычу моба, наведи на вещь для просмотра характеристик и закрепи нужный источник. Квестовые области на скрине относятся к другим элементам интерфейса.
 
 ## На русском
 
-**Бета-версия:** аддон активно дорабатывается; возможны ошибки, неполные данные и изменения интерфейса. Вопросы, предложения и сообщения о багах можно присылать напрямую: [Telegram @brunotwin](https://t.me/brunotwin) или [Threads @teur_person](https://www.threads.com/@teur_person).
+**Следопыт помогает понять, где достать нужную вещь в WoW Forever.** Найди её в атласе, посмотри мобов или торговцев и выдели известные места на карте. Добычу можно смотреть прямо при наведении на моба, а перед данжем — проверить задания и первые шаги цепочек.
 
-**Следопыт — атлас добычи для WoW Forever.** Найди вещь, посмотри источники и выдели известных мобов или продавцов на карте.
+Есть фильтры по редкости, классу, уровню и материалам профессий. База уже внутри: отдельно ставить Questie не нужно.
 
-Аддон объединяет мобов в группы, показывает добычу с иконками и цветом редкости, позволяет закрепить выбранный источник и отфильтровать вещи под класс, уровень и профессии. Раздел **«Перед данжем»** помогает найти известные задания и первые шаги цепочек, включая The Hall of Thanes.
+**Как установить:** скачай [MobAtlas-0.6.3.zip](https://github.com/Simplepres/MobAtlas/releases/latest), положи папку `MobAtlas` в `Interface/AddOns/` клиента Forever и перезапусти WoW.
 
-**Установка:** скачай `MobAtlas-0.6.3.zip` в [Releases](https://github.com/Simplepres/MobAtlas/releases/latest), распакуй папку `MobAtlas` в `Interface/AddOns/` клиента Forever и перезапусти игру. Questie отдельно устанавливать не нужно.
+**Как открыть:** книжка у миникарты или `/mobatlas`. `/mobatlas prep` — задания перед данжем, `/mobatlas settings` — настройки. Язык выбирается по клиенту; кнопка **Auto / RU / EN** меняет его вручную и сохраняет выбор.
 
-**Язык:** по умолчанию — язык клиента WoW (русский или английский; для других локалей — английский). Кнопка **Auto / RU / EN** вверху атласа позволяет выбрать язык вручную, без перезагрузки. Выбор сохраняется. Названия вещей и игровые подсказки берутся из клиента.
+**Это бета.** База ещё пополняется, часть координат и условий заданий неизвестна. Метки показывают известные места появления, а не живых мобов. Проценты из Classic отмечены отдельно от наблюдений Forever. Личные находки никуда не отправляются.
 
-**Управление:** `/mobatlas` — атлас, `/mobatlas prep` — подготовка к подземелью, `/mobatlas settings` — настройки. ЛКМ по книжке у миникарты открывает атлас, ПКМ — управление отображением. В карточке нажми **«Закрепить»**, на карте — **«Открепить»**, чтобы вернуться к обзору.
+## Feedback · Обратная связь
 
-Это ранняя тестовая версия. База неполная: неизвестные шансы, условия заданий и координаты не заменяются выдуманными значениями. Данные Classic и наблюдения Forever различаются. Личные находки сохраняются только на твоём компьютере.
+Found a bug or have an idea? / Нашёл баг или хочешь что-то предложить?
 
-Об ошибках пиши в [Issues](https://github.com/Simplepres/MobAtlas/issues): что делал, что ожидал, что произошло; добавь зону, название вещи/моба и текст ошибки, если они известны.
+Write directly: [**Telegram @brunotwin**](https://t.me/brunotwin) · [**Threads @teur_person**](https://www.threads.com/@teur_person), or open an [issue](https://github.com/Simplepres/MobAtlas/issues). A screenshot, item or creature name, and a short description of what happened are helpful.
+
+## Data and credits
+
+Locations and loot tables are reference data, not a live radar or a complete record of every Forever drop. Classic rates and Forever observations are labeled separately. Some sources, entrances and quest requirements are still missing.
+
+Thanks to QuestieDB/Questie, Everloot, WoW Forever KB and the Classic reference contributors. Item metadata from [AHledger](https://ahledger.com); font: Noto Sans.
+
+[Data, privacy and upstream notices](docs/DATA-AND-CREDITS.md) · [License scope](LICENSE.md) · [Source details](MobAtlas/SOURCES.md) · [Development](docs/DEVELOPING.md)
+
+Independent community addon, not affiliated with Blizzard Entertainment. Third-party data and assets retain their own terms.
