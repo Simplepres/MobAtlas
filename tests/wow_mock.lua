@@ -15,6 +15,10 @@ end
 function CreateFrame(...) return make(...) end
 function methods:CreateFontString(name) return make("FontString",name,self) end
 function methods:CreateTexture(name) return make("Texture",name,self) end
+function methods:CreateLine(name) return make("Line",name,self) end
+function methods:SetStartPoint(...) self.startPoint={...} end
+function methods:SetEndPoint(...) self.endPoint={...} end
+function methods:SetThickness(v) self.thickness=v end
 function methods:SetSize(w,h) self.width=w; self.height=h end
 function methods:SetWidth(w) self.width=w end
 function methods:SetHeight(h) self.height=h end

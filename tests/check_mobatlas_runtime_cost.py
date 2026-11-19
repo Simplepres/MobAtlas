@@ -20,9 +20,12 @@ start=time.perf_counter()
 for i in range(100):l.globals().MOCK.newItem=990100+i;a.CaptureLoot(a)
 loot=(time.perf_counter()-start)*1000/100
 start=time.perf_counter()
+a.RenderHabitatArea(a,l.globals().MOCK.cells,l.globals().MOCK.canvas,1,20,'HIGH')
+cold=(time.perf_counter()-start)*1000
+start=time.perf_counter()
 for i in range(20):a.RenderHabitatArea(a,l.globals().MOCK.cells,l.globals().MOCK.canvas,1,20,'HIGH')
 contour=(time.perf_counter()-start)*1000/20
 count=len(a.habitatAreas)
 a.RenderHabitatArea(a,l.globals().MOCK.cells,l.globals().MOCK.canvas,1,20,'HIGH')
-assert len(a.habitatAreas)==count and count<=2048
-print(json.dumps({'lootMsPerNewItem':round(loot,3),'contourMs80Patches':round(contour,3),'pooledSegments':count,'fullIndexRebuilds':0,'environment':'Lua mocks; not WoW FPS'}))
+assert len(a.habitatAreas)==count and count<=4320
+print(json.dumps({'lootMsPerNewItem':round(loot,3),'coldContourMs80Patches':round(cold,3),'cachedContourMs80Patches':round(contour,3),'pooledSegments':count,'fullIndexRebuilds':0,'environment':'Lua mocks; not WoW FPS'}))

@@ -1,17 +1,13 @@
-# MobAtlas 0.7.5 — Beta
+# MobAtlas 0.7.6 — Beta
 
-Habitat highlights now distinguish an explicit pin from ordinary navigation focus. Closing a temporary loot card clears its area; background map updates cannot restore it. Pinned habitats remain until unpinned. Group lists no longer paint the habitats of every NPC at once.
+Rounded habitat areas replace the square grid. Overlapping spawn patches merge into a single translucent teal region with a thin outer contour. There are no internal borders or darkened overlaps, and distant camps remain separate.
 
-Replaced blurred spawn halos with translucent, crisp outlined patches built from actual spawn coordinates. Distant camps are not joined. Drawing reuses a bounded pool; removed redundant habitat rendering when refreshing a pinned loot card.
-
-Lua mock checks cover preview close with/without a pin, idle refresh, unpin, combat navigation and dungeon compatibility. A 100-new-item loot check triggers zero full atlas rebuilds. Performance timings are development measurements, not in-game FPS or a guarantee of no stutters.
+Native line regions and pooled fill textures share one mouse-transparent, clipped frame. Geometry is cached for repeated views. Preview/pin visibility and explicit unpin behavior are preserved.
 
 ## На русском
 
-Исправлена повторная отрисовка области после закрытия добычи: обычный выбор источника больше не считается закреплением. Подсветка остаётся только при просмотре конкретного моба или явном закреплении. Список группы не выделяет сразу всех мобов.
+Вместо квадратов — округлая полупрозрачная область с тонким бирюзовым контуром, ближе по виду к квестовой подсветке WoW. Пересекающиеся участки объединяются, без внутренних границ и затемнений. Удалённые лагеря остаются отдельными.
 
-Вместо размытого свечения — полупрозрачные области с чёткой границей по местам появления. Удалённые лагеря не соединяются. Убрана лишняя повторная отрисовка закреплённой карточки, элементы переиспользуются.
+Область появляется при просмотре конкретного моба или закреплении. Геометрия кэшируется, элементы переиспользуются. Проверены контур, очистка после закрытия, закрепление, бой и квестовые метки в Lua-модели; визуал в клиенте ещё требует проверки.
 
-Обновление уже можно применить через **/reload**. Замеры выполнены в Lua-симуляторе; работу и FPS в клиенте ещё нужно проверить.
-
-The loot card now shows “Pin” until the habitat is explicitly pinned, including when opened from a rare marker. / Кнопка «Закрепить» теперь отражает явное закрепление, в том числе при просмотре редкого моба.
+Replace MobAtlas and **/reload**. / Обнови MobAtlas и введи **/reload**.
