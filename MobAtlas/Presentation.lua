@@ -80,7 +80,7 @@ function A:ReadableFocusCells(cells,canvas,scale)
 end
 
 function A:IsInspectionTracked(pin)
- if not pin or not self.focus or not next(self.focus.ids or {}) then return false end
+ if not pin or not self.focus or self.habitatPinnedFocus~=self.focus or not next(self.focus.ids or {}) then return false end
  local expected={}
  if pin.selected then expected[pin.cell.ids[pin.mobIndex or 1]]=true else for _,id in ipairs(pin.cell.ids) do expected[id]=true end end
  for id in pairs(expected) do if not self.focus.ids[id] then return false end end

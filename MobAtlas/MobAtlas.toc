@@ -2,7 +2,7 @@
 ## Title: MobAtlas | Следопыт: Атлас добычи
 ## Notes: Offline loot atlas, Forever reference sources, map focus and filters.
 ## Notes-ruRU: Атлас добычи, источники Forever, поиск вещей и выделение на карте.
-## Version: 0.7.4
+## Version: 0.7.5
 ## Author: MobAtlas
 ## SavedVariables: MobAtlasDB
 Data.lua

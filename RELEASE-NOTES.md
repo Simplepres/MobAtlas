@@ -1,4 +1,4 @@
-# MobAtlas 0.7.4 — Beta
+# MobAtlas 0.7.5 — Beta
 
 Habitat highlights now distinguish an explicit pin from ordinary navigation focus. Closing a temporary loot card clears its area; background map updates cannot restore it. Pinned habitats remain until unpinned. Group lists no longer paint the habitats of every NPC at once.
 
@@ -13,3 +13,5 @@ Lua mock checks cover preview close with/without a pin, idle refresh, unpin, com
 Вместо размытого свечения — полупрозрачные области с чёткой границей по местам появления. Удалённые лагеря не соединяются. Убрана лишняя повторная отрисовка закреплённой карточки, элементы переиспользуются.
 
 Обновление уже можно применить через **/reload**. Замеры выполнены в Lua-симуляторе; работу и FPS в клиенте ещё нужно проверить.
+
+The loot card now shows “Pin” until the habitat is explicitly pinned, including when opened from a rare marker. / Кнопка «Закрепить» теперь отражает явное закрепление, в том числе при просмотре редкого моба.

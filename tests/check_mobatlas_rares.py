@@ -46,7 +46,7 @@ local found=false;for _,e in ipairs(A:RareMapEntries(1429)) do if e.id==999501 t
 A:Update();assert(#A.rareWorldPins>0)
 local ex,ey,edge=A:MinimapRareOffset({1429,80,50},1429,CreateVector2D(.5,.5),true);assert(edge and math.abs(ex-61.6)<.01 and ey==0,'confirmed off-map marker clamps to rim')
 assert(not A:MinimapRareOffset({1429,80,50},1429,CreateVector2D(.5,.5),false),'do not clamp unconfirmed reference points')
-assert(A:TrackRare(999501));assert(A.focus.ids[999501] and A.tip:IsShown(),'rare click opens loot card')
+assert(A:TrackRare(999501));assert(A.focus.ids[999501] and A.tip:IsShown(),'rare click opens loot card');assert(not A:IsInspectionTracked(A.inspectPin),'viewing a rare is not a pin');A:PinInspection();assert(A:IsInspectionTracked(A.inspectPin),'explicit pin changes button state')
 local area=0;for _,f in ipairs(A.habitatAreas) do if f:IsShown() then area=area+1 end end;assert(area>0 and area<=2048,'bounded contour pool')
 A:RenderHabitatArea({{x=10,y=10},{x=90,y=90}},canvas,1,20,'HIGH');for _,f in ipairs(A.habitatAreas) do if f:IsShown() then assert(f.point[4]<150 or f.point[4]>850,'no bridge across empty map') end end
 units.nameplate1.dead=true;A:WatchRareUnit('nameplate1');assert(not A:RareLiveRecord(999501),'dead creature not live')
