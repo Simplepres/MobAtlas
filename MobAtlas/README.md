@@ -1,4 +1,4 @@
-# MobAtlas 0.6.5 / Следопыт
+# MobAtlas 0.7.0 / Следопыт
 
 Offline loot atlas for World of Warcraft: Forever (Interface 16001).
 
@@ -15,3 +15,5 @@ Source details and third-party licensing notices: SOURCES.md and Licenses/. A Gi
 Language: follows WoW (ruRU = Russian, otherwise English). Use Auto / RU / EN at the top of the atlas to switch instantly; choice is saved. Item names and native item tooltips follow the game client.
 
 Язык: автоматически по клиенту (ruRU — русский, иначе английский). Кнопка Auto / RU / EN в атласе меняет язык сразу и сохраняет выбор.
+
+Rare tracking / Редкие мобы: /mobatlas rares or right-click minimap book → Rare creatures… . Reference spawn points are not live detections. The maximum-distance option requests nameplates up to 80 and enables enemy nameplates outside combat; turn it off to restore prior unchanged values. Detection remains limited by WoW.

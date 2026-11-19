@@ -1,0 +1,11 @@
+{
+  "source": "QuestieDB Forever raw NPC data + static traces",
+  "revision": "4a73dc6513f05714101cfc93eda147947b75574a",
+  "rareRanks": [
+    2,
+    4
+  ],
+  "npcs": 346,
+  "points": 2029,
+  "limits": "Reference rarity and spawn points; client UnitClassification wins when observed. No live presence implied."
+}

@@ -92,7 +92,7 @@ function A:CreateLootCard()
   r:SetScript('OnClick',function(b)
    local p=self.inspectPin or self.hoverPin;if not p then return end
    self:FreezeInspection(p);self.inspectPin=p
-   if b.npcIndex then p.mobIndex=b.npcIndex;p.selected=true;p.page=1;GameTooltip:Hide();self:ShowTooltip(p,true)
+   if b.npcIndex then p.mobIndex=b.npcIndex;p.selected=true;p.page=1;GameTooltip:Hide();self:ShowTooltip(p,true);if self.PreviewMobHabitat then self:PreviewMobHabitat(p) end
    elseif b.itemID then GameTooltip:SetOwner(b,'ANCHOR_RIGHT');GameTooltip:SetHyperlink('item:'..b.itemID);self:ItemEvidence(GameTooltip,b.entry);GameTooltip:Show() end
   end)
   t.rows[i]=r
@@ -100,11 +100,11 @@ function A:CreateLootCard()
  t.prev=button(t,'‹',14,-340,35,function() local p=self.inspectPin or self.hoverPin;if p then p.page=p.page-1;self:ShowTooltip(p,true) end end)
  t.next=button(t,'›',391,-340,35,function() local p=self.inspectPin or self.hoverPin;if p then p.page=p.page+1;self:ShowTooltip(p,true) end end)
  t.pageText=label(t,'',60,-345,320,11);t.pageText:SetJustifyH('CENTER')
- t.mobNext=button(t,'Другой моб в этой точке',14,-375,412,function() local p=self.inspectPin or self.hoverPin;if p then p.selected=false;p.page=1;self:ShowTooltip(p,true) end end)
+ t.mobNext=button(t,'Другой моб в этой точке',14,-375,412,function() local p=self.inspectPin or self.hoverPin;if p then p.selected=false;p.page=1;self:ShowTooltip(p,true);if self.PreviewMobHabitat then self:PreviewMobHabitat(p) end end end)
  -- Provenance is available in settings and individual item tooltips.
  t:SetScript('OnEnter',function() self.previewSerial=(self.previewSerial or 0)+1 end)
  t:SetScript('OnLeave',function() self:SchedulePreviewHide(self.hoverPin) end)
- t:SetScript('OnHide',function() self.inspectPin=nil;self.hoverPin=nil;self.pinned=nil;self.focusGroup=nil;t.stableAnchor=nil;t.stablePin=nil;t.anchorPin=nil;GameTooltip:Hide() end)
+ t:SetScript('OnHide',function() if self.HideHabitatAreas and not self.focus then self:HideHabitatAreas() end;self.inspectPin=nil;self.hoverPin=nil;self.pinned=nil;self.focusGroup=nil;t.stableAnchor=nil;t.stablePin=nil;t.anchorPin=nil;GameTooltip:Hide() end)
  t:EnableMouseWheel(true);t:SetScript('OnMouseWheel',function(_,delta) local p=self.inspectPin or self.hoverPin;if p then p.page=(p.page or 1)-delta;self:ShowTooltip(p,true) end end)
  t:Hide()
 end
@@ -210,12 +210,14 @@ function A:Update()
   if self.tip then self.tip:Hide() end;self:ClearHabitat()
   for _,pin in ipairs(self.pins or {}) do pin:Hide() end
   for _,pin in ipairs(self.dungeonPins or {}) do pin:Hide() end
+  for _,pin in ipairs(self.rareWorldPins or {}) do pin:Hide() end
   self.lastMap=nil;return
  end
  local canvas=map:GetCanvas();if not canvas then return end
  if self.IsExternalDungeonPreview and self:IsExternalDungeonPreview(canvas) then
   for _,pin in ipairs(self.pins or {}) do pin:Hide() end
   for _,pin in ipairs(self.dungeonPins or {}) do pin:Hide() end
+  for _,pin in ipairs(self.rareWorldPins or {}) do pin:Hide() end
   self:ClearHabitat();if self.tip then self.tip:Hide() end
   if self.mapButton then self.mapButton:Hide();self.mapStatus:Hide();self.focusButton:Hide() end
   self.lastMap=nil;return
@@ -235,6 +237,7 @@ function A:Update()
  for _,point in ipairs(self.habitatPins or {}) do point:SetFrameLevel(pinLevel+1);point:SetFrameStrata(pinStrata) end
  local mapID=map:GetMapID();local width,height=canvas:GetWidth(),canvas:GetHeight()
  if self.UpdateDungeonPins then self:UpdateDungeonPins(canvas,pinScale,pinLevel,pinStrata) end
+ if self.UpdateRareWorld then self:UpdateRareWorld(canvas,pinScale,pinLevel,pinStrata) end
  self.focusButton:SetText(self.questFocus and 'Открепить' or 'Снять выделение');self.focusButton:SetShown(self.focus~=nil or self.questFocus~=nil)
  -- While inspecting a habitat, zoom its same source members instead of replacing the selection.
  if self.focusGroup and self.pinned and not self.dirty and self.lastMap==mapID and self.lastCanvas==canvas then
@@ -368,6 +371,7 @@ function A:ShowGroupTooltip(pin)
 end
 
 function A:ClearHabitat()
+ if self.HideHabitatAreas then self:HideHabitatAreas() end
  for _,point in ipairs(self.habitatPins or {}) do point:Hide() end
 end
 function A:ShowHabitat(pin)
@@ -387,6 +391,7 @@ function A:RenderFocus()
  if not self.focus or not canvas or not map:IsShown() then return end
  local cells=self:BuildMap(map:GetMapID());self.habitatPins=self.habitatPins or {}
  local scale=map:GetEffectiveScale()/math.max(.01,canvas:GetEffectiveScale());local level,strata=self:MapPinLayer(map,canvas);local used=0
+ if self.RenderHabitatArea then self:RenderHabitatArea(cells,canvas,scale,level,strata) end
  for _,cell in ipairs(self:ReadableFocusCells(cells,canvas,scale)) do if not cell.dungeon then
   used=used+1;local point=self.habitatPins[used]
   if not point then
@@ -533,7 +538,7 @@ function A:RenderLocationFocus(canvas,scale,level,strata,used)
    seen[key]=true;used=used+1;local point=self.habitatPins[used]
    if not point then point=CreateFrame('Frame',nil,canvas);point.mobAtlasPin=true;point.dot=point:CreateTexture(nil,'OVERLAY');point.dot:SetAllPoints();self.habitatPins[used]=point end
    point:SetSize(22,22);point:EnableMouse(true);point:SetParent(canvas);point:SetScale(scale);point:SetFrameLevel(level+2);point:SetFrameStrata(strata)
-   point.dot:SetTexture(target.kind=='quest' and 'Interface\\GossipFrame\\AvailableQuestIcon' or target.kind=='entrance' and 'Interface\\AddOns\\MobAtlas\\Art\\TrackDungeon.tga' or 'Interface\\Minimap\\Tracking\\Object')
+   point.dot:SetTexture(target.kind=='rare' and 'Interface\\TargetingFrame\\UI-TargetingFrame-Skull' or target.kind=='quest' and 'Interface\\GossipFrame\\AvailableQuestIcon' or target.kind=='entrance' and 'Interface\\AddOns\\MobAtlas\\Art\\TrackDungeon.tga' or 'Interface\\Minimap\\Tracking\\Object')
    point:ClearAllPoints();point:SetPoint('CENTER',canvas,'TOPLEFT',canvas:GetWidth()*p[2]/100/scale,-canvas:GetHeight()*p[3]/100/scale)
    point.sourceX=p[2];point.sourceY=p[3]
    point:SetScript('OnEnter',function(b) if not target then return end;GameTooltip:SetOwner(b,'ANCHOR_RIGHT');self:AddTooltipLine(GameTooltip,target.label,1,.85,.35);self:AddTooltipLine(GameTooltip,self:MapName(mapID)..string.format(' · %.1f, %.1f',p[2],p[3]),.8,.8,.7);if target.questID then local _,why=self:QuestState(target.questID);self:AddTooltipLine(GameTooltip,why,.8,.8,.7);self:AddTooltipLine(GameTooltip,'Нажми метку, чтобы открепить.',.8,.85,.7) end;GameTooltip:Show() end)
@@ -625,7 +630,7 @@ end
 
 function A:ToggleTrackingMenu(owner)
  if not self.trackingMenu then
-  local f=panel('MobAtlasTrackingMenu',UIParent,260,262);self.trackingMenu=f;f:SetFrameStrata('TOOLTIP');f:EnableMouse(true);tinsert(UISpecialFrames,'MobAtlasTrackingMenu')
+  local f=panel('MobAtlasTrackingMenu',UIParent,260,296);self.trackingMenu=f;f:SetFrameStrata('TOOLTIP');f:EnableMouse(true);tinsert(UISpecialFrames,'MobAtlasTrackingMenu')
   label(f,'Отслеживание',15,-15,220,14,{1,.82,.4})
   local close=CreateFrame('Button',nil,f,'UIPanelCloseButton');close:SetPoint('TOPRIGHT',-3,-3);close:SetScript('OnClick',function() f:Hide() end)
   local function layer()
@@ -637,7 +642,8 @@ function A:ToggleTrackingMenu(owner)
   f.prof=check(f,'Мои профессии',14,-113,225,function(v) self.db.prof=v and -1 or 0;self:Invalidate() end)
   f.unit=check(f,'Добыча при наведении',14,-145,225,function(v) self.db.unitLoot=v end)
   f.dungeons=check(f,'Подземелья и задания',14,-177,225,function(v) self.db.dungeonPins=v;layer() end)
-  button(f,'Все настройки',14,-219,232,function() f:Hide();self.settings:Show();self:RefreshSettings() end)
+  button(f,'Редкие мобы…',14,-213,232,function() f:Hide();if self.OpenRareSettings then self:OpenRareSettings() end end)
+  button(f,'Все настройки',14,-249,232,function() f:Hide();self.settings:Show();self:RefreshSettings() end)
   f:Hide()
  end
  local f=self.trackingMenu

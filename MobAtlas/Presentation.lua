@@ -26,6 +26,7 @@ function A:SetNpcPortrait(texture,id)
  self:Safe(model.ClearModel,model);model:Show();self:Safe(model.SetCreature,model,id)
 end
 function A:CloseInspection()
+ if self.HideHabitatAreas and not self.focus then self:HideHabitatAreas() end
  self.inspectPin=nil;self.hoverPin=nil;self.pinned=nil;self.focusGroup=nil
  if self.tip then self.tip:Hide() end
  self.dirty=true
@@ -61,7 +62,7 @@ function A:AnchorInspection(pin)
  t.anchorPin=pin
 end
 function A:InspectPin(pin)
- self:FreezeInspection(pin);self.inspectPin=pin;self.hoverPin=pin;self:ShowTooltip(pin,true)
+ self:FreezeInspection(pin);self.inspectPin=pin;self.hoverPin=pin;self:ShowTooltip(pin,true);if self.PreviewMobHabitat then self:PreviewMobHabitat(pin) end
 end
 function A:PinInspection()
  local pin=self.inspectPin or self.hoverPin;if not pin then return end

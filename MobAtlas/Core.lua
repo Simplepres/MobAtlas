@@ -1,6 +1,6 @@
 local _,A=...
 _G.MobAtlas=A
-A.version='0.6.5';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
+A.version='0.7.0';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
 A.profNames={[129]='Первая помощь',[164]='Кузнечное дело',[165]='Кожевничество',[171]='Алхимия',[185]='Кулинария',[197]='Портняжное дело',[202]='Инженерное дело',[333]='Наложение чар'}
 A.methods={[1]='Добыча',[2]='Снятие шкур',[3]='Карманная кража',[4]='Forever · способ не разделён',[5]='Продажа · справочник QuestieDB',[6]='Продажа · личное наблюдение',[7]='Добыча · справочник Forever',[8]='Личная находка · способ не определён',[9]='Classic · vMaNGOS через KB',[10]='Награда за задание',[11]='Изготовление',[12]='Сундук / объект · Classic',[13]='Содержимое предмета'}
 function A:Safe(fn,...)
@@ -119,7 +119,7 @@ function A:Invalidate()
 end
 function A:Init()
  MobAtlasDB=type(MobAtlasDB)=='table' and MobAtlasDB or {};self.db=MobAtlasDB
- local defaults={dungeonPins=true,language='auto',enabled=true,quality='all',classOnly=false,prof=0,skinning=true,pickpocket=false,visibleItems=5,sort='chance',unitLoot=true,observed=true,minimapAngle=225,sharedLoot=false,vendorLevel=true,vendorRelevant=true,mapLayer='all',specialFirst=true}
+ local defaults={rareEnabled=true,rareAlerts=true,rareSound=true,rareMap=true,rareMinimap=true,rareMaxRange=true,habitatGlow=true,dungeonPins=true,language='auto',enabled=true,quality='all',classOnly=false,prof=0,skinning=true,pickpocket=false,visibleItems=5,sort='chance',unitLoot=true,observed=true,minimapAngle=225,sharedLoot=false,vendorLevel=true,vendorRelevant=true,mapLayer='all',specialFirst=true}
  for k,v in pairs(defaults) do if self.db[k]==nil then self.db[k]=v end end
  if self.db.language~='auto' and self.db.language~='ruRU' and self.db.language~='enUS' then self.db.language='auto' end
  if not ({all=true,green=true,blue=true,both=true})[self.db.quality] then self.db.quality='all' end
@@ -131,17 +131,18 @@ function A:Init()
  if not ({[3]=true,[5]=true,[7]=true})[self.db.visibleItems] then self.db.visibleItems=5 end
  if not ({all=true,mobs=true,vendors=true,none=true})[self.db.mapLayer] then self.db.mapLayer='all' end
  if self.db.sort~='quality' then self.db.sort='chance' end
- self:MergeForever();self:ApplyCatalog();self:ApplyExpansion();self:RestoreMerchants();self:RestoreLoot();self:ApplyForeverItems()
+ self:MergeForever();self:ApplyCatalog();self:ApplyExpansion();if self.MergeRareCatalog then self:MergeRareCatalog() end;self:RestoreMerchants();self:RestoreLoot();self:ApplyForeverItems()
  self.zoneIndex={}
  for id,mob in pairs(self.mobs) do local seen={};for _,p in ipairs(mob.points) do if not seen[p[1]] then seen[p[1]]=true;self.zoneIndex[p[1]]=self.zoneIndex[p[1]] or {};table.insert(self.zoneIndex[p[1]],id) end end end
  for _,ids in pairs(self.zoneIndex) do table.sort(ids) end
- self:BuildAtlasIndex();self:HookItemSearch();self:CreateSettings();self:CreateMinimapButton();self:HookUnitLoot();self:RestoreQuestPin();self.dirty=true
+ self:BuildAtlasIndex();self:HookItemSearch();self:CreateSettings();self:CreateMinimapButton();self:HookUnitLoot();self:RestoreQuestPin();if self.StartRareTracking then self:StartRareTracking() end;self.dirty=true
  SLASH_MOBATLAS1='/mobatlas';SLASH_MOBATLAS2='/следопыт'
  SlashCmdList.MOBATLAS=function(msg)
   if msg=='clear' then self:ClearFocus()
   elseif msg=='off' then self.db.enabled=false;self:Invalidate()
   elseif msg=='on' then self.db.enabled=true;self:Invalidate()
   elseif msg=='map' then local id=WorldMapFrame and WorldMapFrame.GetMapID and WorldMapFrame:GetMapID() or self:Safe(C_Map and C_Map.GetBestMapForUnit,'player');if id then local ok,why=self:OpenMapAt(id);if not ok and DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage(self:L(why)) end end
+  elseif msg=='rares' and self.OpenRareSettings then self:OpenRareSettings()
   elseif msg=='prep' then self:OpenPreparation()
   elseif msg=='settings' then self.settings:SetShown(not self.settings:IsShown());self:RefreshSettings()
   else self:OpenAtlas(msg~='' and msg or nil) end

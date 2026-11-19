@@ -6,7 +6,7 @@
 
 Look up an item, check which creatures drop it or which vendors sell it, and mark known locations on your map. Heading into a dungeon? Check the quest list before you leave.
 
-**Beta · 0.6.5** — still growing, with bugs to fix and gaps in the database. Your feedback helps.
+**Beta · 0.7.0** — still growing, with bugs to fix and gaps in the database. Your feedback helps.
 
 [**Download**](https://github.com/Simplepres/MobAtlas/releases/latest) · [Русский](#на-русском) · [Screenshots](#screenshots--скриншоты) · [Report a bug](https://github.com/Simplepres/MobAtlas/issues)
 
@@ -20,9 +20,17 @@ Look up an item, check which creatures drop it or which vendors sell it, and mar
 
 The database is included. You don't need Questie, an account or an API key. Personal loot finds and merchant visits stay on your computer.
 
+## Rare creatures
+
+Get an alert when a rare is detected through an accessible nameplate, target or mouseover. See rare markers on the map and minimap; click one to inspect loot and a soft spawn-area overlay. The reference catalog covers **346 rare NPCs**.
+
+Open **Rare creatures…** by right-clicking the minimap book, or type **`/mobatlas rares`**. Alerts, sound, map markers, minimap markers and soft shading can be toggled separately. The distance option requests nameplates up to **80** and enables enemy nameplates outside combat; WoW decides the actual limit. Disabling it restores the previous settings if they have not since changed.
+
+**A spawn marker is not a live detection.** Reference spots are muted; confirmed client-supplied positions have a stronger highlight. If the client hides an NPC's coordinates, the addon says so and keeps its known spawn locations marked as reference data. It never places an NPC at the player's position. Detection depends on what the client makes available.
+
 ## Install and play
 
-1. Download **MobAtlas-0.6.5.zip** from [Releases](https://github.com/Simplepres/MobAtlas/releases/latest).
+1. Download **MobAtlas-0.7.0.zip** from [Releases](https://github.com/Simplepres/MobAtlas/releases/latest).
 2. Put the **MobAtlas** folder in your Forever client's `Interface/AddOns/` folder.
 3. Restart WoW and enable the addon. The file should be at `Interface/AddOns/MobAtlas/MobAtlas.toc`.
 
@@ -68,11 +76,13 @@ Inspect loot, hover over an item for its stats, and pin the creature you want to
 
 Есть фильтры по редкости, классу, уровню и материалам профессий. База уже внутри: отдельно ставить Questie не нужно.
 
-**Как установить:** скачай [MobAtlas-0.6.5.zip](https://github.com/Simplepres/MobAtlas/releases/latest), положи папку `MobAtlas` в `Interface/AddOns/` клиента Forever и перезапусти WoW.
+**Как установить:** скачай [MobAtlas-0.7.0.zip](https://github.com/Simplepres/MobAtlas/releases/latest), положи папку `MobAtlas` в `Interface/AddOns/` клиента Forever и перезапусти WoW.
 
 Карта работает и в бою: можно смотреть добычу, выбирать и закреплять источники. Если WoW блокирует открытие карты из аддона, открой её клавишей **M**.
 
 **Как открыть:** книжка у миникарты или `/mobatlas`. `/mobatlas prep` — задания перед данжем, `/mobatlas settings` — настройки. Язык выбирается по клиенту; кнопка **Auto / RU / EN** меняет его вручную и сохраняет выбор.
+
+**Редкие мобы:** уведомления при обнаружении, метки на карте и миникарте, мягкая область появления после выбора моба. Настройки: ПКМ по книжке → **«Редкие мобы…»** или `/mobatlas rares`. Опция дальности запрашивает до 80 и включает имена врагов вне боя; фактический предел задаёт WoW. Выключение опции восстанавливает прежние значения, если они не менялись. Точка из базы не означает, что моб сейчас жив; неизвестные координаты не заменяются позицией игрока.
 
 **Это бета.** База ещё пополняется, часть координат и условий заданий неизвестна. Метки показывают известные места появления, а не живых мобов. Проценты из Classic отмечены отдельно от наблюдений Forever. Личные находки никуда не отправляются.
 
