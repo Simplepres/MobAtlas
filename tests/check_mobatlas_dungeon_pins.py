@@ -43,7 +43,7 @@ function LeaMapsPOITooltip:HookScript(name,fn) self.scripts[name]=fn end
 A.dirty=true;A:Update();assert(pin.leatrixMarker==native and pin:GetWidth()==14,'badge replaces duplicate full-size icon')
 assert(native.data==original and native:IsShown());native.scripts.OnClick();assert(calls==1,'native click unchanged')
 LeaMapsPOITooltip.scripts.OnShow(LeaMapsPOITooltip);assert(#nativeLines>1,'native entrance tooltip gains quest list')
-native:Hide();A:Update();assert(not pin.leatrixMarker and pin:GetWidth()==20,'own marker returns when native pin hidden')
+native:Hide();A:Update();assert(not pin.leatrixMarker and pin:GetWidth()==22,'own marker returns when native pin hidden')
 canvas:SetScale(2);A:Update();assert(pin.scale==.5,'entrance scale follows zoom')
 local container=CreateFrame('Frame');local overlay=CreateFrame('Frame');overlay.bg={};local art=CreateFrame('Frame');art.art={}
 function container:GetChildren() return canvas,overlay end

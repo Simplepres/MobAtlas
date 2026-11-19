@@ -311,21 +311,21 @@ function A:CreatureKind(mob) return kindNames[mob.kind] or 'Существо' en
 function A:CreatureIcon(mob)
  return 'Interface\\Icons\\'..(mob.vendor and 'INV_Misc_Bag_10' or kindIcons[mob.kind] or 'INV_Misc_Note_01')
 end
--- Use Blizzard's own art. The skull denotes a mob group here, not a rare spawn.
+-- Compact original symbols share the game's brass-and-parchment palette.
 function A:StyleGroupPin(pin)
  local vendor=self.mobs[pin.cell.ids[1]].vendor;local selected=false
  if self.focus then for _,id in ipairs(pin.cell.ids) do if self.focus.ids[id] then selected=true;break end end end
- pin.dot:SetTexture('Interface\\AddOns\\MobAtlas\\Art\\'..(pin.cell.dungeon and 'TrackDungeon.tga' or vendor and 'TrackVendor.tga' or 'TrackMob.tga'))
+ pin.dot:SetTexture('Interface\\AddOns\\MobAtlas\\Art\\'..(pin.cell.dungeon and 'MarkerDungeon.tga' or vendor and 'MarkerVendor.tga' or 'MarkerMob.tga'))
  pin.dot:SetTexCoord(0,1,0,1)
- local size=16;if selected or pin.hovered then size=size+2 end;pin.dot:SetSize(size,size)
- if pin.dot.SetAlpha then pin.dot:SetAlpha(selected and 1 or pin.hovered and .95 or .8) end
+ local size=18;if selected or pin.hovered then size=size+2 end;pin.dot:SetSize(size,size)
+ if pin.dot.SetAlpha then pin.dot:SetAlpha(selected and 1 or pin.hovered and 1 or .95) end
  if not pin.glow then
   pin.glow=pin:CreateTexture(nil,'BACKGROUND');pin.glow:SetPoint('CENTER');pin.glow:SetSize(27,27)
   if pin.glow.SetAtlas and self:Safe(C_Texture and C_Texture.GetAtlasInfo,'UI-QuestPoi-OuterGlow') then pin.glow:SetAtlas('UI-QuestPoi-OuterGlow')
   else pin.glow:SetTexture('Interface\\Buttons\\UI-ActionButton-Border') end
   if pin.glow.SetBlendMode then pin.glow:SetBlendMode('ADD') end
  end
- if pin.glow.SetVertexColor then pin.glow:SetVertexColor(1,.82,.34,.55) end
+ if pin.glow.SetVertexColor then pin.glow:SetVertexColor(1,.82,.34,.3) end
  pin.glow:SetShown(selected)
  if pin.special then pin.special:SetText('');pin.special:Hide() end
  if pin.count then pin.count:SetText('');pin.count:Hide() end
@@ -541,7 +541,7 @@ function A:RenderLocationFocus(canvas,scale,level,strata,used)
    seen[key]=true;used=used+1;local point=self.habitatPins[used]
    if not point then point=CreateFrame('Frame',nil,canvas);point.mobAtlasPin=true;point.dot=point:CreateTexture(nil,'OVERLAY');point.dot:SetAllPoints();self.habitatPins[used]=point end
    point:SetSize(22,22);point:EnableMouse(true);point:SetParent(canvas);point:SetScale(scale);point:SetFrameLevel(level+2);point:SetFrameStrata(strata)
-   point.dot:SetTexture(target.kind=='rare' and 'Interface\\TargetingFrame\\UI-TargetingFrame-Skull' or target.kind=='quest' and 'Interface\\GossipFrame\\AvailableQuestIcon' or target.kind=='entrance' and 'Interface\\AddOns\\MobAtlas\\Art\\TrackDungeon.tga' or 'Interface\\Minimap\\Tracking\\Object')
+   point.dot:SetTexture(target.kind=='rare' and 'Interface\\AddOns\\MobAtlas\\Art\\MarkerRareLive.tga' or target.kind=='quest' and 'Interface\\GossipFrame\\AvailableQuestIcon' or target.kind=='entrance' and 'Interface\\AddOns\\MobAtlas\\Art\\TrackDungeon.tga' or 'Interface\\Minimap\\Tracking\\Object')
    point:ClearAllPoints();point:SetPoint('CENTER',canvas,'TOPLEFT',canvas:GetWidth()*p[2]/100/scale,-canvas:GetHeight()*p[3]/100/scale)
    point.sourceX=p[2];point.sourceY=p[3]
    point:SetScript('OnEnter',function(b) if not target then return end;GameTooltip:SetOwner(b,'ANCHOR_RIGHT');self:AddTooltipLine(GameTooltip,target.label,1,.85,.35);self:AddTooltipLine(GameTooltip,self:MapName(mapID)..string.format(' · %.1f, %.1f',p[2],p[3]),.8,.8,.7);if target.questID then local _,why=self:QuestState(target.questID);self:AddTooltipLine(GameTooltip,why,.8,.8,.7);self:AddTooltipLine(GameTooltip,'Нажми метку, чтобы открепить.',.8,.85,.7) end;GameTooltip:Show() end)

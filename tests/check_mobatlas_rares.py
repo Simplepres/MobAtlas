@@ -10,6 +10,7 @@ l.execute('''
 local A=MobAtlas
 function GetTime() return MOCK.clock end
 A.rareCatalog[999501]={name='Test rare',min=5,max=6,rank=4,points={{1429,52,50},{1429,80,80}}}
+local playerX,playerY=.5,.5
 local units={};local cvars={nameplateMaxDistance='40',nameplateShowEnemies='0',rotateMinimap='0',nameplateShowAll='0'};local sets=0
 C_CVar={GetCVar=function(k) return cvars[k] end,SetCVar=function(k,v) assert(not MOCK.combat);sets=sets+1;cvars[k]=v end}
 function GetCVar(k) return cvars[k] end
@@ -18,7 +19,7 @@ local canvas=CreateFrame('Frame');canvas:SetSize(1000,700);local mapID=1429
 function WorldMapFrame:GetMapID() return mapID end
 function WorldMapFrame:SetMapID(id) mapID=id end
 function WorldMapFrame:GetCanvas() return canvas end
-C_Map={GetBestMapForUnit=function() return 1429 end,GetPlayerMapPosition=function(id,unit) assert(unit=='player','never infer NPC position using player map position');return CreateVector2D(.5,.5) end,GetMapWorldSize=function() return 1000,1000 end,GetMapPosFromWorldPos=function(instance,v,map) return map,CreateVector2D(v:GetXY()/1000,.5) end}
+C_Map={GetBestMapForUnit=function() return 1429 end,GetPlayerMapPosition=function(id,unit) assert(unit=='player','never infer NPC position using player map position');return CreateVector2D(playerX,playerY) end,GetMapWorldSize=function() return 1000,1000 end,GetMapPosFromWorldPos=function(instance,v,map) return map,CreateVector2D(v:GetXY()/1000,.5) end}
 function UnitGUID(unit) return units[unit] and units[unit].guid end
 function UnitClassification(unit) return units[unit] and units[unit].classification end
 function UnitIsFriend() return false end
@@ -59,6 +60,18 @@ MOCK.combat=false;A:ConfigureRareRange();assert(cvars.nameplateMaxDistance=='40'
 local originalSet=C_CVar.SetCVar;C_CVar.SetCVar=function(k,v) originalSet(k,k=='nameplateMaxDistance' and v=='80' and '60' or v) end
 A.db.rareMaxRange=true;A:ConfigureRareRange();assert(cvars.nameplateMaxDistance=='60','client clamps request');A.db.rareMaxRange=false;A:ConfigureRareRange();assert(cvars.nameplateMaxDistance=='40','restore works after clamp')
 A:OpenRareSettings();assert(A.rareSettings:IsShown() and A.rareSettings.checks.rareMaxRange,'rare settings available');A.rareSettings:Hide()
+-- Two visible spawns of one NPC must retain their own coordinates and frames.
+A.rareCatalog[999601]={points={{1429,45,54},{1429,55,54}}}
+A.rareZones[1429]={999601};A.rareMiniAnchorCache={};A.rareSeen={}
+A:UpdateRareMinimap();local owners={};local count=0
+for _,p in ipairs(A.rareMiniPins) do if p:IsShown() then owners[p.markerKey]=p;count=count+1 end end
+assert(count==2,'show separate fixed source anchors')
+playerX=.501;A:UpdateRareMinimap()
+for key,p in pairs(owners) do assert(A.rareMiniByKey[key]==p,'stable frame ownership while player moves');assert(p.entry.point[2]==45 or p.entry.point[2]==55,'reference coordinates unchanged') end
+cvars.rotateMinimap='1';A:UpdateRareMinimap()
+for key,p in pairs(owners) do assert(A.rareMiniByKey[key]==p,'stable ownership on rotation') end
+for i=1,30 do playerX=.5+i*.0001;A:UpdateRareMinimap() end
+assert(#A.rareMiniPins<=24,'bounded minimap frame pool')
 A.db.rareEnabled=false;A:RareTick();for _,p in ipairs(A.rareMiniPins) do assert(not p:IsShown()) end
 A.BuildAtlasIndex=build
 print('PASS rares: event detection, no invented positions, classification/dead checks, cooldown, exact/reference separation, minimap scale/rotation, loot+soft habitat, CVars defer/restore, no full indexing')

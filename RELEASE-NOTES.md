@@ -1,22 +1,15 @@
-# MobAtlas 0.7.1 — Beta
+# MobAtlas 0.7.2 — Beta
 
-Gray Fox was in the reference catalog but hidden by a faction filter. Neutral creatures are no longer excluded merely for an AH flag; service NPCs remain filtered. Client-confirmed attackability can correct reference flags locally.
+New original map icons for mobs, vendors, dungeons and rares: compact silhouettes, dark backgrounds and restrained gold/silver rims.
 
-- Refreshed the QuestieDB snapshot and retained outdoor metadata for new NPCs even when their loot is not known.
-- Added the player's **Gray Fox → Sharp Canine** report, explicitly labeled **player report / unknown chance**. No rate is invented.
-- Hover loot now indicates that more items are available beyond the top few shown.
-- Loot learning retains exact API-provided NPC sources, uses reference geometry, and resolves uncached item metadata without rebuilding the full index.
-
-New Forever mobs and loot associations are included; **full loot tables are not available for every new creature**. A player report is distinct from a direct API observation or a measured drop rate.
-
-Install **MobAtlas-0.7.1.zip** in `Interface/AddOns/`, then **/reload**. No new TOC files in this patch.
+Fixed rare minimap markers jumping between reference spawns. Each reference stays anchored to a fixed catalog point and keeps its own frame; projection updates smoothly while moving or rotating. Confirmed live positions remain distinct. The frame pool is bounded and no atlas rebuild occurs during projection.
 
 ## На русском
 
-**Gray Fox уже был в базе**, но скрывался из-за фильтра дружественных NPC. Исправили правило для нейтральных существ, сохранив фильтрацию служебных NPC. Данные клиента о возможности атаковать моба могут исправлять справочную пометку локально.
+Обновлены метки мобов, торговцев, подземелий и редких существ. Тёмная основа, понятные силуэты и аккуратный ободок лучше сочетаются с картой WoW.
 
-Добавлены **Sharp Canine у Gray Fox** как сообщение игрока с неизвестным шансом и счётчик оставшейся добычи в подсказке. Обновлён снимок QuestieDB, расширены метаданные новых NPC. Личные находки и отложенная загрузка свойств предмета обрабатываются точечно, без полной пересборки базы.
+Исправлены скачки редких меток между местами появления. Справочные точки закреплены за координатами; движение и вращение миникарты обрабатываются плавнее. Подтверждённая позиция живого моба отмечается отдельно.
 
-Новые мобы и связи с лутом в аддоне есть, но **полных таблиц для всех новых мобов пока нет**. Источники и ограничения указаны в SOURCES.md. После установки достаточно **/reload**; если пропустил 0.7.0, полностью перезапусти WoW.
+Install / Установка: replace MobAtlas, then **/reload**. Tested with Lua mock regressions; live-client visual verification is still needed.
 
-Вопросы и баги / Feedback: [Telegram @brunotwin](https://t.me/brunotwin) · [Threads @teur_person](https://www.threads.com/@teur_person).
+Feedback: [Telegram @brunotwin](https://t.me/brunotwin) · [Threads @teur_person](https://www.threads.com/@teur_person).

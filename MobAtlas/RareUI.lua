@@ -18,7 +18,7 @@ end
 function A:CreateRarePin(parent)
  local p=CreateFrame('Button',nil,parent);p.mobAtlasPin=true;p:SetSize(17,17)
  p.halo=p:CreateTexture(nil,'BACKGROUND');p.halo:SetTexture(glow);p.halo:SetPoint('CENTER');p.halo:SetSize(30,30)
- p.icon=p:CreateTexture(nil,'ARTWORK');p.icon:SetAllPoints();p.icon:SetTexture(skull)
+ p.icon=p:CreateTexture(nil,'ARTWORK');p.icon:SetAllPoints();p.icon:SetTexture('Interface\\AddOns\\MobAtlas\\Art\\MarkerRare.tga')
  p:SetScript('OnEnter',function(b) self:RarePinTooltip(b) end)
  p:SetScript('OnLeave',function() GameTooltip:Hide() end)
  p:SetScript('OnClick',function(b)
@@ -28,9 +28,9 @@ function A:CreateRarePin(parent)
  return p
 end
 function A:StyleRarePin(pin,entry)
- pin.entry=entry
- if pin.icon.SetVertexColor then pin.icon:SetVertexColor(entry.exact and 1 or .78,entry.exact and .72 or .7,entry.exact and .28 or .86,entry.exact and 1 or .78) end
- if pin.halo.SetVertexColor then pin.halo:SetVertexColor(.65,.43,.9,entry.exact and .25 or .08) end
+ pin.entry=entry;pin.icon:SetTexture('Interface\\AddOns\\MobAtlas\\Art\\'..(entry.exact and 'MarkerRareLive.tga' or 'MarkerRare.tga'))
+ if pin.icon.SetVertexColor then pin.icon:SetVertexColor(1,1,1,entry.exact and 1 or .95) end
+ if pin.halo.SetVertexColor then pin.halo:SetVertexColor(.65,.43,.9,entry.exact and .18 or .05) end
 end
 function A:UpdateRareWorld(canvas,scale,level,strata)
  self.rareWorldPins=self.rareWorldPins or {}
@@ -41,7 +41,7 @@ function A:UpdateRareWorld(canvas,scale,level,strata)
    local x,y=entry.point[2],entry.point[3];local key=math.floor(canvas:GetWidth()*x/100/scale/20)..':'..math.floor(canvas:GetHeight()*y/100/scale/20)
    if not occupied[key] and used<48 then
     occupied[key]=true;used=used+1;local pin=self.rareWorldPins[used] or self:CreateRarePin(canvas);self.rareWorldPins[used]=pin
-    self:StyleRarePin(pin,entry);pin:SetParent(canvas);pin:SetScale(scale);pin:SetFrameLevel(level+3);pin:SetFrameStrata(strata)
+    self:StyleRarePin(pin,entry);pin:SetParent(canvas);pin:SetScale(scale);pin:SetFrameLevel(level+3);pin:SetFrameStrata(strata);pin:SetSize(entry.exact and 21 or 19,entry.exact and 21 or 19)
     pin:ClearAllPoints();pin:SetPoint('CENTER',canvas,'TOPLEFT',canvas:GetWidth()*x/100/scale,-canvas:GetHeight()*y/100/scale);pin:Show()
    end
   end
@@ -49,27 +49,64 @@ function A:UpdateRareWorld(canvas,scale,level,strata)
  for i=used+1,#self.rareWorldPins do self.rareWorldPins[i]:Hide() end
  self.rareMapDirty=false
 end
-function A:UpdateRareMinimap()
- self.rareMiniPins=self.rareMiniPins or {}
- if not Minimap or not self.db.rareEnabled or not self.db.rareMinimap or not Minimap:IsShown() then for _,p in ipairs(self.rareMiniPins) do p:Hide() end;return end
- local mapID=self:Safe(C_Map and C_Map.GetBestMapForUnit,'player');local position=mapID and self:Safe(C_Map and C_Map.GetPlayerMapPosition,mapID,'player')
- local used=0;local occupied={}
- for _,entry in ipairs(mapID and self:RareMapEntries(mapID) or {}) do
-  -- Choose the nearest actual reference point for this rare on the minimap.
-  local candidates=entry.exact and {entry.point} or ((self.rareCatalog or {})[entry.id] or {}).points or {};local bx,by,dist,edge
-  for _,point in ipairs(candidates) do
-   local x,y,clamped=self:MinimapRareOffset(point,mapID,position,entry.exact)
-   if x and (not dist or x*x+y*y<dist) then bx,by,dist,edge=x,y,x*x+y*y,clamped end
-  end
-  if bx then
-   local key=math.floor(bx/14)..':'..math.floor(by/14)
-   if not occupied[key] and used<24 then
-    occupied[key]=true;used=used+1;local pin=self.rareMiniPins[used] or self:CreateRarePin(Minimap);self.rareMiniPins[used]=pin
-    self:StyleRarePin(pin,entry);pin.edge=edge;pin:SetSize(13,13);pin:SetFrameLevel(Minimap:GetFrameLevel()+8);pin:ClearAllPoints();pin:SetPoint('CENTER',Minimap,'CENTER',bx,by);pin:Show()
+function A:RareMinimapAnchors(mapID)
+ self.rareMiniAnchorCache=self.rareMiniAnchorCache or {}
+ if self.rareMiniAnchorCache[mapID] then return self.rareMiniAnchorCache[mapID] end
+ local w,h=self:RareMapWorldSize(mapID);if not w or not h then return {} end
+ local anchors={}
+ for _,id in ipairs((self.rareZones or {})[mapID] or {}) do
+  local cells={}
+  for _,point in ipairs(((self.rareCatalog or {})[id] or {}).points or {}) do
+   if point[1]==mapID then
+    local cell=math.floor(point[2]/100*w/60)..':'..math.floor(point[3]/100*h/60)
+    if not cells[cell] then
+     cells[cell]=true;anchors[#anchors+1]={id=id,point=point,key=string.format('%d:%d:%.4f:%.4f',id,mapID,point[2],point[3])}
+    end
    end
   end
  end
- for i=used+1,#self.rareMiniPins do self.rareMiniPins[i]:Hide() end
+ table.sort(anchors,function(a,b) return a.key<b.key end)
+ self.rareMiniAnchorCache[mapID]=anchors;return anchors
+end
+function A:UpdateRareMinimap()
+ self.rareMiniPins=self.rareMiniPins or {};self.rareMiniByKey=self.rareMiniByKey or {}
+ if not Minimap or not self.db.rareEnabled or not self.db.rareMinimap or not Minimap:IsShown() then for _,p in ipairs(self.rareMiniPins) do p:Hide() end;return end
+ local mapID=self:Safe(C_Map and C_Map.GetBestMapForUnit,'player');local position=mapID and self:Safe(C_Map and C_Map.GetPlayerMapPosition,mapID,'player')
+ local candidates={};local exact={}
+ -- A confirmed position can move. A reference spawn must never chase the player.
+ for id in pairs(self.rareSeen or {}) do
+  local live=self:RareLiveRecord(id)
+  if live and live.point and live.point[1]==mapID then
+   exact[id]=true;candidates[#candidates+1]={id=id,point=live.point,exact=true,live=true,key='live:'..live.guid}
+  end
+ end
+ table.sort(candidates,function(a,b) return a.key<b.key end)
+ for _,anchor in ipairs(mapID and self:RareMinimapAnchors(mapID) or {}) do
+  if not exact[anchor.id] then candidates[#candidates+1]={id=anchor.id,point=anchor.point,key=anchor.key,exact=false,live=self:RareLiveRecord(anchor.id)~=nil} end
+ end
+ local visible={};local wanted={}
+ for _,entry in ipairs(candidates) do
+  local x,y,edge=self:MinimapRareOffset(entry.point,mapID,position,entry.exact)
+  if x then
+   local overlaps=false
+   for _,other in ipairs(visible) do if (x-other.x)^2+(y-other.y)^2<14^2 then overlaps=true;break end end
+   if not overlaps and #visible<24 then entry.x=x;entry.y=y;entry.edge=edge;visible[#visible+1]=entry;wanted[entry.key]=true end
+  end
+ end
+ -- Recycle only frames no longer wanted. Persistent anchors keep the same owner.
+ for _,pin in ipairs(self.rareMiniPins) do
+  if pin.markerKey and not wanted[pin.markerKey] then self.rareMiniByKey[pin.markerKey]=nil;pin.markerKey=nil;pin:Hide() end
+ end
+ for _,entry in ipairs(visible) do
+  local pin=self.rareMiniByKey[entry.key]
+  if not pin then
+   for _,free in ipairs(self.rareMiniPins) do if not free.markerKey then pin=free;break end end
+   if not pin then pin=self:CreateRarePin(Minimap);self.rareMiniPins[#self.rareMiniPins+1]=pin end
+   pin.markerKey=entry.key;self.rareMiniByKey[entry.key]=pin
+  end
+  self:StyleRarePin(pin,entry);pin.edge=entry.edge;pin:SetSize(entry.exact and 17 or 16,entry.exact and 17 or 16);pin:SetFrameLevel(Minimap:GetFrameLevel()+8)
+  pin:ClearAllPoints();pin:SetPoint('CENTER',Minimap,'CENTER',entry.x,entry.y);pin:Show()
+ end
 end
 function A:ShowRareAlert(id)
  if not self.rareAlert then

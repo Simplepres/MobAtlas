@@ -118,7 +118,8 @@ function A:MinimapRareOffset(point,mapID,position,clampEdge)
  if not number(radius) or radius<=0 then
   local zoom=Minimap.GetZoom and Minimap:GetZoom() or 0;if not number(zoom) then return end
   local outdoors={233.3333,200,166.6667,133.3333,100,66.6667};local indoors={150,120,90,60,40,25}
-  radius=(self:Safe(IsIndoors) and indoors or outdoors)[zoom+1]
+  if self.rareMinimapIndoor==nil then self.rareMinimapIndoor=not not self:Safe(IsIndoors) end
+  radius=(self.rareMinimapIndoor and indoors or outdoors)[zoom+1]
  end
  local edge=false
  if not radius then return end
@@ -155,12 +156,14 @@ function A:StartRareTracking()
   elseif event=='NAME_PLATE_UNIT_REMOVED' then self.rareUnits[unit]=nil
   elseif event=='PLAYER_TARGET_CHANGED' then self:WatchRareUnit('target')
   elseif event=='UPDATE_MOUSEOVER_UNIT' then self:WatchRareUnit('mouseover')
+  elseif event=='MINIMAP_UPDATE_ZOOM' then self.rareMinimapIndoor=nil
   elseif event=='PLAYER_REGEN_ENABLED' and self.rareRangePending then self:ConfigureRareRange()
   elseif event=='PLAYER_ENTERING_WORLD' then self.rareUnits={};self.rareSeen={};self.rareWorldSizes={};C_Timer.After(.5,function() self:ScanVisibleRareUnits() end) end
  end)
- for _,event in ipairs({'NAME_PLATE_UNIT_ADDED','NAME_PLATE_UNIT_REMOVED','UNIT_CLASSIFICATION_CHANGED','PLAYER_TARGET_CHANGED','UPDATE_MOUSEOVER_UNIT','PLAYER_ENTERING_WORLD','PLAYER_REGEN_ENABLED'}) do f:RegisterEvent(event) end
+ for _,event in ipairs({'NAME_PLATE_UNIT_ADDED','NAME_PLATE_UNIT_REMOVED','UNIT_CLASSIFICATION_CHANGED','PLAYER_TARGET_CHANGED','UPDATE_MOUSEOVER_UNIT','PLAYER_ENTERING_WORLD','PLAYER_REGEN_ENABLED','MINIMAP_UPDATE_ZOOM'}) do f:RegisterEvent(event) end
  self:ScanVisibleRareUnits()
  C_Timer.NewTicker(1,function() self:RareTick() end)
+ C_Timer.NewTicker(.1,function() self:UpdateRareMinimap() end)
 end
 
 function A:RareMapWorldSize(mapID)

@@ -78,8 +78,8 @@ function A:UpdateDungeonPins(canvas,scale,level,strata)
    pin:SetScript('OnLeave',function() GameTooltip:Hide() end)
    pin:SetScript('OnClick',function(b) GameTooltip:Hide();self:OpenDungeonEntrance(b.cell) end)
   end
-  pin.cell=cell;pin.leatrixMarker=native;pin:SetParent(canvas);pin:SetFrameLevel(level+4);pin:SetFrameStrata(strata);pin:SetScale(scale);pin:SetSize(native and 14 or 20,native and 14 or 20)
-  pin.dot:SetTexture(native and 'Interface\\GossipFrame\\AvailableQuestIcon' or 'Interface\\AddOns\\MobAtlas\\Art\\TrackDungeon.tga')
+  pin.cell=cell;pin.leatrixMarker=native;pin:SetParent(canvas);pin:SetFrameLevel(level+4);pin:SetFrameStrata(strata);pin:SetScale(scale);pin:SetSize(native and 14 or 22,native and 14 or 22)
+  pin.dot:SetTexture(native and 'Interface\\GossipFrame\\AvailableQuestIcon' or 'Interface\\AddOns\\MobAtlas\\Art\\MarkerDungeon.tga')
   pin:ClearAllPoints();pin:SetPoint('CENTER',canvas,'TOPLEFT',canvas:GetWidth()*cell.x/100/scale+(native and 14 or 0),-canvas:GetHeight()*cell.y/100/scale+(native and 10 or 0));pin:Show()
  end
  for i=#cells+1,#self.dungeonPins do self.dungeonPins[i]:Hide() end

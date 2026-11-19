@@ -43,7 +43,7 @@ function WorldMapFrame:GetCanvas() return MOCK.canvas end
 function WorldMapFrame:GetMapID() return 1429 end
 WorldMapFrame:Show();A:Update();assert(#A.pins==2 and A.pins[1]:IsShown())
 assert(not A.pins[1].glow:IsShown(),'overview has no permanent glow')
-assert(A.pins[1].dot and A.pins[1]:GetWidth()==20 and A.pins[1].dot:GetWidth()==16,'visible independent dot texture');A.pins[1].scripts.OnEnter(A.pins[1]);assert(A.tip:IsShown());assert(A.tip:GetWidth()==300 and A.tip:GetHeight()<360 and not A.tip.footer,'compact card without footer')
+assert(A.pins[1].dot and A.pins[1]:GetWidth()==20 and A.pins[1].dot:GetWidth()==18,'visible independent dot texture');A.pins[1].scripts.OnEnter(A.pins[1]);assert(A.tip:IsShown());assert(A.tip:GetWidth()==300 and A.tip:GetHeight()<360 and not A.tip.footer,'compact card without footer')
 local pin=A.pins[1]
 local terrain=CreateFrame('Frame');terrain:SetFrameLevel(500)
 function WorldMapFrame:GetPinFrameLevelsManager() return {GetValidFrameLevel=function(_,kind) assert(kind=='PIN_FRAME_LEVEL_AREA_POI');return 450 end} end
