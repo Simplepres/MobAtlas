@@ -35,7 +35,7 @@ pin.scripts.OnClick(pin,'LeftButton');assert(A.tip.rows[1].itemID==5191);assert(
 A.tip:Hide();A:Update();assert(A.focus and not A.inspectPin,'closing details preserves explicitly pinned tracking');assert(A:FocusSource(5191,639,1436))
 canvas:SetScale(2);A:Update();assert(A.focus and math.abs(A.pins[1].point[4]*A.pins[1].scale-canvas:GetWidth()*A.pins[1].cell.x/100)<.001)
 A.focusButton.scripts.OnClick();assert(not A.focus and not A.focusButton:IsShown())
-MOCK.combat=true;local ok=A:FocusSource(5191,639,1436);assert(not ok and not A.focus);MOCK.combat=false
+MOCK.combat=true;local ok=A:FocusSource(5191,639,1436);assert(ok and A.focus,'source focus works on open combat map');A:ClearFocus();MOCK.combat=false
 local ok=A:FocusSource(5191,639,nil);assert(not ok and not A.focus)
 -- Deliberate outdoor focus shows every real source position, despite conflicting map filters.
 local source=A.itemSources[8499][1];local loc=A:SourceLocations(source.npcID)[1]

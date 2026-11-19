@@ -280,6 +280,8 @@ en['Afadra Dunwall — Старый Стальгорн, перед входом.
 en['Thom Filch — Старый Стальгорн, перед входом.']='Thom Filch — Old Ironforge, before the entrance.'
 en['Ghostly Attendant внутри подземелья, перед первым боссом. На карте показан только вход.']='Ghostly Attendant inside the dungeon, before the first boss. Only the entrance is marked.'
 en['Возьми Treaty of Understanding в хранилище последнего зала и используй предмет. На карте показан только вход.']='Take Treaty of Understanding from a vault in the last room and use it. Only the entrance is marked.'
+en['В бою открой карту клавишей M и повтори.']='In combat, open the map with M and try again.'
+en['В бою выбери нужную зону на карте вручную.']='In combat, choose the required map zone manually.'
 local keys={};for key in pairs(en) do keys[#keys+1]=key end
 table.sort(keys,function(a,b) return #a>#b end)
 function A:GetLanguage()

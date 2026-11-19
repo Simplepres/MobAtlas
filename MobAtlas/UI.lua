@@ -204,7 +204,7 @@ function A:MapPinLayer(map,canvas)
  return level+2,strata
 end
 function A:Update()
- if not self.db or InCombatLockdown() then return end
+ if not self.db then return end
  local map=WorldMapFrame
  if not map or not map:IsShown() or not map.GetCanvas or not map.GetMapID then
   if self.tip then self.tip:Hide() end;self:ClearHabitat()

@@ -142,7 +142,6 @@ function A:ClearFocus(refresh)
  self.dirty=true;if refresh~=false then self:Update() end
 end
 function A:FocusSource(iid,npcID,mapID)
- if InCombatLockdown() then return false,'Карту можно открыть после боя.' end
  if not mapID then return false,'Источник известен, но координат пока нет.' end
  local ids={}
  for _,source in ipairs(self.itemSources[iid] or {}) do if not npcID or source.npcID==npcID then ids[source.npcID]=true end end
@@ -171,7 +170,6 @@ function A:RememberItem(iid)
  self.db.recentItems=recent
 end
 function A:ShowItemOnMap(iid)
- if InCombatLockdown() then return false,'Карту можно открыть после боя.' end
  local rows=self:AtlasSources(iid,'all');local map=WorldMapFrame;local current=map and map.GetMapID and map:GetMapID();local best
  for _,row in ipairs(rows) do if row.location.mapID then best=best or row.location.mapID;if row.location.mapID==current then best=current;break end end end
  if not best then return false,#rows>0 and 'Источник известен, координаты пока нет. Открой список источников.' or 'Предмет есть в каталоге, источник пока неизвестен.' end
@@ -203,7 +201,16 @@ function A:HookItemSearch()
 end
 
 function A:OpenMapAt(mapID)
- if InCombatLockdown() then return false,'Карту можно открыть после боя.' end
+ -- Our map markers are ordinary UI. Only Blizzard panel operations need combat care.
+ if InCombatLockdown() then
+  local map=WorldMapFrame
+  if not map or not map:IsShown() then return false,'В бою открой карту клавишей M и повтори.' end
+  if map.GetMapID and map:GetMapID()==mapID then return true end
+  if not map.SetMapID or (map.IsProtected and map:IsProtected()) then return false,'В бою выбери нужную зону на карте вручную.' end
+  local ok=pcall(map.SetMapID,map,mapID)
+  if not ok then return false,'В бою выбери нужную зону на карте вручную.' end
+  return true
+ end
  if C_Map and C_Map.OpenWorldMap then self:Safe(C_Map.OpenWorldMap,mapID) end
  local map=WorldMapFrame
  if not map then self:Safe(C_AddOns and C_AddOns.LoadAddOn or LoadAddOn,'Blizzard_WorldMap');map=WorldMapFrame end

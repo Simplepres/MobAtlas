@@ -32,7 +32,7 @@ A:QuestLogChanged();local fn=table.remove(MOCK.timers);fn();assert(A.focus.quest
 C_QuestLog.IsOnQuest=function(id) return id==167 end
 A:QuestLogChanged();fn=table.remove(MOCK.timers);fn();assert(not A.focus,'accepting the quest clears completed pickup navigation')
 C_QuestLog.IsOnQuest=nil
-MOCK.combat=true;assert(not A:ShowQuestOnMap(167));MOCK.combat=false
+MOCK.combat=true;assert(A:ShowQuestOnMap(167),'quest location on open combat map');MOCK.combat=false
 local a=A:ShowQuestOnMap(166);assert(a and A.focus.questID==65,'chain map goes to available first step')
 -- Non-creature sources are distinct, with their own geometry and no fake drop percent.
 A.otherSources[990010]={{kind='quest',id=167,name='Test reward',givers={{points={{1453,20,30}}}},zone='Stormwind',chance=-1}}

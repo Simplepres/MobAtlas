@@ -113,7 +113,6 @@ function A:DungeonChoices(allLevels)
  return out
 end
 function A:FocusLocation(points,label,questID,kind)
- if InCombatLockdown() then return false,'Карту можно открыть после боя.' end
  if not points or #points==0 then return false,'Координаты пока неизвестны.' end
  local map=WorldMapFrame;local current=map and map.GetMapID and map:GetMapID();local chosen=points[1][1]
  for _,p in ipairs(points) do if p[1]==current then chosen=current;break end end
