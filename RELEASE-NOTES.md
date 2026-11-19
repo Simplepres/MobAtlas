@@ -1,4 +1,4 @@
-# MobAtlas 0.6.2 — Early test release
+# MobAtlas 0.6.2 — Beta release
 
 An offline loot atlas for WoW Forever: search items, inspect creature/vendor sources, pin known locations on the map and prepare dungeon quests.
 
@@ -15,3 +15,9 @@ Early test build; custom UI is primarily Russian. Reference data is incomplete. 
 ## Screenshots / Скриншоты
 
 [View four in-game screenshots with English and Russian descriptions](https://github.com/Simplepres/MobAtlas#screenshots--скриншоты).
+
+## Beta / Бета и обратная связь
+
+This is a beta version under active development. For questions, feedback or bugs, contact [Telegram @brunotwin](https://t.me/brunotwin) or [Threads @teur_person](https://www.threads.com/@teur_person).
+
+Это бета-версия. Если есть вопросы, предложения или нашёл баг — пиши напрямую в [Telegram @brunotwin](https://t.me/brunotwin) или [Threads @teur_person](https://www.threads.com/@teur_person).

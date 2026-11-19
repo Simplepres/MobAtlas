@@ -1,6 +1,8 @@
 <p align="center"><img src="docs/images/icon.png" width="96" alt="MobAtlas"></p>
 
-# MobAtlas · Следопыт
+# MobAtlas · Следопыт — Beta / Бета
+
+**Beta:** the addon is actively being developed. Bugs, incomplete data and interface changes are expected. Questions or feedback? Contact [@brunotwin on Telegram](https://t.me/brunotwin) or [@teur_person on Threads](https://www.threads.com/@teur_person).
 
 **Find an item. Discover its sources. Track them on your map.**
 
@@ -50,7 +52,7 @@ The preparation window lists nearby or level-relevant dungeons for a **level 22*
 
 ### 4. Map markers and loot inspection / Карта и просмотр добычи
 
-![MobAtlas creature markers and Moss hide Mongrel loot card with an item tooltip](docs/images/map-loot-inspection.png)
+![MobAtlas creature markers and Mosshide Mongrel loot card with an item tooltip](docs/images/map-loot-inspection.png)
 
 Creature markers are shown on the Wetlands map, while the **Mosshide Mongrel** card displays its level, creature type and paginated known loot. Hovering **Sealed Journeyman's Writ** opens the game's item tooltip. **Закрепить** keeps the inspected source selected; **К группе мобов** returns to the group. Existing quest overlays remain visible alongside the addon.
 
@@ -122,6 +124,8 @@ python3 -m venv .venv
 Build an installable ZIP with `python3 tools/package.py`. See [development notes](docs/DEVELOPMENT-NOTES.ru.md) for data generation history and known limitations. Network refreshes are optional and may be rate-limited; offline snapshots are retained when an update fails validation.
 
 ## На русском
+
+**Бета-версия:** аддон активно дорабатывается; возможны ошибки, неполные данные и изменения интерфейса. Вопросы, предложения и сообщения о багах можно присылать напрямую: [Telegram @brunotwin](https://t.me/brunotwin) или [Threads @teur_person](https://www.threads.com/@teur_person).
 
 **Следопыт — атлас добычи для WoW Forever.** Найди вещь, посмотри источники и выдели известных мобов или продавцов на карте.
 
