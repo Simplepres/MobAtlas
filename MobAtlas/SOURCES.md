@@ -67,3 +67,5 @@ Original procedural map icons: paw for mobs, pouch for vendors, doorway for dung
 0.7.6: Rounded habitat union replaces the coarse grid. Analytic circle intersections are merged into non-overlapping fill strips, with only exposed circumference segments drawn using native WoW Line regions. Mint/teal tint distinguishes the overlay from quest areas. One non-interactive clipped frame owns pooled regions; geometry is cached and remote camps remain separate. This approximates spawn habitat, not terrain boundaries. Native line API usage reference: https://github.com/Gethe/wow-ui-source/blob/live/Interface/AddOns/Blizzard_SharedTalentUI/Blizzard_SharedTalentEdgeTemplates.lua
 
 0.7.7: Restored the original separate 52-pixel feathered spawn patches, with violet opacity .32 for stronger contrast. Removed the union/contour renderer. At most 80 pooled patches; preview and explicit-pin lifecycle fixes remain.
+
+0.7.8: Separate violet spawn highlights use 60% vertex opacity (previously 32%), multiplied by the feathered texture alpha toward each patch edge.

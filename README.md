@@ -6,7 +6,7 @@
 
 Look up an item, check which creatures drop it or which vendors sell it, and mark known locations on your map. Heading into a dungeon? Check the quest list before you leave.
 
-**Beta · 0.7.7** — still growing, with bugs to fix and gaps in the database. Your feedback helps.
+**Beta · 0.7.8** — still growing, with bugs to fix and gaps in the database. Your feedback helps.
 
 [**Download**](https://github.com/Simplepres/MobAtlas/releases/latest) · [Русский](#на-русском) · [Screenshots](#screenshots--скриншоты) · [Report a bug](https://github.com/Simplepres/MobAtlas/issues)
 
@@ -30,7 +30,7 @@ Open **Rare creatures…** by right-clicking the minimap book, or type **`/mobat
 
 ## Install and play
 
-1. Download **MobAtlas-0.7.7.zip** from [Releases](https://github.com/Simplepres/MobAtlas/releases/latest).
+1. Download **MobAtlas-0.7.8.zip** from [Releases](https://github.com/Simplepres/MobAtlas/releases/latest).
 2. Put the **MobAtlas** folder in your Forever client's `Interface/AddOns/` folder.
 3. Restart WoW and enable the addon. The file should be at `Interface/AddOns/MobAtlas/MobAtlas.toc`.
 
@@ -76,7 +76,7 @@ Inspect loot, hover over an item for its stats, and pin the creature you want to
 
 Есть фильтры по редкости, классу, уровню и материалам профессий. База уже внутри: отдельно ставить Questie не нужно.
 
-**Как установить:** скачай [MobAtlas-0.7.7.zip](https://github.com/Simplepres/MobAtlas/releases/latest), положи папку `MobAtlas` в `Interface/AddOns/` клиента Forever и перезапусти WoW.
+**Как установить:** скачай [MobAtlas-0.7.8.zip](https://github.com/Simplepres/MobAtlas/releases/latest), положи папку `MobAtlas` в `Interface/AddOns/` клиента Forever и перезапусти WoW.
 
 Карта работает и в бою: можно смотреть добычу, выбирать и закреплять источники. Если WoW блокирует открытие карты из аддона, открой её клавишей **M**.
 
@@ -104,7 +104,7 @@ Thanks to QuestieDB/Questie, Everloot, WoW Forever KB and the Classic reference 
 
 Independent community addon, not affiliated with Blizzard Entertainment. Third-party data and assets retain their own terms.
 
-### Map icons · 0.7.7
+### Map icons · 0.7.8
 
 Original, compact map markers. Rare spawn references stay anchored to fixed locations on the minimap. Only confirmed live positions can follow a moving creature.
 

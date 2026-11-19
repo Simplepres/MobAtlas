@@ -1,9 +1,7 @@
-# MobAtlas 0.7.7 — Beta
+# MobAtlas 0.7.8 — Beta
 
-Restored separate soft violet highlights at spawn locations, with slightly stronger contrast. Removed the joined contour and grid rendering. Preview-close and explicit pin/unpin fixes remain. Uses at most 80 pooled patches.
+Raised the opacity of separate violet habitat highlights from 32% to **60%**. The soft edges and preview/pin visibility behavior are unchanged.
 
-Вернули отдельные мягкие фиолетовые пятна в местах появления мобов и немного усилили контраст. Общий контур убран. Исправления закрытия просмотра и закрепления сохранены. Для отображения переиспользуется не больше 80 пятен.
+Непрозрачность отдельных фиолетовых пятен повышена с 32% до **60%**. Мягкие края и показ только при просмотре или закреплении сохранены.
 
-Lua checks cover separate positions, region reuse, preview cleanup and pin/unpin. / Проверены координаты, повторное использование элементов, закрытие просмотра и открепление в Lua-модели.
-
-Apply with **/reload**. / После обновления введи **/reload**.
+Apply with **/reload**. / После установки введи **/reload**.
