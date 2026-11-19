@@ -124,25 +124,55 @@ end
 function A:HideHabitatAreas()
  for _,f in ipairs(self.habitatAreas or {}) do f:Hide() end
 end
+-- Rasterize the union of occupied spawn patches; draw only the outside contour.
+-- No blurred textures and no links between distant camps. Reuse a bounded pool.
 function A:RenderHabitatArea(cells,canvas,scale,level,strata)
  self:HideHabitatAreas();self.habitatAreas=self.habitatAreas or {}
  if not self.db.habitatGlow then return end
- local used=0;local occupied={}
- for _,cell in ipairs(cells) do
-  if not cell.dungeon then
-   local key=math.floor(canvas:GetWidth()*cell.x/100/scale/24)..':'..math.floor(canvas:GetHeight()*cell.y/100/scale/24)
-   if not occupied[key] and used<80 then
-    occupied[key]=true;used=used+1;local f=self.habitatAreas[used]
-    if not f then f=CreateFrame('Frame',nil,canvas);f.mobAtlasPin=true;f:EnableMouse(false);f.fill=f:CreateTexture(nil,'BACKGROUND');f.fill:SetTexture(glow);f.fill:SetAllPoints();self.habitatAreas[used]=f end
-    f:SetParent(canvas);f:SetScale(scale);f:SetFrameStrata(strata);f:SetFrameLevel(math.max(1,level-1));f:SetSize(52,52)
-    if f.fill.SetVertexColor then f.fill:SetVertexColor(.67,.45,.9,.29) end
-    f:ClearAllPoints();f:SetPoint('CENTER',canvas,'TOPLEFT',canvas:GetWidth()*cell.x/100/scale,-canvas:GetHeight()*cell.y/100/scale);f:Show()
-   end
+ local grid,occupied,centres,rows=12,{},{},{};local count=0
+ for _,cell in ipairs(cells) do if not cell.dungeon then
+  local x=canvas:GetWidth()*cell.x/100/scale;local y=canvas:GetHeight()*cell.y/100/scale
+  local key=math.floor(x/24)..':'..math.floor(y/24)
+  if not centres[key] and count<80 then
+   centres[key]=true;count=count+1
+   local cx,cy=math.floor(x/grid),math.floor(y/grid)
+   for dy=-2,2 do for dx=-2,2 do if dx*dx+dy*dy<=4 then
+    local gx,gy=cx+dx,cy+dy;occupied[gy]=occupied[gy] or {};occupied[gy][gx]=true
+   end end end
   end
+ end end
+ local used=0
+ local function draw(x,y,w,h,border)
+  if used>=2048 then return end
+  used=used+1;local f=self.habitatAreas[used]
+  if not f then f=CreateFrame('Frame',nil,canvas);f.mobAtlasPin=true;f:EnableMouse(false);f.fill=f:CreateTexture(nil,'BACKGROUND');f.fill:SetAllPoints();self.habitatAreas[used]=f end
+  f:SetParent(canvas);f:SetScale(scale);f:SetFrameStrata(strata);f:SetFrameLevel(math.max(1,level-1));f:SetSize(w,h)
+  f.fill:SetColorTexture(.54,.46,.92,border and .85 or .19)
+  f:ClearAllPoints();f:SetPoint('TOPLEFT',canvas,'TOPLEFT',x,-y);f:Show()
  end
+ for y in pairs(occupied) do rows[#rows+1]=y end;table.sort(rows)
+ for _,y in ipairs(rows) do
+  local xs={};for x in pairs(occupied[y]) do xs[#xs+1]=x end;table.sort(xs)
+  local first,last
+  for _,x in ipairs(xs) do
+   if last and x~=last+1 then draw(first*grid,y*grid,(last-first+1)*grid,grid,false);first=nil end
+   first=first or x;last=x
+  end
+  if first then draw(first*grid,y*grid,(last-first+1)*grid,grid,false) end
+ end
+ for _,y in ipairs(rows) do for x in pairs(occupied[y]) do
+  if not occupied[y][x-1] then draw(x*grid,y*grid,1,grid,true) end
+  if not occupied[y][x+1] then draw((x+1)*grid-1,y*grid,1,grid,true) end
+  if not (occupied[y-1] and occupied[y-1][x]) then draw(x*grid,y*grid,grid,1,true) end
+  if not (occupied[y+1] and occupied[y+1][x]) then draw(x*grid,(y+1)*grid-1,grid,1,true) end
+ end end
+end
+function A:HasHabitatSelection()
+ return self.focus and self.habitatPinnedFocus==self.focus or self.tip and self.tip:IsShown() and self.inspectPin and (self.inspectPin.selected or #self.inspectPin.cell.ids==1)
 end
 function A:PreviewMobHabitat(pin)
- if not WorldMapFrame or not WorldMapFrame:IsShown() or not self.db.habitatGlow then return end
+ self:HideHabitatAreas()
+ if not self:HasHabitatSelection() or not WorldMapFrame or not WorldMapFrame:IsShown() or not self.db.habitatGlow then return end
  local cells={};local mapID=WorldMapFrame:GetMapID();local ids=pin.selected and {pin.cell.ids[pin.mobIndex or 1]} or pin.cell.ids
  for _,id in ipairs(ids) do for _,p in ipairs((self.mobs[id] or {}).points or {}) do if p[1]==mapID then cells[#cells+1]={x=p[2],y=p[3]} end end end
  local canvas=WorldMapFrame:GetCanvas();local level,strata=self:MapPinLayer(WorldMapFrame,canvas);local scale=WorldMapFrame:GetEffectiveScale()/math.max(.01,canvas:GetEffectiveScale())

@@ -136,7 +136,7 @@ function A:AtlasSources(iid,scope)
 end
 function A:ClearFocus(refresh,keepQuest)
  if not keepQuest then self.questFocus=nil;if self.db then self.db.questPin=nil end end
- self.focus=keepQuest and self.questFocus or nil;self.focusGroup=nil;self.pinned=nil;self.inspectPin=nil;self.hoverPin=nil;self:ClearHabitat()
+ self.habitatPinnedFocus=nil;self.focus=keepQuest and self.questFocus or nil;self.focusGroup=nil;self.pinned=nil;self.inspectPin=nil;self.hoverPin=nil;self:ClearHabitat()
  if self.tip then self.tip:Hide() end
  if self.focusButton then self.focusButton:Hide() end
  if self.atlas and self.atlas.clearFocus then self.atlas.clearFocus:Hide() end

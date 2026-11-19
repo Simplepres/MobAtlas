@@ -47,8 +47,8 @@ A:Update();assert(#A.rareWorldPins>0)
 local ex,ey,edge=A:MinimapRareOffset({1429,80,50},1429,CreateVector2D(.5,.5),true);assert(edge and math.abs(ex-61.6)<.01 and ey==0,'confirmed off-map marker clamps to rim')
 assert(not A:MinimapRareOffset({1429,80,50},1429,CreateVector2D(.5,.5),false),'do not clamp unconfirmed reference points')
 assert(A:TrackRare(999501));assert(A.focus.ids[999501] and A.tip:IsShown(),'rare click opens loot card')
-local area=0;for _,f in ipairs(A.habitatAreas) do if f:IsShown() then area=area+1 end end;assert(area>0 and area<=80,'soft bounded spawn area')
-A:RenderHabitatArea({{x=10,y=10},{x=90,y=90}},canvas,1,20,'HIGH');assert(A.habitatAreas[1].point[4]==100 and A.habitatAreas[2].point[4]==900,'shade only occupied source areas, no bridge across empty map')
+local area=0;for _,f in ipairs(A.habitatAreas) do if f:IsShown() then area=area+1 end end;assert(area>0 and area<=2048,'bounded contour pool')
+A:RenderHabitatArea({{x=10,y=10},{x=90,y=90}},canvas,1,20,'HIGH');for _,f in ipairs(A.habitatAreas) do if f:IsShown() then assert(f.point[4]<150 or f.point[4]>850,'no bridge across empty map') end end
 units.nameplate1.dead=true;A:WatchRareUnit('nameplate1');assert(not A:RareLiveRecord(999501),'dead creature not live')
 units.nameplate2={guid='Creature-0-1-2-3-999501-002',classification='normal'};A:WatchRareUnit('nameplate2');assert(sounds==1,'client normal classification overrides reference rarity')
 units.nameplate2.classification='rare';units.nameplate2.position=false;A:WatchRareUnit('nameplate2');assert(sounds==2,'new spawn gets alert')
@@ -76,9 +76,14 @@ assert(#A.rareMiniPins<=24,'bounded minimap frame pool')
 local render=A.RenderFocus
 A.focus=nil;A:RenderHabitatArea({{x=20,y=20}},canvas,1,20,'HIGH');A.tip:Show();A.tip:Hide()
 for _,f in ipairs(A.habitatAreas) do assert(not f:IsShown(),'closed preview cleared') end
-A.focus={ids={999501}};A.RenderFocus=function(self) self:RenderHabitatArea({{x=80,y=80}},canvas,1,20,'HIGH') end
+A.focus={ids={999501}};A.habitatPinnedFocus=A.focus;A.RenderFocus=function(self) self:RenderHabitatArea({{x=80,y=80}},canvas,1,20,'HIGH') end
 A:RenderHabitatArea({{x=20,y=20}},canvas,1,20,'HIGH');A.tip:Show();A.tip:Hide()
-assert(A.habitatAreas[1].point[4]==800,'restore pinned area, never retain temporary preview')
+assert(A.habitatAreas[1].point[4]>750,'restore pinned area, never retain temporary preview')
+-- A focus is navigation state, not an explicit habitat pin.
+A.RenderFocus=render;A.habitatPinnedFocus=nil;A:RenderHabitatArea({{x=20,y=20}},canvas,1,20,'HIGH');A.tip:Show();A.tip:Hide()
+for _,f in ipairs(A.habitatAreas) do assert(not f:IsShown(),'un-pinned navigation focus must not restore a closed preview') end
+A:RenderHabitatArea({{x=20,y=20}},canvas,1,20,'HIGH');A:Update()
+for _,f in ipairs(A.habitatAreas) do assert(not f:IsShown(),'idle update cleans stale region without a preview or explicit pin') end
 A.RenderFocus=render;A:ClearFocus(false)
 for _,f in ipairs(A.habitatAreas) do assert(not f:IsShown(),'unpin removes glow') end
 A.db.rareEnabled=false;A:RareTick();for _,p in ipairs(A.rareMiniPins) do assert(not p:IsShown()) end

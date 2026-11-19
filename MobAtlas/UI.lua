@@ -112,7 +112,7 @@ function A:ShowTooltip(pin,force)
  if self.settings:IsShown() then return end
  if self.inspectPin and self.inspectPin~=pin and not force then return end
  self.hoverPin=pin
- if self.pinned==pin then self:ShowHabitat(pin) end
+
  if #pin.cell.ids>1 and not pin.selected then self:ShowGroupTooltip(pin);return end
  local t=self.tip;local id=pin.cell.ids[pin.mobIndex or 1];local mob=self.mobs[id];local rows=self:FocusedLoot(id)
  local n=self.db.visibleItems;local pages=math.max(1,math.ceil(#rows/n));pin.page=math.min(math.max(1,pin.page or 1),pages);pin.pages=pages
@@ -207,6 +207,7 @@ function A:MapPinLayer(map,canvas)
 end
 function A:Update()
  if not self.db then return end
+ if self.HasHabitatSelection and not self:HasHabitatSelection() then self:HideHabitatAreas() end
  local map=WorldMapFrame
  if not map or not map:IsShown() or not map.GetCanvas or not map.GetMapID then
   if self.tip then self.tip:Hide() end;self:ClearHabitat()
@@ -382,6 +383,7 @@ function A:ShowHabitat(pin)
  local ids={};for _,id in ipairs(pin.cell.ids) do if not selected or selected==id then ids[id]=true end end
  local itemID=self.focus and self.focus.itemID
  self.focus={ids=ids,itemID=itemID,label=itemID and self:ItemDisplay(itemID) or selected and self.mobs[selected].name or pin.cell.dungeon and self.instances[pin.cell.dungeon].name or ('Группа · '..#pin.cell.ids..' NPC')}
+ self.habitatPinnedFocus=self.focus
  self.focusGroup=pin
  for _,other in ipairs(self.pins or {}) do other:SetShown(other==pin);if other.cell then self:StyleGroupPin(other) end end
  if self.focusButton then self.focusButton:Show() end
@@ -394,8 +396,9 @@ function A:RenderFocus()
  if not self.focus or not canvas or not map:IsShown() then return end
  local cells=self:BuildMap(map:GetMapID());self.habitatPins=self.habitatPins or {}
  local scale=map:GetEffectiveScale()/math.max(.01,canvas:GetEffectiveScale());local level,strata=self:MapPinLayer(map,canvas);local used=0
- if self.RenderHabitatArea then self:RenderHabitatArea(cells,canvas,scale,level,strata) end
- for _,cell in ipairs(self:ReadableFocusCells(cells,canvas,scale)) do if not cell.dungeon then
+ local showHabitat=self.HasHabitatSelection and self:HasHabitatSelection()
+ if showHabitat and self.RenderHabitatArea then self:RenderHabitatArea(cells,canvas,scale,level,strata) end
+ for _,cell in ipairs(showHabitat and self:ReadableFocusCells(cells,canvas,scale) or {}) do if not cell.dungeon then
   used=used+1;local point=self.habitatPins[used]
   if not point then
    point=CreateFrame('Frame',nil,canvas);point.mobAtlasPin=true;point:EnableMouse(false);point:SetSize(7,7)
