@@ -27,5 +27,5 @@ for i in range(20):a.RenderHabitatArea(a,l.globals().MOCK.cells,l.globals().MOCK
 contour=(time.perf_counter()-start)*1000/20
 count=len(a.habitatAreas)
 a.RenderHabitatArea(a,l.globals().MOCK.cells,l.globals().MOCK.canvas,1,20,'HIGH')
-assert len(a.habitatAreas)==count and count<=4320
-print(json.dumps({'lootMsPerNewItem':round(loot,3),'coldContourMs80Patches':round(cold,3),'cachedContourMs80Patches':round(contour,3),'pooledSegments':count,'fullIndexRebuilds':0,'environment':'Lua mocks; not WoW FPS'}))
+assert len(a.habitatAreas)==count and count<=80
+print(json.dumps({'lootMsPerNewItem':round(loot,3),'coldAreaMs80Patches':round(cold,3),'repeatAreaMs80Patches':round(contour,3),'pooledPatches':count,'fullIndexRebuilds':0,'environment':'Lua mocks; not WoW FPS'}))

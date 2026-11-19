@@ -1,4 +1,4 @@
-# MobAtlas 0.7.6 / Следопыт
+# MobAtlas 0.7.7 / Следопыт
 
 Offline loot atlas for World of Warcraft: Forever (Interface 16001).
 

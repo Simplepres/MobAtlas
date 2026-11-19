@@ -47,7 +47,7 @@ A:Update();assert(#A.rareWorldPins>0)
 local ex,ey,edge=A:MinimapRareOffset({1429,80,50},1429,CreateVector2D(.5,.5),true);assert(edge and math.abs(ex-61.6)<.01 and ey==0,'confirmed off-map marker clamps to rim')
 assert(not A:MinimapRareOffset({1429,80,50},1429,CreateVector2D(.5,.5),false),'do not clamp unconfirmed reference points')
 assert(A:TrackRare(999501));assert(A.focus.ids[999501] and A.tip:IsShown(),'rare click opens loot card');assert(not A:IsInspectionTracked(A.inspectPin),'viewing a rare is not a pin');A:PinInspection();assert(A:IsInspectionTracked(A.inspectPin),'explicit pin changes button state')
-local area=0;for _,f in ipairs(A.habitatAreas) do if f:IsShown() then area=area+1 end end;assert(area>0 and area<=4320,'bounded contour pool')
+local area=0;for _,f in ipairs(A.habitatAreas) do if f:IsShown() then area=area+1 end end;assert(area>0 and area<=80,'bounded soft patch pool')
 A:RenderHabitatArea({{x=10,y=10},{x=90,y=90}},canvas,1,20,'HIGH');for _,f in ipairs(A.habitatAreas) do if f:IsShown() then local pos=f.point or f.startPoint;local x=f.point and pos[4] or pos[3];assert(x<150 or x>850,'no bridge across empty map') end end
 units.nameplate1.dead=true;A:WatchRareUnit('nameplate1');assert(not A:RareLiveRecord(999501),'dead creature not live')
 units.nameplate2={guid='Creature-0-1-2-3-999501-002',classification='normal'};A:WatchRareUnit('nameplate2');assert(sounds==1,'client normal classification overrides reference rarity')
@@ -72,12 +72,10 @@ cvars.rotateMinimap='1';A:UpdateRareMinimap()
 for key,p in pairs(owners) do assert(A.rareMiniByKey[key]==p,'stable ownership on rotation') end
 for i=1,30 do playerX=.5+i*.0001;A:UpdateRareMinimap() end
 assert(#A.rareMiniPins<=24,'bounded minimap frame pool')
--- Rounded contour consists of native diagonal lines, not axis-aligned grid borders.
-A:RenderHabitatArea({{x=30,y=40}},canvas,1,20,'HIGH')
-local diagonal=false;local edgeCount=0
-for _,edge in ipairs(A.habitatEdges) do if edge.habitatUsed then edgeCount=edgeCount+1;if edge.startPoint[3]~=edge.endPoint[3] and edge.startPoint[4]~=edge.endPoint[4] then diagonal=true end end end
-assert(diagonal and edgeCount==24,'round 24-segment contour')
-local allocations=#MOCK.frames;A:RenderHabitatArea({{x=30,y=40}},canvas,1,20,'HIGH');assert(#MOCK.frames==allocations,'same region reuses geometry and regions')
+-- Restored separate patches keep real coordinates and reuse a small pool.
+A:RenderHabitatArea({{x=30,y=40},{x=70,y=60}},canvas,1,20,'HIGH')
+assert(A.habitatAreas[1].point[4]==300 and A.habitatAreas[2].point[4]==700,'separate source patches')
+local allocations=#MOCK.frames;A:RenderHabitatArea({{x=30,y=40}},canvas,1,20,'HIGH');assert(#MOCK.frames==allocations,'patch pool reused');assert(not A.habitatAreas[2]:IsShown(),'unused patch hidden')
 -- Closing a temporary preview must remove it even when another focus exists.
 local render=A.RenderFocus
 A.focus=nil;A:RenderHabitatArea({{x=20,y=20}},canvas,1,20,'HIGH');A.tip:Show();A.tip:Hide()

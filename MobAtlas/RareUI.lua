@@ -122,71 +122,24 @@ function A:ShowRareAlert(id)
  C_Timer.After(12,function() if f.serial==serial then f:Hide() end end)
 end
 function A:HideHabitatAreas()
- if self.habitatAreaLayer and not self.habitatAreaLayer:IsShown() then return end
  for _,f in ipairs(self.habitatAreas or {}) do f:Hide() end
- if self.habitatAreaLayer then self.habitatAreaLayer:Hide() end
 end
--- Analytic union of circular spawn patches. Only exposed arcs get a contour.
--- Fill strips and native Line regions share one frame, and identical geometry is cached.
+-- Separate soft patches at actual source points; no joined area or outline mesh.
 function A:RenderHabitatArea(cells,canvas,scale,level,strata)
- self.habitatAreas=self.habitatAreas or {}
- if not self.db.habitatGlow then self:HideHabitatAreas();return end
- local layer=self.habitatAreaLayer
- if not layer then layer=CreateFrame('Frame',nil,canvas);layer.mobAtlasPin=true;layer:EnableMouse(false);if layer.SetClipsChildren then layer:SetClipsChildren(true) end;self.habitatAreaLayer=layer end
- local width,height=canvas:GetWidth()/scale,canvas:GetHeight()/scale
- layer:SetParent(canvas);layer:SetScale(scale);layer:SetSize(width,height);layer:ClearAllPoints();layer:SetPoint('TOPLEFT',canvas,'TOPLEFT',0,0);layer:SetFrameStrata(strata);layer:SetFrameLevel(math.max(1,level-1))
- local centres,seen,signature={},{},{tostring(canvas),tostring(width),tostring(height),tostring(scale)}
+ self:HideHabitatAreas();self.habitatAreas=self.habitatAreas or {}
+ if not self.db.habitatGlow then return end
+ local used,occupied=0,{}
  for _,cell in ipairs(cells) do if not cell.dungeon then
-  local x,y=width*cell.x/100,height*cell.y/100;local key=math.floor(x/24)..':'..math.floor(y/24)
-  if not seen[key] and #centres<80 then seen[key]=true;centres[#centres+1]={x=x,y=y};signature[#signature+1]=string.format('%.3f:%.3f',x,y) end
+  local x,y=canvas:GetWidth()*cell.x/100/scale,canvas:GetHeight()*cell.y/100/scale
+  local key=math.floor(x/24)..':'..math.floor(y/24)
+  if not occupied[key] and used<80 then
+   occupied[key]=true;used=used+1;local f=self.habitatAreas[used]
+   if not f then f=CreateFrame('Frame',nil,canvas);f.mobAtlasPin=true;f:EnableMouse(false);f.fill=f:CreateTexture(nil,'BACKGROUND');f.fill:SetTexture(glow);f.fill:SetAllPoints();self.habitatAreas[used]=f end
+   f:SetParent(canvas);f:SetScale(scale);f:SetFrameStrata(strata);f:SetFrameLevel(math.max(1,level-1));f:SetSize(52,52)
+   if f.fill.SetVertexColor then f.fill:SetVertexColor(.67,.45,.9,.32) end
+   f:ClearAllPoints();f:SetPoint('CENTER',canvas,'TOPLEFT',x,-y);f:Show()
+  end
  end end
- local stamp=table.concat(signature,'|')
- if self.habitatAreaStamp==stamp then
-  if layer:IsShown() then return end
-  for _,region in ipairs(self.habitatAreas) do if region.habitatUsed then region:Show() end end;layer:Show();return
- end
- self:HideHabitatAreas();self.habitatAreaStamp=stamp
- for _,region in ipairs(self.habitatAreas) do region.habitatUsed=false end
- self.habitatFills=self.habitatFills or {};self.habitatEdges=self.habitatEdges or {}
- local fills,edges=0,0;local radius,step=26,2
- local function fill(x,y,w,h)
-  if w<=0 or fills>=2400 then return end
-  fills=fills+1;local t=self.habitatFills[fills]
-  if not t then t=layer:CreateTexture(nil,'BACKGROUND');self.habitatFills[fills]=t;self.habitatAreas[#self.habitatAreas+1]=t end
-  t:SetColorTexture(.24,.74,.69,.2);t:ClearAllPoints();t:SetPoint('TOPLEFT',layer,'TOPLEFT',x,-y);t:SetSize(w,h);t.habitatUsed=true;t:Show()
- end
- -- Exact circle intersections merged per scanline: overlaps never darken the fill.
- local rows={}
- for _,c in ipairs(centres) do
-  for row=math.floor((c.y-radius)/step),math.ceil((c.y+radius)/step)-1 do
-   local dy=(row+.5)*step-c.y
-   if math.abs(dy)<radius then local dx=math.sqrt(radius*radius-dy*dy);rows[row]=rows[row] or {};rows[row][#rows[row]+1]={math.max(0,c.x-dx),math.min(width,c.x+dx)} end
-  end
- end
- local ordered={};for row in pairs(rows) do ordered[#ordered+1]=row end;table.sort(ordered)
- for _,row in ipairs(ordered) do if row*step>=0 and row*step<height then
-  local spans=rows[row];table.sort(spans,function(a,b) return a[1]<b[1] end);local left,right
-  for _,span in ipairs(spans) do
-   if right and span[1]>right then fill(left,row*step,right-left,math.min(step,height-row*step));left=nil;right=nil end
-   left=left or span[1];right=math.max(right or span[2],span[2])
-  end
-  if left then fill(left,row*step,right-left,math.min(step,height-row*step)) end
- end end
- -- Clip each circumference against neighbouring patches, leaving only the outer edge.
- for _,c in ipairs(centres) do
-  local neighbours={};for _,other in ipairs(centres) do if other~=c and (c.x-other.x)^2+(c.y-other.y)^2<4*radius*radius then neighbours[#neighbours+1]=other end end
-  for segment=0,23 do
-   local a,b=segment*math.pi/12,(segment+1)*math.pi/12;local mid=(a+b)/2;local mx,my=c.x+radius*math.cos(mid),c.y+radius*math.sin(mid);local covered=false
-   for _,other in ipairs(neighbours) do if (mx-other.x)^2+(my-other.y)^2<radius*radius-.01 then covered=true;break end end
-   if not covered and edges<1920 and layer.CreateLine then
-    edges=edges+1;local line=self.habitatEdges[edges]
-    if not line then line=layer:CreateLine(nil,'ARTWORK');self.habitatEdges[edges]=line;self.habitatAreas[#self.habitatAreas+1]=line end
-    line:SetColorTexture(.37,.91,.81,.85);line:SetThickness(1.5)
-    line:SetStartPoint('TOPLEFT',layer,c.x+radius*math.cos(a),-c.y-radius*math.sin(a));line:SetEndPoint('TOPLEFT',layer,c.x+radius*math.cos(b),-c.y-radius*math.sin(b));line.habitatUsed=true;line:Show()
-   end
-  end
- end
- layer:Show()
 end
 function A:HasHabitatSelection()
  return self.focus and self.habitatPinnedFocus==self.focus or self.tip and self.tip:IsShown() and self.inspectPin and (self.inspectPin.selected or #self.inspectPin.cell.ids==1)

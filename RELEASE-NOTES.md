@@ -1,13 +1,9 @@
-# MobAtlas 0.7.6 — Beta
+# MobAtlas 0.7.7 — Beta
 
-Rounded habitat areas replace the square grid. Overlapping spawn patches merge into a single translucent teal region with a thin outer contour. There are no internal borders or darkened overlaps, and distant camps remain separate.
+Restored separate soft violet highlights at spawn locations, with slightly stronger contrast. Removed the joined contour and grid rendering. Preview-close and explicit pin/unpin fixes remain. Uses at most 80 pooled patches.
 
-Native line regions and pooled fill textures share one mouse-transparent, clipped frame. Geometry is cached for repeated views. Preview/pin visibility and explicit unpin behavior are preserved.
+Вернули отдельные мягкие фиолетовые пятна в местах появления мобов и немного усилили контраст. Общий контур убран. Исправления закрытия просмотра и закрепления сохранены. Для отображения переиспользуется не больше 80 пятен.
 
-## На русском
+Lua checks cover separate positions, region reuse, preview cleanup and pin/unpin. / Проверены координаты, повторное использование элементов, закрытие просмотра и открепление в Lua-модели.
 
-Вместо квадратов — округлая полупрозрачная область с тонким бирюзовым контуром, ближе по виду к квестовой подсветке WoW. Пересекающиеся участки объединяются, без внутренних границ и затемнений. Удалённые лагеря остаются отдельными.
-
-Область появляется при просмотре конкретного моба или закреплении. Геометрия кэшируется, элементы переиспользуются. Проверены контур, очистка после закрытия, закрепление, бой и квестовые метки в Lua-модели; визуал в клиенте ещё требует проверки.
-
-Replace MobAtlas and **/reload**. / Обнови MobAtlas и введи **/reload**.
+Apply with **/reload**. / После обновления введи **/reload**.
