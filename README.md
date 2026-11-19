@@ -6,7 +6,7 @@
 
 **Find an item. Discover its sources. Track them on your map.**
 
-An offline loot atlas for World of Warcraft: Forever, with creature and vendor map markers, searchable items and dungeon quest preparation. Early test release **0.6.2**, targeting Interface **16001**.
+An offline loot atlas for World of Warcraft: Forever, with creature and vendor map markers, searchable items and dungeon quest preparation. Early test release **0.6.3**, targeting Interface **16001**.
 
 [Download the addon](https://github.com/Simplepres/MobAtlas/releases/latest) · [Report a bug](https://github.com/Simplepres/MobAtlas/issues) · [Русский](#на-русском)
 
@@ -60,7 +60,7 @@ Creature markers are shown on the Wetlands map, while the **Mosshide Mongrel** c
 
 ## Install
 
-1. Download **MobAtlas-0.6.2.zip** from [Releases](https://github.com/Simplepres/MobAtlas/releases/latest). Use this asset rather than GitHub's automatic “Source code” ZIP.
+1. Download **MobAtlas-0.6.3.zip** from [Releases](https://github.com/Simplepres/MobAtlas/releases/latest). Use this asset rather than GitHub's automatic “Source code” ZIP.
 2. Extract the **MobAtlas** folder into your Forever client's `Interface/AddOns/` folder.
 3. Check that the path ends in `Interface/AddOns/MobAtlas/MobAtlas.toc`.
 4. Restart WoW and enable **MobAtlas** in the AddOns list.
@@ -80,7 +80,7 @@ For the client layout used during development, the installation folder is `_fore
 | Keep a selection on the map | **Закрепить** |
 | Return to the map overview | **Открепить** / clear the selection |
 
-The current custom interface is primarily Russian; item names and tooltips can follow your game client. Full English UI localization is not yet complete.
+The addon interface follows your WoW client by default: Russian for ruRU, English otherwise. Use the **Auto / RU / EN** button at the top of the atlas to choose **Auto**, **Русский** or **English**. Changes apply immediately and your choice is saved. Item names and native item tooltips remain supplied by your game client.
 
 ## Data and accuracy
 
@@ -119,6 +119,7 @@ python3 -m venv .venv
 .venv/bin/python tests/check_mobatlas_data.py
 .venv/bin/python tests/check_mobatlas_atlas.py
 .venv/bin/python tests/check_mobatlas_preparation.py
+.venv/bin/python tests/check_mobatlas_locale.py
 ```
 
 Build an installable ZIP with `python3 tools/package.py`. See [development notes](docs/DEVELOPMENT-NOTES.ru.md) for data generation history and known limitations. Network refreshes are optional and may be rate-limited; offline snapshots are retained when an update fails validation.
@@ -131,7 +132,9 @@ Build an installable ZIP with `python3 tools/package.py`. See [development notes
 
 Аддон объединяет мобов в группы, показывает добычу с иконками и цветом редкости, позволяет закрепить выбранный источник и отфильтровать вещи под класс, уровень и профессии. Раздел **«Перед данжем»** помогает найти известные задания и первые шаги цепочек, включая The Hall of Thanes.
 
-**Установка:** скачай `MobAtlas-0.6.2.zip` в [Releases](https://github.com/Simplepres/MobAtlas/releases/latest), распакуй папку `MobAtlas` в `Interface/AddOns/` клиента Forever и перезапусти игру. Questie отдельно устанавливать не нужно.
+**Установка:** скачай `MobAtlas-0.6.3.zip` в [Releases](https://github.com/Simplepres/MobAtlas/releases/latest), распакуй папку `MobAtlas` в `Interface/AddOns/` клиента Forever и перезапусти игру. Questie отдельно устанавливать не нужно.
+
+**Язык:** по умолчанию — язык клиента WoW (русский или английский; для других локалей — английский). Кнопка **Auto / RU / EN** вверху атласа позволяет выбрать язык вручную, без перезагрузки. Выбор сохраняется. Названия вещей и игровые подсказки берутся из клиента.
 
 **Управление:** `/mobatlas` — атлас, `/mobatlas prep` — подготовка к подземелью, `/mobatlas settings` — настройки. ЛКМ по книжке у миникарты открывает атлас, ПКМ — управление отображением. В карточке нажми **«Закрепить»**, на карте — **«Открепить»**, чтобы вернуться к обзору.
 

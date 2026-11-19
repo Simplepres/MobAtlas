@@ -1,23 +1,23 @@
-# MobAtlas 0.6.2 — Beta release
+# MobAtlas 0.6.3 — Beta
 
-An offline loot atlas for WoW Forever: search items, inspect creature/vendor sources, pin known locations on the map and prepare dungeon quests.
+## Interface language
 
-Download **MobAtlas-0.6.2.zip**, extract **MobAtlas** into your Forever client's **Interface/AddOns/** folder and restart WoW. Open with **/mobatlas**; dungeon preparation: **/mobatlas prep**.
+- Automatically follows the WoW client: Russian for ruRU; English for other locales.
+- **Auto / RU / EN** button at the top of the atlas lets you select Auto, Русский or English.
+- Switches immediately and saves your choice, preserving search, filters and map selection.
+- Covers atlas controls, settings, loot cards, addon tooltip text and dungeon preparation. Native item names and item tooltips remain supplied by WoW.
+- Existing loot/source data and functionality are retained.
 
-Includes grouped map markers, quality/class/level filters, rare-loot priority, creature tooltip loot, local loot/merchant observations and known quest associations for all nine new Forever dungeons, including The Hall of Thanes.
+Download **MobAtlas-0.6.3.zip**, extract **MobAtlas** into your Forever client's **Interface/AddOns/** folder and **fully restart WoW** to load the new localization file.
 
-Early test build; custom UI is primarily Russian. Reference data is incomplete. Classic percentages are not measured Forever rates. Missing coordinates and prerequisites remain explicit gaps. See README and bundled source/license notices.
+## На русском
 
----
+Интерфейс теперь подстраивается под язык WoW: русский для ruRU, английский для остальных локалей. Вверху атласа есть кнопка **Auto / RU / EN** для ручного выбора. Язык меняется сразу и сохраняется; поиск, фильтры и выбранный источник остаются. Названия предметов и игровые характеристики берутся из WoW. База и функции сохранены.
 
-Тестовая версия «Следопыта». Скачай **MobAtlas-0.6.2.zip**, помести папку **MobAtlas** в **Interface/AddOns/** и перезапусти WoW. **/mobatlas** — атлас, **/mobatlas prep** — задания для подземелья. База справочная и неполная; сообщения об ошибках приветствуются.
+После обновления **полностью перезапусти WoW**, чтобы загрузился новый файл локализации.
 
-## Screenshots / Скриншоты
+Это бета-версия. Данные справочные и неполные; неизвестные шансы и координаты остаются неизвестными. Classic rates are reference data, not measured Forever chances. See README and source-specific notices.
 
-[View four in-game screenshots with English and Russian descriptions](https://github.com/Simplepres/MobAtlas#screenshots--скриншоты).
+[In-game screenshots and captions](https://github.com/Simplepres/MobAtlas#screenshots--скриншоты).
 
-## Beta / Бета и обратная связь
-
-This is a beta version under active development. For questions, feedback or bugs, contact [Telegram @brunotwin](https://t.me/brunotwin) or [Threads @teur_person](https://www.threads.com/@teur_person).
-
-Это бета-версия. Если есть вопросы, предложения или нашёл баг — пиши напрямую в [Telegram @brunotwin](https://t.me/brunotwin) или [Threads @teur_person](https://www.threads.com/@teur_person).
+Questions, feedback or bugs / Вопросы, предложения и баги: [Telegram @brunotwin](https://t.me/brunotwin) · [Threads @teur_person](https://www.threads.com/@teur_person).

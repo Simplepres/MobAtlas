@@ -5,7 +5,7 @@ r=Path(__file__).resolve().parents[1];l=LuaRuntime(unpack_returned_tuples=True)
 l.execute((r/'tests/wow_mock.lua').read_text());l.execute((r/'tests/journal_mock.lua').read_text());l.execute('getmetatable(UIParent).__index.EnableMouseWheel=function() end')
 ns=l.table();load=l.eval('function(s,n,ns) return assert(loadstring(s,n))("MobAtlas",ns) end')
 t=time.monotonic()
-for f in ['Data.lua','ClassGear.lua','Forever.lua','Catalog.lua','Expansion.lua','Preparation.lua','Observations.lua','Atlas.lua','Core.lua','Presentation.lua','UI.lua']:load((r/'MobAtlas'/f).read_text(),'@'+f,ns)
+for f in ['Data.lua','ClassGear.lua','Forever.lua','Catalog.lua','Expansion.lua','Preparation.lua','Observations.lua','Atlas.lua','Core.lua','Presentation.lua','Locale.lua','UI.lua']:load((r/'MobAtlas'/f).read_text(),'@'+f,ns)
 l.execute('''
 local A=MobAtlas;A:Init()
 assert(A.mobs[6] and A.items[755]);assert(#A.foreverRates>0)

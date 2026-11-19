@@ -3,7 +3,7 @@ from lupa.lua51 import LuaRuntime
 r=Path(__file__).resolve().parents[1];l=LuaRuntime(unpack_returned_tuples=True)
 for n in ['wow_mock','journal_mock']:l.execute((r/'tests'/f'{n}.lua').read_text())
 l.execute('getmetatable(UIParent).__index.EnableMouseWheel=function() end');ns=l.table();load=l.eval('function(s,n,ns) assert(loadstring(s,n))("MobAtlas",ns) end')
-for name in ['Data.lua','ClassGear.lua','Forever.lua','Catalog.lua','Expansion.lua','Preparation.lua','Observations.lua','Atlas.lua','Core.lua','Presentation.lua','UI.lua']:load((r/'MobAtlas'/name).read_text(),'@'+name,ns)
+for name in ['Data.lua','ClassGear.lua','Forever.lua','Catalog.lua','Expansion.lua','Preparation.lua','Observations.lua','Atlas.lua','Core.lua','Presentation.lua','Locale.lua','UI.lua']:load((r/'MobAtlas'/name).read_text(),'@'+name,ns)
 l.execute('''
 local A=MobAtlas;A:Init();MOCK.playerLevel=18
 local n=0;for _ in pairs(A.items) do n=n+1 end;assert(n>28000,'broad catalog integrated')

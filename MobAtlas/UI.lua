@@ -1,9 +1,9 @@
 local _,A=...
 local function label(parent,text,x,y,w,size,color)
- local f=parent:CreateFontString(nil,'OVERLAY','GameFontNormal');f:SetFont(A.font,size or 12,'');f:SetPoint('TOPLEFT',x,y);f:SetWidth(w);f:SetJustifyH('LEFT');f:SetTextColor(unpack(color or {1,.92,.75}));f:SetText(text);return f
+ local f=parent:CreateFontString(nil,'OVERLAY','GameFontNormal');f:SetFont(A.font,size or 12,'');f:SetPoint('TOPLEFT',x,y);f:SetWidth(w);f:SetJustifyH('LEFT');f:SetTextColor(unpack(color or {1,.92,.75}));A:LocalizeWidget(f);f:SetText(text);return f
 end
 local function button(parent,text,x,y,w,fn)
- local b=CreateFrame('Button',nil,parent,'UIPanelButtonTemplate');b:SetPoint('TOPLEFT',x,y);b:SetSize(w,27);b:SetText(text);b:GetFontString():SetFont(A.font,11,'');b:SetScript('OnClick',fn);return b
+ local b=CreateFrame('Button',nil,parent,'UIPanelButtonTemplate');b:SetPoint('TOPLEFT',x,y);b:SetSize(w,27);A:LocalizeWidget(b);b:SetText(text);b:GetFontString():SetFont(A.font,11,'');b:SetScript('OnClick',fn);return b
 end
 local function panel(name,parent,w,h)
  local f=CreateFrame('Frame',name,parent,'BackdropTemplate');f:SetSize(w,h);f:SetClampedToScreen(true)
@@ -262,7 +262,7 @@ function A:Update()
 end
 
 function A:AddTooltipLine(t,text,...)
- t:AddLine(text,...)
+ t:AddLine(self:L(text),...)
  if t.GetName and t.NumLines then
   local name=t:GetName();local line=name and _G[name..'TextLeft'..t:NumLines()]
   if line then line:SetFont(self.font,11,'') end
@@ -395,7 +395,7 @@ function A:CreateAtlas()
  local f=panel('MobAtlasAtlas',UIParent,440,532);self.atlas=f;f:SetPoint('CENTER');f:SetFrameStrata('DIALOG');f:EnableMouse(true)
  f:SetScale(math.min(.95,(UIParent:GetHeight()-30)/532));f:SetMovable(true);f:RegisterForDrag('LeftButton');f:SetScript('OnDragStart',function() f:StartMoving() end);f:SetScript('OnDragStop',function() f:StopMovingOrSizing() end)
  tinsert(UISpecialFrames,'MobAtlasAtlas');f.category='gear';f.scope='all';f.page=1;f.myLevel=true;f.knownOnly=true
- label(f,'Следопыт · атлас добычи',16,-15,265,17,{1,.79,.32})
+ label(f,'Следопыт · атлас добычи',16,-15,205,15,{1,.79,.32})
  local close=CreateFrame('Button',nil,f,'UIPanelCloseButton');close:SetPoint('TOPRIGHT',-4,-4);close:SetScript('OnClick',function() f:Hide() end)
  f.search=CreateFrame('EditBox',nil,f,'InputBoxTemplate');f.search:SetSize(393,28);f.search:SetPoint('TOPLEFT',22,-49);f.search:SetFont(self.font,12,'');f.search:SetAutoFocus(false);f.search:SetMaxLetters(160)
  f.search:SetScript('OnEscapePressed',function(b) b:ClearFocus() end)
@@ -407,6 +407,15 @@ function A:CreateAtlas()
   C_Timer.After(.2,function() if f.searchSerial==serial then search() end end)
  end)
  f.hint=label(f,'Название / ID · Shift-клик по вещи при вводе',20,-81,405,10,{.65,.69,.65});f.hint:SetWordWrap(false)
+ f.languageMenu=panel(nil,f,150,100);f.languageMenu:SetPoint('TOPLEFT',225,-41);f.languageMenu:SetFrameLevel(f:GetFrameLevel()+45);f.languageMenu:EnableMouse(true)
+ for i,choice in ipairs({{'auto','Авто / Auto'},{'ruRU','Русский'},{'enUS','English'}}) do
+  local mode=choice[1];button(f.languageMenu,choice[2],6,-6-(i-1)*29,138,function() f.languageMenu:Hide();self:SetLanguage(mode) end)
+ end
+ f.languageMenu:Hide()
+ f.languageButton=button(f,'',225,-10,68,function() f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:SetShown(not f.languageMenu:IsShown()) end)
+ f.languageButton:SetText(self.db.language=='ruRU' and 'RU ▾' or self.db.language=='enUS' and 'EN ▾' or 'Auto ▾')
+ f.languageButton:SetScript('OnEnter',function(b) GameTooltip:SetOwner(b,'ANCHOR_RIGHT');self:AddTooltipLine(GameTooltip,'Язык интерфейса');self:AddTooltipLine(GameTooltip,'Авто: по языку WoW. Другие языки используют English.');GameTooltip:Show() end)
+ f.languageButton:SetScript('OnLeave',function() GameTooltip:Hide() end)
  f.clearFocus=button(f,'Снять выбор',300,-10,124,function() self:ClearFocus();self:RefreshAtlas() end);f.clearFocus:Hide()
  f.myLevelCheck=check(f,'Мой уровень',16,-76,180,function(v) f.myLevel=v;search() end)
  f.knownCheck=check(f,'Известен источник',205,-76,220,function(v) f.knownOnly=v;search() end)
@@ -459,7 +468,7 @@ function A:CreateAtlas()
  button(f,'Настройки',261,-467,118,function() f:Hide();self.settings:Show();self:RefreshSettings() end)
  f.status=label(f,'',17,-506,407,10,{.67,.72,.68})
  f:EnableMouseWheel(true);f:SetScript('OnMouseWheel',function(_,d) f.page=f.page-d;self:RefreshAtlas() end)
- f:SetScript('OnHide',function() GameTooltip:Hide();f.search:ClearFocus();f.categoryMenu:Hide();f.scopeMenu:Hide() end)
+ f:SetScript('OnHide',function() GameTooltip:Hide();f.search:ClearFocus();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:Hide() end)
  f:Hide()
 end
 function A:OpenAtlas(query)
