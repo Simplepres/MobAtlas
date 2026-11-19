@@ -20,6 +20,42 @@ An offline loot atlas for World of Warcraft: Forever, with creature and vendor m
 
 No separate Questie installation, account, API key or background application is required to use the addon. Bundled reference data works offline.
 
+## Screenshots / Скриншоты
+
+Captured in the player's WoW Forever client on November 19, 2026. MobAtlas appears alongside other enabled addons; the surrounding unit frames, action bars, quest tracker and quest map overlays are not all features of MobAtlas.
+
+### 1. Creature loot tooltip / Добыча при наведении на моба
+
+![MobAtlas loot added to the in-world Leech Stalker tooltip](docs/images/creature-loot-tooltip.png)
+
+Hovering **Leech Stalker** shows MobAtlas's known loot beneath the normal creature information: item icons, rarity-colored names and source labels. The list distinguishes Classic reference percentages from an unknown Forever chance.
+
+**На русском:** при наведении на паука Leech Stalker в обычной подсказке появляется список известной добычи. Видны иконки, цвет редкости и источник данных. Неизвестный шанс не подменяется процентом из Classic.
+
+### 2. Searchable item atlas / Атлас вещей и фильтры
+
+![MobAtlas equipment list with current-level and known-source filters](docs/images/item-atlas-filters.png)
+
+The atlas shows equipment with **My level** and **Known source** enabled. Each row includes an icon, rarity, required level and source count. **Карта** opens source navigation when map coordinates are available; a known source can still lack coordinates, leaving that button disabled. Category and source dropdowns narrow the list.
+
+**На русском:** список экипировки отфильтрован по уровню персонажа и наличию известного источника. В строке указаны требуемый уровень и число источников. Активная кнопка «Карта» ведёт к источникам с координатами; серая означает, что подходящей точки пока нет. Категории и поиск помогают сузить список.
+
+### 3. Dungeon preparation / Подготовка к подземелью
+
+![MobAtlas dungeon preparation list for a level 22 character](docs/images/dungeon-preparation.png)
+
+The preparation window lists nearby or level-relevant dungeons for a **level 22** character. Counts separate quests shown for the current level from later ones. Open a dungeon to inspect its known quests and prerequisite steps. The bottom reminders report free bag space and equipment repair status.
+
+**На русском:** раздел «Перед походом в данж» показывает подходящие подземелья, количество заданий сейчас и на будущее. После выбора открывается список известных квестов и шагов цепочек. Внизу — напоминания о месте в сумках и ремонте. Справочные условия ещё требуют сверки в игре.
+
+### 4. Map markers and loot inspection / Карта и просмотр добычи
+
+![MobAtlas creature markers and Moss hide Mongrel loot card with an item tooltip](docs/images/map-loot-inspection.png)
+
+Creature markers are shown on the Wetlands map, while the **Mosshide Mongrel** card displays its level, creature type and paginated known loot. Hovering **Sealed Journeyman's Writ** opens the game's item tooltip. **Закрепить** keeps the inspected source selected; **К группе мобов** returns to the group. Existing quest overlays remain visible alongside the addon.
+
+**На русском:** на карте Болотины видны метки мобов и карточка Mosshide Mongrel: уровень, тип существа, добыча и страницы списка. Наведение на вещь открывает игровые характеристики. «Закрепить» сохраняет выбранный источник, «К группе мобов» возвращает к списку группы. Синие квестовые области и трекер справа относятся к остальному игровому интерфейсу.
+
 ## Install
 
 1. Download **MobAtlas-0.6.2.zip** from [Releases](https://github.com/Simplepres/MobAtlas/releases/latest). Use this asset rather than GitHub's automatic “Source code” ZIP.

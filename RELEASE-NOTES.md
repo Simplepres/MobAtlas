@@ -11,3 +11,7 @@ Early test build; custom UI is primarily Russian. Reference data is incomplete. 
 ---
 
 Тестовая версия «Следопыта». Скачай **MobAtlas-0.6.2.zip**, помести папку **MobAtlas** в **Interface/AddOns/** и перезапусти WoW. **/mobatlas** — атлас, **/mobatlas prep** — задания для подземелья. База справочная и неполная; сообщения об ошибках приветствуются.
+
+## Screenshots / Скриншоты
+
+[View four in-game screenshots with English and Russian descriptions](https://github.com/Simplepres/MobAtlas#screenshots--скриншоты).
