@@ -121,6 +121,7 @@ function A:ShowTooltip(pin,force)
 
  t.title:SetText(mob.name);t.title:SetWordWrap(false);self:SetNpcPortrait(t.portrait,id)
  t.subtitle:SetText(pin.cell.dungeon and ('Вход: '..self.instances[pin.cell.dungeon].name) or mob.vendor and 'Торговец · экипировка, сумки, ремесло' or ((mob.min>0 and ('Ур. '..mob.min..'–'..mob.max..' · ') or '')..self:CreatureKind(mob)))
+ if #rows==0 then t.subtitle:SetText(not mob.vendor and #(mob.loot or {})==0 and 'Добыча пока неизвестна.' or 'Нет вещей по текущим фильтрам') end
  for i,r in ipairs(t.rows) do
   local e=i<=n and rows[(pin.page-1)*n+i] or nil;r:SetShown(e~=nil);r.itemID=e and e[1] or nil;r.npcID=nil;r.npcIndex=nil;r.rarityBorder:SetShown(e~=nil)
   r.special=nil;r.hover:Hide();r.arrow:Hide()
@@ -156,11 +157,12 @@ function A:UnitLootTooltip(tooltip)
  if not id or not self.mobs[id] or tooltip.mobAtlasID==id then return end
  tooltip.mobAtlasID=id;local rows=self:Loot(id,self:Professions(),true)
  self:AddTooltipLine(tooltip,' ');self:AddTooltipLine(tooltip,self.mobs[id].vendor and 'Следопыт · в продаже' or 'Следопыт · возможная добыча',1,.8,.35)
- if #rows==0 then self:AddTooltipLine(tooltip,'Нет вещей по текущим фильтрам',.7,.7,.7) end
+ if #rows==0 then self:AddTooltipLine(tooltip,#(self.mobs[id].loot or {})==0 and 'Добыча пока неизвестна. Находки будут сохраняться.' or 'Нет вещей по текущим фильтрам',.7,.7,.7) end
  for i=1,math.min(#rows,self.db.visibleItems) do
   local e=rows[i];local item=self.items[e[1]];local name,icon=self:ItemDisplay(e[1]);local c=colors[item.quality] or {1,.8,.4}
   self:AddTooltipLine(tooltip,'|T'..icon..':18|t '..name..' · '..self:Chance(e),unpack(c))
  end
+ if #rows>self.db.visibleItems then self:AddTooltipLine(tooltip,'Показано: '..self.db.visibleItems..' из '..#rows..' · остальное в карточке на карте.',.7,.75,.7) end
  self:AddTooltipLine(tooltip,'Everloot · CC BY-SA 4.0; Classic — справка',.7,.7,.7)
  tooltip:Show()
 end
@@ -290,6 +292,7 @@ function A:ItemEvidence(t,e)
   self:AddTooltipLine(t,'Другие записи (проценты не складываются):',.7,.7,.7)
   for _,other in ipairs(e.alternatives) do if other[2]~=e[2] then self:AddTooltipLine(t,self.methods[other[2]]..' · '..self:Chance(other),.7,.7,.7) end end
  end
+ if e[2]==14 then self:AddTooltipLine(t,'Связь добавлена по сообщению игрока. Шанс и частота не измерены.',.8,.8,.7) end
  if e[2]==9 then self:AddTooltipLine(t,'vMaNGOS Classic через wow-forever-kb; требует проверки на Forever.',.7,.7,.7) end
  if e[2]==8 then self:AddTooltipLine(t,'Предмет был в окне добычи этого NPC на этом клиенте.',.8,.9,.7);self:AddTooltipLine(t,'Способ получения не определён; шанс не рассчитывается.',.7,.7,.7) end
   if e[2]==7 then self:AddTooltipLine(t,'Связь из справочника Forever; частота не измерена.',.7,.7,.7) end

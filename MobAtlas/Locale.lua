@@ -317,6 +317,14 @@ en['Мягкая подсветка области']='Soft spawn-area shading'
 en['Дальность ограничена клиентом. Место из базы — не подтверждение живого моба.']='Range is limited by the client. Reference locations do not confirm a live creature.'
 en['Моб замечен, но его координаты недоступны.']='Creature detected, but its position is unavailable.'
 en['За краем миникарты: показано направление.']='Outside the minimap view: showing direction.'
+en['Forever · сообщение игрока']='Forever · player report'
+en['Сообщение игрока · шанс неизвестен']='Player report · unknown chance'
+en['Связь добавлена по сообщению игрока. Шанс и частота не измерены.']='Added from a player report. Chance and frequency have not been measured.'
+en['Добыча пока неизвестна. Находки будут сохраняться.']='Loot not known yet. Your finds will be recorded.'
+en['Показано: ']='Showing: '
+en[' из ']=' of '
+en[' · остальное в карточке на карте.']=' · more in the map card.'
+en['Добыча пока неизвестна.']='Loot not known yet.'
 local keys={};for key in pairs(en) do keys[#keys+1]=key end
 table.sort(keys,function(a,b) return #a>#b end)
 function A:GetLanguage()

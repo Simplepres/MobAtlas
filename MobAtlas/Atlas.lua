@@ -33,12 +33,12 @@ function A:BuildAtlasIndex()
    end
   end
  end
- for iid,item in pairs(self.items) do self.itemSources[iid]=self.itemSources[iid] or {};local item=self.items[iid];self.searchTerms[iid]=self:SearchText(item.name..' '..(item.ruName or '')) end
+ for iid,item in pairs(self.items) do self.itemSources[iid]=self.itemSources[iid] or {};local item=self.items[iid];self.searchTerms[iid]=self:SearchText(item.name..' '..(item.ruName or '')..' '..(item.referenceName or '')) end
 end
 function A:SourceEntry(source)
  local best,rank
  for _,e in ipairs(source.entries) do
-  local value=e[2]==8 and 6 or e[2]==4 and 5 or e[2]==6 and 4 or e[2]==7 and 3 or e[4] and 0 or 2
+  local value=e[2]==8 and 6 or e[2]==4 and 5 or e[2]==14 and 4 or e[2]==6 and 4 or e[2]==7 and 3 or e[2]==14 and 3 or e[4] and 0 or 2
   if not best or value>rank then best=e;rank=value end
  end
  return best
@@ -255,7 +255,7 @@ function A:IndexLootEntry(npcID,entry)
  if not source then source={npcID=npcID,entries={}};sources[#sources+1]=source end
  for _,e in ipairs(source.entries) do if e==entry then return end end
  source.entries[#source.entries+1]=entry
- local item=self.items[iid];self.searchTerms[iid]=self:SearchText(item.name..' '..(item.ruName or ''))
+ local item=self.items[iid];self.searchTerms[iid]=self:SearchText(item.name..' '..(item.ruName or '')..' '..(item.referenceName or ''))
  self.mappableItems[iid]=nil
 end
 

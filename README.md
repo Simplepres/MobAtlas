@@ -6,7 +6,7 @@
 
 Look up an item, check which creatures drop it or which vendors sell it, and mark known locations on your map. Heading into a dungeon? Check the quest list before you leave.
 
-**Beta · 0.7.0** — still growing, with bugs to fix and gaps in the database. Your feedback helps.
+**Beta · 0.7.1** — still growing, with bugs to fix and gaps in the database. Your feedback helps.
 
 [**Download**](https://github.com/Simplepres/MobAtlas/releases/latest) · [Русский](#на-русском) · [Screenshots](#screenshots--скриншоты) · [Report a bug](https://github.com/Simplepres/MobAtlas/issues)
 
@@ -30,7 +30,7 @@ Open **Rare creatures…** by right-clicking the minimap book, or type **`/mobat
 
 ## Install and play
 
-1. Download **MobAtlas-0.7.0.zip** from [Releases](https://github.com/Simplepres/MobAtlas/releases/latest).
+1. Download **MobAtlas-0.7.1.zip** from [Releases](https://github.com/Simplepres/MobAtlas/releases/latest).
 2. Put the **MobAtlas** folder in your Forever client's `Interface/AddOns/` folder.
 3. Restart WoW and enable the addon. The file should be at `Interface/AddOns/MobAtlas/MobAtlas.toc`.
 
@@ -76,7 +76,7 @@ Inspect loot, hover over an item for its stats, and pin the creature you want to
 
 Есть фильтры по редкости, классу, уровню и материалам профессий. База уже внутри: отдельно ставить Questie не нужно.
 
-**Как установить:** скачай [MobAtlas-0.7.0.zip](https://github.com/Simplepres/MobAtlas/releases/latest), положи папку `MobAtlas` в `Interface/AddOns/` клиента Forever и перезапусти WoW.
+**Как установить:** скачай [MobAtlas-0.7.1.zip](https://github.com/Simplepres/MobAtlas/releases/latest), положи папку `MobAtlas` в `Interface/AddOns/` клиента Forever и перезапусти WoW.
 
 Карта работает и в бою: можно смотреть добычу, выбирать и закреплять источники. Если WoW блокирует открытие карты из аддона, открой её клавишей **M**.
 
@@ -93,6 +93,8 @@ Found a bug or have an idea? / Нашёл баг или хочешь что-то
 Write directly: [**Telegram @brunotwin**](https://t.me/brunotwin) · [**Threads @teur_person**](https://www.threads.com/@teur_person), or open an [issue](https://github.com/Simplepres/MobAtlas/issues). A screenshot, item or creature name, and a short description of what happened are helpful.
 
 ## Data and credits
+
+Hover tooltips show the top few matching items; the count tells you how much more is available in the map card. New Forever creatures are included, but many still have incomplete loot tables. Direct loot observations fill gaps locally; they are not uploaded.
 
 Locations and loot tables are reference data, not a live radar or a complete record of every Forever drop. Classic rates and Forever observations are labeled separately. Some sources, entrances and quest requirements are still missing.
 

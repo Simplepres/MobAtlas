@@ -1,8 +1,8 @@
 local _,A=...
 _G.MobAtlas=A
-A.version='0.7.0';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
+A.version='0.7.1';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
 A.profNames={[129]='Первая помощь',[164]='Кузнечное дело',[165]='Кожевничество',[171]='Алхимия',[185]='Кулинария',[197]='Портняжное дело',[202]='Инженерное дело',[333]='Наложение чар'}
-A.methods={[1]='Добыча',[2]='Снятие шкур',[3]='Карманная кража',[4]='Forever · способ не разделён',[5]='Продажа · справочник QuestieDB',[6]='Продажа · личное наблюдение',[7]='Добыча · справочник Forever',[8]='Личная находка · способ не определён',[9]='Classic · vMaNGOS через KB',[10]='Награда за задание',[11]='Изготовление',[12]='Сундук / объект · Classic',[13]='Содержимое предмета'}
+A.methods={[1]='Добыча',[2]='Снятие шкур',[3]='Карманная кража',[4]='Forever · способ не разделён',[5]='Продажа · справочник QuestieDB',[6]='Продажа · личное наблюдение',[7]='Добыча · справочник Forever',[8]='Личная находка · способ не определён',[9]='Classic · vMaNGOS через KB',[10]='Награда за задание',[11]='Изготовление',[12]='Сундук / объект · Classic',[13]='Содержимое предмета',[14]='Forever · сообщение игрока',[14]='Forever · сообщение игрока'}
 function A:Safe(fn,...)
  if type(fn)~='function' then return end
  local ok,a,b,c,d,e,f,g=pcall(fn,...);if ok then return a,b,c,d,e,f,g end
@@ -53,7 +53,7 @@ function A:Loot(id,skills,forceSpecial)
  local unique={};local out={}
  for _,entry in ipairs(list or {}) do if self:Matches(entry,skills or self.skills or {}) then
   local previous=unique[entry[1]]
-  local priority=entry[2]==8 and 5 or entry[2]==6 and 4 or entry[2]==4 and 3 or entry[4] and 0 or 1
+  local priority=entry[2]==8 and 5 or entry[2]==6 and 4 or entry[2]==4 and 3 or entry[2]==14 and 2 or entry[4] and 0 or 1
   if not previous then
    local copy={};for i=1,8 do copy[i]=entry[i] end;copy.alternatives={entry};copy.priority=priority;unique[entry[1]]=copy
   else
@@ -77,6 +77,7 @@ function A:Chance(entry)
  if entry[2]==11 then return 'Изготовление' end
  if entry[2]==13 then return 'Внутри другого предмета' end
  if entry[2]==9 or entry[2]==12 then return entry[3]<0 and 'Шанс неизвестен · Classic' or string.format('%.3g%% · Classic',entry[3]) end
+ if entry[2]==14 then return 'Сообщение игрока · шанс неизвестен' end
  if entry[2]==8 then return 'Лично найдено · шанс неизвестен' end
  if entry[2]==7 then return 'шанс неизвестен · Forever DB' end
  if entry[2]==5 then return 'Покупка · справочник' end
@@ -94,8 +95,8 @@ function A:BuildMap(mapID)
  local function visible(id)
   if self.focus then return self.focus.ids[id]==true end
   local mob=self.mobs[id];local faction=self:Safe(UnitFactionGroup,'player');local friendly=mob.friendly or ''
-  if not mob.vendor and (friendly=='AH' or faction=='Alliance' and friendly:find('A',1,true) or faction=='Horde' and friendly:find('H',1,true)) then return false end
-  return #self:Loot(id,self.skills)>0 and (not mob.vendor or friendly=='' or friendly=='AH' or faction=='Alliance' and friendly:find('A',1,true) or faction=='Horde' and friendly:find('H',1,true))
+  if not mob.vendor and not mob.huntable and (mob.service or mob.kind=='Humanoid') and (friendly=='AH' or faction=='Alliance' and friendly:find('A',1,true) or faction=='Horde' and friendly:find('H',1,true)) then return false end
+  return (#self:Loot(id,self.skills)>0 or mob.huntable and #(mob.loot or {})==0) and (not mob.vendor or friendly=='' or friendly=='AH' or faction=='Alliance' and friendly:find('A',1,true) or faction=='Horde' and friendly:find('H',1,true))
    and (self.db.mapLayer=='all' or self.db.mapLayer=='vendors' and mob.vendor or self.db.mapLayer=='mobs' and not mob.vendor)
  end
  local visibility={};local function add(id,x,y,area)
@@ -135,7 +136,7 @@ function A:Init()
  self.zoneIndex={}
  for id,mob in pairs(self.mobs) do local seen={};for _,p in ipairs(mob.points) do if not seen[p[1]] then seen[p[1]]=true;self.zoneIndex[p[1]]=self.zoneIndex[p[1]] or {};table.insert(self.zoneIndex[p[1]],id) end end end
  for _,ids in pairs(self.zoneIndex) do table.sort(ids) end
- self:BuildAtlasIndex();self:HookItemSearch();self:CreateSettings();self:CreateMinimapButton();self:HookUnitLoot();self:RestoreQuestPin();if self.StartRareTracking then self:StartRareTracking() end;self.dirty=true
+ self:BuildAtlasIndex();self:HookItemSearch();self:CreateSettings();self:CreateMinimapButton();self:HookUnitLoot();self:RestoreQuestPin();if self.StartNpcObservation then self:StartNpcObservation() end;if self.StartRareTracking then self:StartRareTracking() end;self.dirty=true
  SLASH_MOBATLAS1='/mobatlas';SLASH_MOBATLAS2='/следопыт'
  SlashCmdList.MOBATLAS=function(msg)
   if msg=='clear' then self:ClearFocus()
@@ -150,10 +151,11 @@ function A:Init()
  C_Timer.NewTicker(.5,function() self:Update() end)
 end
 A.events=CreateFrame('Frame')
-A.events:SetScript('OnEvent',function(_,event)
- if event=='PLAYER_LOGIN' then A:Init() elseif A.db and (event=='QUEST_LOG_UPDATE' or event=='QUEST_ACCEPTED' or event=='QUEST_TURNED_IN') then A:QuestLogChanged() elseif A.db and (event=='LOOT_OPENED' or event=='LOOT_READY') then A:CaptureLoot() elseif A.db and (event=='MERCHANT_SHOW' or event=='MERCHANT_UPDATE') then A:CaptureMerchant() elseif A.db then A:Invalidate() end
+A.events:SetScript('OnEvent',function(_,event,arg)
+ if event=='GET_ITEM_INFO_RECEIVED' and A.db then A:RefreshObservedLootItem(arg)
+ elseif event=='PLAYER_LOGIN' then A:Init() elseif A.db and (event=='QUEST_LOG_UPDATE' or event=='QUEST_ACCEPTED' or event=='QUEST_TURNED_IN') then A:QuestLogChanged() elseif A.db and (event=='LOOT_OPENED' or event=='LOOT_READY' or event=='LOOT_SLOT_CHANGED') then A:CaptureLoot() elseif A.db and (event=='MERCHANT_SHOW' or event=='MERCHANT_UPDATE') then A:CaptureMerchant() elseif A.db then A:Invalidate() end
 end)
-for _,event in ipairs({'PLAYER_LOGIN','SKILL_LINES_CHANGED','PLAYER_LEVEL_UP','PLAYER_ENTERING_WORLD','MERCHANT_SHOW','MERCHANT_UPDATE','LOOT_OPENED','LOOT_READY','QUEST_LOG_UPDATE','QUEST_TURNED_IN','QUEST_ACCEPTED'}) do A.events:RegisterEvent(event) end
+for _,event in ipairs({'PLAYER_LOGIN','SKILL_LINES_CHANGED','PLAYER_LEVEL_UP','PLAYER_ENTERING_WORLD','MERCHANT_SHOW','MERCHANT_UPDATE','LOOT_OPENED','LOOT_READY','LOOT_SLOT_CHANGED','GET_ITEM_INFO_RECEIVED','QUEST_LOG_UPDATE','QUEST_TURNED_IN','QUEST_ACCEPTED'}) do A.events:RegisterEvent(event) end
 
 -- Observations stay separate from Classic methods: this feed does not identify the method.
 function A:MergeForever()
@@ -205,14 +207,18 @@ function A:ApplyCatalog()
  end
  for id,c in pairs(self.catalog) do
   local mob=self.mobs[id]
-  if mob or c.vendor or c.referenceLoot then
+  if mob or c.vendor or c.referenceLoot or c.reportedLoot then
    if not mob then mob={loot={}};self.mobs[id]=mob end
-   for _,k in ipairs({'name','min','max','points','instances','kind','family','vendor','stock','friendly'}) do mob[k]=c[k] end
+   for _,k in ipairs({'name','min','max','points','instances','kind','family','vendor','stock','friendly','huntable','service','reportSource'}) do mob[k]=c[k] end
+   local reported={};for _,e in ipairs(mob.loot) do if e[2]==14 then reported[e[1]]=true end end
+   for _,iid in ipairs(c.reportedLoot or {}) do if self.items[iid] and not reported[iid] then mob.loot[#mob.loot+1]={iid,14,-1,false} end end
    local existing={};local conditional={};local direct={}
    for _,e in ipairs(mob.loot) do
     if e[2]==7 then existing[e[1]]=true end
     if e[2]==1 then if e[4] then conditional[e[1]]=true else direct[e[1]]=true end end
    end
+   local reports={};for _,e in ipairs(mob.loot) do if e[2]==14 then reports[e[1]]=true end end
+   for _,iid in ipairs(c.reportedLoot or {}) do if self.items[iid] and not reports[iid] then mob.loot[#mob.loot+1]={iid,14,-1,false} end end
    for _,iid in ipairs(c.referenceLoot or {}) do if not existing[iid] then
     mob.loot[#mob.loot+1]={iid,7,-1,((self.commonWorldItems or {})[iid] or conditional[iid] and not direct[iid])==true}
    end end

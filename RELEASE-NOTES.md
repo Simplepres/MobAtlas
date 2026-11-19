@@ -1,23 +1,22 @@
-# MobAtlas 0.7.0 — Beta
+# MobAtlas 0.7.1 — Beta
 
-Rare tracking is here: alerts on client-visible rare nameplates/targets/mouseover, map and minimap markers, loot inspection, and softer spawn-area shading for selected creatures. The bundled reference catalog includes **346 rare NPCs**.
+Gray Fox was in the reference catalog but hidden by a faction filter. Neutral creatures are no longer excluded merely for an AH flag; service NPCs remain filtered. Client-confirmed attackability can correct reference flags locally.
 
-Open **/mobatlas rares** or right-click the minimap book → **Rare creatures…**. Toggle alerts, sound, map/minimap markers, distance and shading separately.
+- Refreshed the QuestieDB snapshot and retained outdoor metadata for new NPCs even when their loot is not known.
+- Added the player's **Gray Fox → Sharp Canine** report, explicitly labeled **player report / unknown chance**. No rate is invented.
+- Hover loot now indicates that more items are available beyond the top few shown.
+- Loot learning retains exact API-provided NPC sources, uses reference geometry, and resolves uncached item metadata without rebuilding the full index.
 
-The distance option requests nameplate range up to **80** and enables enemy nameplates outside combat. Actual range is limited by the client. Disable the option to restore your previous values if they have not since changed.
+New Forever mobs and loot associations are included; **full loot tables are not available for every new creature**. A player report is distinct from a direct API observation or a measured drop rate.
 
-Reference spawn markers do not mean a rare is alive. Confirmed positions are highlighted only when the client supplies NPC coordinates. If it does not, known locations stay explicitly marked as reference data. Player coordinates are never substituted for an NPC's. Repeated sightings of the same spawn do not spam alerts.
-
-**Fully restart WoW** after installing **MobAtlas-0.7.0.zip** into `Interface/AddOns/` to load the new modules.
+Install **MobAtlas-0.7.1.zip** in `Interface/AddOns/`, then **/reload**. No new TOC files in this patch.
 
 ## На русском
 
-Добавлены редкие мобы: уведомления при обнаружении, метки на карте и миникарте, просмотр добычи. Для выбранного моба — мягкая подсветка известных мест появления, без яркой сплошной заливки. В справочнике **346 редких NPC**.
+**Gray Fox уже был в базе**, но скрывался из-за фильтра дружественных NPC. Исправили правило для нейтральных существ, сохранив фильтрацию служебных NPC. Данные клиента о возможности атаковать моба могут исправлять справочную пометку локально.
 
-Настройки: **/mobatlas rares** или ПКМ по книжке → **«Редкие мобы…»**. Звук, уведомления, метки, дальность и подсветку можно менять отдельно.
+Добавлены **Sharp Canine у Gray Fox** как сообщение игрока с неизвестным шансом и счётчик оставшейся добычи в подсказке. Обновлён снимок QuestieDB, расширены метаданные новых NPC. Личные находки и отложенная загрузка свойств предмета обрабатываются точечно, без полной пересборки базы.
 
-Опция дальности запрашивает до **80** и включает имена врагов вне боя. Фактический предел задаёт WoW; выключение опции возвращает прежние значения, если они не менялись. При недоступных координатах моба аддон показывает только справочные места с соответствующей подписью. Точка из базы не означает живого NPC. Позиция игрока вместо моба не подставляется.
-
-**Полностью перезапусти WoW** после обновления. Это бета; тесты используют симулятор WoW API, нужна проверка в живом клиенте. RareScanner не требуется, его код и база не копировались.
+Новые мобы и связи с лутом в аддоне есть, но **полных таблиц для всех новых мобов пока нет**. Источники и ограничения указаны в SOURCES.md. После установки достаточно **/reload**; если пропустил 0.7.0, полностью перезапусти WoW.
 
 Вопросы и баги / Feedback: [Telegram @brunotwin](https://t.me/brunotwin) · [Threads @teur_person](https://www.threads.com/@teur_person).

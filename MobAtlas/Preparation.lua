@@ -13,7 +13,7 @@ function A:ApplyExpansion()
  for id,v in pairs(self.extraMobs or {}) do
   local mob=self.mobs[id]
   if not mob then
-   local c=(self.catalog or {})[id];mob={name=v.name,min=v.min or 0,max=v.max or 0,points=c and c.points or {},instances=c and c.instances or {},kind=c and c.kind or 'Unknown',friendly=c and c.friendly or '',loot={}};self.mobs[id]=mob
+   local c=(self.catalog or {})[id];mob={name=v.name,min=v.min or 0,max=v.max or 0,points=c and c.points or {},instances=c and c.instances or {},kind=c and c.kind or 'Unknown',friendly=c and c.friendly or '',service=c and c.service,huntable=c and c.huntable,loot={}};self.mobs[id]=mob
   end
   local known={};for _,e in ipairs(mob.loot or {}) do if e[2]==9 then known[e[1]]=true end end
   for _,e in ipairs(v.loot or {}) do if not known[e[1]] then mob.loot[#mob.loot+1]=e end end

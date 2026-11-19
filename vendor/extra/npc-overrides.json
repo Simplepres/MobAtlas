@@ -1,0 +1,26 @@
+{
+  "verifiedAt": "2026-11-19",
+  "npcs": {
+    "277645": {
+      "huntable": true,
+      "kind": "Beast",
+      "family": "Fox",
+      "reportedLoot": [
+        3301
+      ],
+      "reportSource": "Player report with screenshot, 2026-11-19: Gray Fox and Sharp Canine. No drop rate inferred."
+    },
+    "264943": {
+      "spawns": {
+        "1537": [
+          [
+            33.22,
+            48
+          ]
+        ]
+      },
+      "zoneID": 1537,
+      "coordinateEvidence": "Retain the previously verified Ironforge position from QuestieDB 4a73dc6; new trace marks Dun Morogh, conflicting with https://www.wowhead.com/forever/npc=264943/afadra-dunwall which locates her in Old Ironforge."
+    }
+  }
+}
