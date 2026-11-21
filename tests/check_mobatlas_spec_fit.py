@@ -33,21 +33,29 @@ assert(A:ClassFits(cloth,999403) and not A:ClassFits(cloth,999404),'caster stat 
 assert(not A:ClassFits(axe,999401),'class restriction before spec filtering')
 MOCK.class='ROGUE';A.db.gearSpec=nil;GetSpecialization=nil;GetSpecializationInfo=nil
 function GetTalentTabInfo() return 'Test',nil,0 end
-A:RefreshGearProfile();assert(not A.gearProfile and A:ClassFits(dagger,999402),'no selected talents safely falls back to class')
-A:RefreshSettings();assert(A.specButton:GetText():find('выбери'),'UI asks to select unresolved spec')
+A:RefreshGearProfile();assert(A.gearProfileSource=='class' and A:ClassFits(dagger,999402),'no selected talents safely falls back to class')
+A:RefreshSettings();assert(A.specButton:GetText():find('Подбор'),'UI asks to select unresolved spec')
 assert(not A.specChoices[1].classIcon and not A.specChoices[1].specIcon,'off mode has no fake spec icon')
 assert(A.specChoices[3].specIconPath~=A.specChoices[4].specIconPath and A.specChoices[4].specIconPath~=A.specChoices[5].specIconPath,'rogue specializations have distinct icons')
+assert(not A:ClassFits({classID=4,subclass=0,slot='Held In Off-hand'},2879,true),'Antipodean Rod caster offhand excluded for rogue even without a profile')
+function GetTalentTabInfo(i) return 100+i,'Tree',nil,'Icon',i==3 and 12 or 0 end
+A:RefreshGearProfile();assert(A.gearProfile[1]=='Скрытность','ID-first talent-tab signature supported')
+GetTalentTabInfo=nil
+function GetNumTalents() return 2 end
+function GetTalentInfo(tree,talent) return 'Talent','Icon',1,1,tree==3 and 2 or 0 end
+A:RefreshGearProfile();assert(A.gearProfile[1]=='Скрытность','per-talent ranks resolve legacy client')
+GetNumTalents=nil;GetTalentInfo=nil;function GetTalentTabInfo() return 'Test',nil,0 end;A:RefreshGearProfile()
 -- Spec selection belongs next to atlas item filters, with a native class icon.
 A:OpenAtlas();local f=A.atlas
 assert(f.specButton:IsShown() and f.specButton.classIcon:IsShown(),'visible atlas control and class icon')
 assert(not A.specButton:IsShown(),'no duplicate spec control in settings')
-assert(f.specButton:GetText():find('авто'),'auto state on atlas button')
+assert(f.specButton:GetText():find('По классу',1,true),'unresolved automatic profile is explicitly marked')
 f.specButton.scripts.OnClick();assert(A.specMenu:IsShown() and A.specMenu:GetParent()==f,'dropdown owned by visible atlas')
 A.specChoices[1].scripts.OnClick();assert(not A.db.specOnly and f.specButton:GetText():find('откл.'),'disable directly from atlas')
 f.specButton.scripts.OnClick();A.specChoices[5].scripts.OnClick()
 assert(A.db.specOnly and A.db.gearSpec==3 and f.specButton:GetText():find('Скрытность'),'manual selection refreshes atlas label')
 f.specButton.scripts.OnClick();A.specChoices[2].scripts.OnClick()
-assert(A.db.specOnly and not A.db.gearSpec and f.specButton:GetText():find('авто'),'return to automatic selection')
+assert(A.db.specOnly and not A.db.gearSpec and f.specButton:GetText():find('По классу',1,true),'return to unresolved automatic selection')
 f.specButton.scripts.OnClick();f.categoryButton.scripts.OnClick();assert(not A.specMenu:IsShown(),'sibling dropdown closes spec menu')
 f.categoryMenu:Hide();f.specButton.scripts.OnClick();f:Hide();assert(not A.specMenu:IsShown(),'atlas close dismisses dropdown')
 print('PASS spec fit: classic/modern auto detection, manual override, rogue dagger/axe rules, primary stats, class restrictions, missing stats, cached/bounded lookup, no-talents fallback')

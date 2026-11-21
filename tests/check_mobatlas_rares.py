@@ -46,7 +46,7 @@ local found=false;for _,e in ipairs(A:RareMapEntries(1429)) do if e.id==999501 t
 A:Update();assert(#A.rareWorldPins>0)
 local ex,ey,edge=A:MinimapRareOffset({1429,80,50},1429,CreateVector2D(.5,.5),true);assert(edge and math.abs(ex-61.6)<.01 and ey==0,'confirmed off-map marker clamps to rim')
 assert(not A:MinimapRareOffset({1429,80,50},1429,CreateVector2D(.5,.5),false),'do not clamp unconfirmed reference points')
-assert(A:TrackRare(999501));assert(A.focus.ids[999501] and A.tip:IsShown(),'rare click opens loot card');assert(not A:IsInspectionTracked(A.inspectPin),'viewing a rare is not a pin');A:PinInspection();assert(A:IsInspectionTracked(A.inspectPin),'explicit pin changes button state')
+assert(A:TrackRare(999501));assert(A.focus.ids[999501] and A.tip:IsShown(),'rare click opens loot card');assert(A:IsInspectionTracked(A.inspectPin),'rare map action explicitly pins that creature')
 local area=0;for _,f in ipairs(A.habitatAreas) do if f:IsShown() then area=area+1 end end;assert(area>0 and area<=80,'bounded soft patch pool')
 A:RenderHabitatArea({{x=10,y=10},{x=90,y=90}},canvas,1,20,'HIGH');for _,f in ipairs(A.habitatAreas) do if f:IsShown() then local pos=f.point or f.startPoint;local x=f.point and pos[4] or pos[3];assert(x<150 or x>850,'no bridge across empty map') end end
 units.nameplate1.dead=true;A:WatchRareUnit('nameplate1');assert(not A:RareLiveRecord(999501),'dead creature not live')
@@ -60,6 +60,55 @@ MOCK.combat=false;A:ConfigureRareRange();assert(cvars.nameplateMaxDistance=='40'
 local originalSet=C_CVar.SetCVar;C_CVar.SetCVar=function(k,v) originalSet(k,k=='nameplateMaxDistance' and v=='80' and '60' or v) end
 A.db.rareMaxRange=true;A:ConfigureRareRange();assert(cvars.nameplateMaxDistance=='60','client clamps request');A.db.rareMaxRange=false;A:ConfigureRareRange();assert(cvars.nameplateMaxDistance=='40','restore works after clamp')
 A:OpenRareSettings();assert(A.rareSettings:IsShown() and A.rareSettings.checks.rareMaxRange,'rare settings available');A.rareSettings:Hide()
+-- Targeting is armed only on click, and the saved sighting must match the live GUID.
+function RegisterStateDriver() end
+units.nameplate2={guid='Creature-0-1-2-3-999501-002',classification='rare'}
+A:WatchRareUnit('nameplate2');A:ShowRareAlert(999501,A.rareSeen[999501])
+local button=A.rareTargetButton
+button.scripts.PreClick(button)
+assert(button.attributes.type=='target' and button.attributes.unit=='nameplate2','nearby exact GUID arms a secure target click')
+units.target=units.nameplate2
+button.scripts.PostClick(button)
+assert(not A.rareAlert:IsShown() and not button.attributes.type,'successful secure target disarms click')
+local sighting=A.rareSeen[999501]
+A:ShowRareAlert(999501,sighting)
+units.nameplate2={guid='Creature-0-1-2-3-999502-003',classification='rare'}
+units.target=nil
+button.scripts.PreClick(button)
+assert(not button.attributes.type,'recycled unit token never targets a different creature')
+button.scripts.PostClick(button)
+assert(A.focus.ids[999501] and not A.focus.ids[999502] and A.habitatPinnedFocus==A.focus,'fallback map pins the creature from the alert')
+local rareEntries=A.RareMapEntries
+A.RareMapEntries=function() return {{id=999502,point={1429,40,40},exact=true}} end
+A:UpdateRareWorld(canvas,1,20,'HIGH')
+for _,pin in ipairs(A.rareWorldPins) do assert(not pin:IsShown(),'an unrelated live rare cannot compete with the pinned selection') end
+A.RareMapEntries=rareEntries
+function OpenWorldMap() WorldMapFrame:Show() end
+WorldMapFrame:Hide()
+MOCK.combat=true
+A:ShowRareAlert(999501,sighting);local queued=A.rareAlert.sighting
+A.rareAlert.scripts.OnClick()
+assert(A.pendingRareMap==queued and not WorldMapFrame:IsShown(),'blocked map click queues the original sighting')
+MOCK.combat=false
+A.rareEvents.scripts.OnEvent(A.rareEvents,'PLAYER_REGEN_ENABLED')
+assert(not A.pendingRareMap and WorldMapFrame:IsShown() and A.focus.ids[999501],'queue opens the right rare after combat')
+local plays=0
+function PlaySound() plays=plays+1;return plays>1 end
+A:PlayRareAlertSound();MOCK.timers[#MOCK.timers]();assert(plays==2,'failed primary sound falls back once')
+-- The map toggle uses loot quality and pets, not NPC rarity.
+A:ClearFocus(false)
+A.items[999701]={quality=1,classID=15,subclass=2}
+A.items[999702]={quality=3,classID=0,subclass=0}
+A.items[999703]={quality=2,classID=0,subclass=0}
+A.db.specialMobsOnly=true
+A.mobs[999711]={name='Pet source',points={{1429,40,40}},loot={{999701,7,-1}}}
+A.mobs[999712]={name='Blue source',points={{1429,50,50}},loot={{999702,7,-1}}}
+A.mobs[999713]={name='Green only',points={{1429,60,60}},loot={{999703,7,-1}}}
+A.zoneIndex[1429]={999711,999712,999713}
+local matched={}
+for _,cell in ipairs(A:BuildMap(1429)) do for _,id in ipairs(cell.ids) do matched[id]=true end end
+assert(matched[999711] and matched[999712] and not matched[999713],'map toggle keeps blue and pet drops only')
+A.db.specialMobsOnly=false
 -- Two visible spawns of one NPC must retain their own coordinates and frames.
 A.rareCatalog[999601]={points={{1429,45,54},{1429,55,54}}}
 A.rareZones[1429]={999601};A.rareMiniAnchorCache={};A.rareSeen={}
@@ -80,7 +129,7 @@ local allocations=#MOCK.frames;A:RenderHabitatArea({{x=30,y=40}},canvas,1,20,'HI
 local render=A.RenderFocus
 A.focus=nil;A:RenderHabitatArea({{x=20,y=20}},canvas,1,20,'HIGH');A.tip:Show();A.tip:Hide()
 for _,f in ipairs(A.habitatAreas) do assert(not f:IsShown(),'closed preview cleared') end
-A.focus={ids={999501}};A.habitatPinnedFocus=A.focus;A.RenderFocus=function(self) self:RenderHabitatArea({{x=80,y=80}},canvas,1,20,'HIGH') end
+A.focus={ids={[999501]=true},label='Test rare'};A.habitatPinnedFocus=A.focus;A.RenderFocus=function(self) self:RenderHabitatArea({{x=80,y=80}},canvas,1,20,'HIGH') end
 A:RenderHabitatArea({{x=20,y=20}},canvas,1,20,'HIGH');A.tip:Show();A.tip:Hide()
 assert(A.habitatAreas[1].point[4]>750,'restore pinned area, never retain temporary preview')
 -- A focus is navigation state, not an explicit habitat pin.

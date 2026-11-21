@@ -1,14 +1,14 @@
-# MobAtlas 0.7.9 — Beta
+## MobAtlas 0.7.10 Beta
 
-- Added the missing generated Forever NPC/item correction layer: dungeon creatures such as Dark Iron Looter and Bloodhound Runt now have reference loot. Unknown creatures show a missing-data message; no drop rates or positions are invented.
-- Spec filtering is directly beside the atlas item filters: Off, Auto or manual. Uses class gear eligibility, spec weapon requirements and known primary stats. Missing stats remain visible; this is not a BiS ranking.
-- Different native talent icons for specialization rows. Auto/off rows no longer repeat the class badge.
-- Updated three screenshots, captions and the rare-creature guide.
+- Атлас-книга с восемью предметами, списком источников и раскрытой мини-картой. Кнопка «Карта» сразу закрепляет выбранный источник на карте мира.
+- Подбор под класс и спек, сравнение с надетым и фильтры по типу экипировки. Цветные рамки показывают редкость.
+- Уведомления о редких мобах, выбор цели вне боя и переход к известному месту. Новый фильтр карты «Мобы с редкой добычей».
+- Обновлены пять скриншотов в README.
 
-## На русском
+**Установка:** распакуй ZIP в `Interface/AddOns/` и полностью перезапусти WoW.
 
-Подключили пропущенный слой данных Forever для мобов и добычи, включая мобов подземелий. Добавили подбор под спек прямо в атлас: авто по талантам или ручной выбор. У веток теперь разные иконки, у «Авто» и «Отключено» нет повторяющегося значка класса. Обновили три скриншота с подписями и описание редких мобов.
+---
 
-Install / Установка: replace MobAtlas, then **/reload**. No new TOC modules. Checked with Lua API mocks; live-client visuals may still need adjustment.
+Two-page atlas with a map preview, gear comparison and armor-type filters, clearer source pins, and improved rare alerts. The new map filter shows mobs with blue-quality or better loot or pets.
 
-Feedback: [Telegram @brunotwin](https://t.me/brunotwin) · [Threads @teur_person](https://www.threads.com/@teur_person).
+**Install:** extract the ZIP into `Interface/AddOns/` and restart WoW.

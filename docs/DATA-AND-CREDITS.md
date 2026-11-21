@@ -25,3 +25,5 @@ Third-party data and fonts retain their own terms; the bundled dataset is not pr
 
 Independent community project. Not affiliated with Blizzard Entertainment or the upstream data projects. World of Warcraft and its game assets belong to their respective owners.
 
+
+Local preview map overlay data: adapted from [ForeverPlusPlus](https://github.com/xIGBClutchIx/ForeverPlusPlus), MIT, copyright 2026 Cameron Weaver. Source and pinned provenance in vendor/map-reveal; license in MobAtlas/Licenses/MapReveal-MIT.txt. File identifiers reference Blizzard game assets; no map textures are redistributed.

@@ -50,7 +50,8 @@ function A:WatchRareUnit(unit,retry)
  end
  if not dead and (not self.rareAlertTimes[guid] or now-self.rareAlertTimes[guid]>=300) then
   self.rareAlertTimes[guid]=now
-  if self.db.rareAlerts then self:ShowRareAlert(id) end
+  if self.db.rareAlerts then self:ShowRareAlert(id,record) end
+  if self.db.rareSound then self:PlayRareAlertSound() end
  end
  self.rareMapDirty=true
 end
@@ -95,17 +96,44 @@ function A:RareMapEntries(mapID)
  table.sort(out,function(a,b) if a.live~=b.live then return a.live end;return a.id<b.id end)
  return out
 end
-function A:TrackRare(id)
- local mob=self.mobs[id];if not mob then return end
- local live=self:RareLiveRecord(id);local points={}
- if live and live.point then points={live.point} else points=mob.points or {} end
+function A:TrackRare(id,sighting)
+ local mob=self.mobs[id]
+ if not mob then return false,'Источник не найден.' end
+ local live=self:RareLiveRecord(id)
+ if sighting and live and live.guid~=sighting.guid then live=nil end
+ local reference=(self.rareCatalog or {})[id]
+ local points=live and live.point and {live.point} or (reference and #reference.points>0 and reference.points or mob.points or {})
+ local lastSeen=false
+ if #points==0 and sighting and sighting.point then points={sighting.point};lastSeen=true end
  if #points==0 then return false,'Моб замечен, но его координаты недоступны.' end
- local current=WorldMapFrame and WorldMapFrame.GetMapID and WorldMapFrame:GetMapID();local mapID=points[1][1]
- for _,p in ipairs(points) do if p[1]==current then mapID=current;break end end
- local ok,why=self:OpenMapAt(mapID);if not ok then return false,why end
- self:ClearFocus(false,true);self.focus={ids={[id]=true},label=mob.name,points=live and live.point and points or nil,kind='rare'}
+
+ local mapID=points[1][1]
+ local zone=sighting and sighting.mapID or self:Safe(C_Map and C_Map.GetBestMapForUnit,'player')
+ for _,point in ipairs(points) do
+  if point[1]==zone then mapID=zone;break end
+ end
+ local opened,reason=self:OpenMapAt(mapID)
+ if not opened then return false,reason end
+
+ self:ClearFocus(false,true)
+ local focus={ids={[id]=true},label=mob.name,points=points,kind=live and live.point and 'rare' or lastSeen and 'rareLast' or 'rareSpawn',explicitMap=true}
+ if lastSeen then focus.label=focus.label..' · '..self:L('Последнее наблюдение') end
+ self.focus=focus
+ self.habitatPinnedFocus=focus
+ if self.atlas then self.atlas:Hide() end
+ if self.settings then self.settings:Hide() end
  self.db.enabled=true;self.dirty=true;self:Update()
- for _,pin in ipairs(self.pins or {}) do if pin:IsShown() and pin.cell then for index,npcID in ipairs(pin.cell.ids) do if npcID==id then pin.selected=true;pin.mobIndex=index;self:InspectPin(pin);return true end end end end
+ for _,pin in ipairs(self.pins or {}) do
+  if pin:IsShown() and pin.cell then
+   for index,npcID in ipairs(pin.cell.ids) do
+    if npcID==id then
+     pin.selected=true;pin.mobIndex=index
+     self:InspectPin(pin,true)
+     return true
+    end
+   end
+  end
+ end
  return true
 end
 function A:MinimapRareOffset(point,mapID,position,clampEdge)
@@ -157,8 +185,13 @@ function A:StartRareTracking()
   elseif event=='PLAYER_TARGET_CHANGED' then self:WatchRareUnit('target')
   elseif event=='UPDATE_MOUSEOVER_UNIT' then self:WatchRareUnit('mouseover')
   elseif event=='MINIMAP_UPDATE_ZOOM' then self.rareMinimapIndoor=nil
-  elseif event=='PLAYER_REGEN_ENABLED' and self.rareRangePending then self:ConfigureRareRange()
-  elseif event=='PLAYER_ENTERING_WORLD' then self.rareUnits={};self.rareSeen={};self.rareWorldSizes={};C_Timer.After(.5,function() self:ScanVisibleRareUnits() end) end
+  elseif event=='PLAYER_REGEN_ENABLED' then
+   if self.rareRangePending then self:ConfigureRareRange() end
+   if self.rareAlert and self.rareAlert:IsShown() then self:CreateRareTargetButton() end
+   self:SyncRareTargetButton()
+   local pending=self.pendingRareMap;self.pendingRareMap=nil
+   if pending then self:OpenRareAlertMap(pending) end
+  elseif event=='PLAYER_ENTERING_WORLD' then self.pendingRareMap=nil;self.rareUnits={};self.rareSeen={};self.rareWorldSizes={};C_Timer.After(.5,function() self:ScanVisibleRareUnits() end) end
  end)
  for _,event in ipairs({'NAME_PLATE_UNIT_ADDED','NAME_PLATE_UNIT_REMOVED','UNIT_CLASSIFICATION_CHANGED','PLAYER_TARGET_CHANGED','UPDATE_MOUSEOVER_UNIT','PLAYER_ENTERING_WORLD','PLAYER_REGEN_ENABLED','MINIMAP_UPDATE_ZOOM'}) do f:RegisterEvent(event) end
  self:ScanVisibleRareUnits()

@@ -1,10 +1,11 @@
 -- A deliberately small API simulator. Not a substitute for an in-client test.
 local methods={}
+function methods:SetAttribute(name,value) assert(not MOCK.combat);self.attributes=self.attributes or {};self.attributes[name]=value end
 function methods:SetParent(parent) self.parent=parent end
 MOCK={frames={},clock=100000,combat=false,rest=false,instance="none",zone="Elwynn Forest",group=false,raid=false,guild=false}
 local function make(kind,name,parent,template)
     if template then
-        local allowed={BackdropTemplate=true,UICheckButtonTemplate=true,UIPanelButtonTemplate=true,InputBoxTemplate=true,UIPanelCloseButton=true,UIPanelScrollFrameTemplate=true}
+        local allowed={['SecureActionButtonTemplate,SecureHandlerStateTemplate']=true,BackdropTemplate=true,UICheckButtonTemplate=true,UIPanelButtonTemplate=true,InputBoxTemplate=true,UIPanelCloseButton=true,UIPanelScrollFrameTemplate=true}
         assert(allowed[template],"unexpected frame template "..template)
     end
     local f=setmetatable({kind=kind,name=name,parent=parent,scripts={},shown=true,text="",width=600,height=30,enabled=true},{__index=methods})

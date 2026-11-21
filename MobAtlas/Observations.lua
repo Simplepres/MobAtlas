@@ -44,7 +44,7 @@ function A:CaptureLoot()
  end
  if changed then
   self.dirty=true
-  if self.atlas then self.atlas.results=nil end
+  if self.atlas then self.atlas.results=nil;self.atlas.sourceCache=nil end
  end
 end
 
@@ -107,6 +107,6 @@ function A:RefreshObservedLootItem(iid)
  for npcID in pairs(pending) do local record=self.db.lootFinds[npcID];if record then record.items[iid]=item end end
  self.pendingLootItems[iid]=nil
  if self.searchTerms then self.searchTerms[iid]=self:SearchText(item.name..' '..(item.ruName or '')..' '..(item.referenceName or '')) end
- if self.atlas then self.atlas.results=nil end
+ if self.atlas then self.atlas.results=nil;self.atlas.sourceCache=nil end
  self.dirty=true
 end

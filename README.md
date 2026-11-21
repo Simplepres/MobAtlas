@@ -2,111 +2,73 @@
 
 # MobAtlas · Следопыт
 
-**Find gear, see what drops, and plan where to go next in WoW Forever.**
+Атлас добычи, экипировки и заданий для **WoW Forever**. **Бета 0.7.10.**
 
-Look up an item, check which creatures drop it or which vendors sell it, and mark known locations on your map. Heading into a dungeon? Check the quest list before you leave.
+A loot atlas, gear finder and dungeon quest guide for **WoW Forever**. **Beta 0.7.10.**
 
-**Beta · 0.7.9** — still growing, with bugs to fix and gaps in the database. Your feedback helps.
+[**Скачать / Download**](https://github.com/Simplepres/MobAtlas/releases/latest) · [Скриншоты / Gallery](#скриншоты--gallery) · [Сообщить о баге / Report an issue](https://github.com/Simplepres/MobAtlas/issues)
 
-[**Download**](https://github.com/Simplepres/MobAtlas/releases/latest) · [Русский](#на-русском) · [Screenshots](#screenshots--скриншоты) · [Report a bug](https://github.com/Simplepres/MobAtlas/issues)
+## Что нового в 0.7.10
 
-## What you can do
+- **Атлас в виде книги.** Восемь предметов слева, источники и мини-карта справа. «Карта» сразу ставит метку на карте мира.
+- **Подбор экипировки.** Сравнение с надетыми вещами, фильтры по уровню, классу и спеку, отдельный выбор ткани, кожи, кольчуги, лат и оружия.
+- **Редкие мобы.** Клик по уведомлению берёт обнаруженного моба в цель вне боя, если он ещё доступен, или показывает известное место на карте. Галочка «Мобы с редкой добычей» оставляет источники синих вещей и выше или питомцев.
 
-- Search items by name or ID, then find their known sources on the map.
-- Hover over a creature to see its loot. Filter by rarity, class, level or profession materials.
-- Browse groups of creatures and vendors, and pin the source you want to track — also during combat on an open map.
-- Find dungeon entrances on the map. Hover for quests, click to choose one, and pin its pickup location.
-- Keep a quest pinned until you remove it — even after accepting it or reloading.
-- Choose Auto or a manual spec beside the atlas filters; unsuitable weapon types and known stat mismatches are filtered out.
+**Уже в аддоне:** поиск по названию и ID, добыча при наведении, торговцы с известными ценами, питомцы, входы в подземелья и задания с цепочками. Источники, мобы и точки начала квестов можно закреплять. База поставляется вместе с аддоном.
 
-The database is included. You don't need Questie, an account or an API key. Personal loot finds and merchant visits stay on your computer.
+## What’s new in 0.7.10
 
-## Rare creatures
+- **Two-page atlas.** Eight items on the left, a source list and map preview on the right. **Map** opens the world map with the selected source pinned.
+- **Gear finder.** Compare with equipped gear, filter by level, class and spec, or browse cloth, leather, mail, plate and weapons.
+- **Rare tracking.** Click an alert to target a detected rare out of combat, or open its known location on the map. A map checkbox shows mobs that drop blue-quality items or better, or pets.
 
-Get an alert when a rare is detected through an accessible nameplate, target or mouseover. See rare markers on the map and minimap; click one to inspect loot and a soft spawn-area overlay. The reference catalog covers **346 rare NPCs**.
+Also includes item search, loot on hover, vendors with known prices, pet sources, dungeon entrances, quests and prerequisites. The reference database is bundled.
 
-- **Silver diamond:** a reference spawn location, not proof that the creature is alive.
-- **Gold/red marker:** a detected creature with coordinates supplied by the client.
-- No exact NPC coordinates? The addon keeps the reference location and labels it accordingly. It never places the NPC at your character’s position.
+## Установка / Install
 
-Toggle alerts, sound, map/minimap markers and nameplate range in **Rare creatures…** (right-click the minimap book), or `/mobatlas rares`. Detection depends on units the client exposes; it cannot scan an entire zone or promise a fixed detection radius.
+Распакуй **MobAtlas-0.7.10.zip** в `Interface/AddOns/` клиента Forever и полностью перезапусти WoW. Открой атлас через книжку у миникарты или `/mobatlas`. ПКМ по книжке открывает настройки отслеживания.
 
-Open **Rare creatures…** by right-clicking the minimap book, or type **`/mobatlas rares`**. Alerts, sound, map markers, minimap markers and soft shading can be toggled separately. The distance option requests nameplates up to **80** and enables enemy nameplates outside combat; WoW decides the actual limit. Disabling it restores the previous settings if they have not since changed.
+Extract **MobAtlas-0.7.10.zip** into the Forever client’s `Interface/AddOns/` folder and restart WoW. Click the minimap book or type `/mobatlas`. Right-click the book for tracking settings.
 
-**A spawn marker is not a live detection.** Reference spots are muted; confirmed client-supplied positions have a stronger highlight. If the client hides an NPC's coordinates, the addon says so and keeps its known spawn locations marked as reference data. It never places an NPC at the player's position. Detection depends on what the client makes available.
+## Скриншоты / Gallery
 
-## Install and play
+**Атлас экипировки / Gear atlas**
 
-1. Download **MobAtlas-0.7.9.zip** from [Releases](https://github.com/Simplepres/MobAtlas/releases/latest).
-2. Put the **MobAtlas** folder in your Forever client's `Interface/AddOns/` folder.
-3. Restart WoW and enable the addon. The file should be at `Interface/AddOns/MobAtlas/MobAtlas.toc`.
+Рекомендации слева, карта источника справа. / Gear suggestions on the left, source map on the right.
 
-Click the book by the minimap or type **`/mobatlas`**. Right-click the book for tracking options. **`/mobatlas prep`** opens dungeon preparation; **`/mobatlas settings`** opens settings.
+![Gear recommendations and a source map](docs/images/atlas-gear.webp)
 
-The interface follows your game language: Russian or English, with English for other locales. Change it anytime with **Auto / RU / EN** at the top of the atlas. Item names and native tooltips come from WoW.
+<details>
+<summary>Ещё скриншоты / More screenshots</summary>
 
-Leatrix Maps users keep their existing entrance and transport markers. MobAtlas adds quest details and a small quest button next to supported entrances, without a second entrance icon. Toggle this layer by right-clicking the minimap book → **Dungeons and quests**.
+**Закреплённый редкий моб / Pinned rare**
 
-## Screenshots · Скриншоты
+Карточка добычи Sorrow Wing и его метка в Когтистых горах. / Sorrow Wing’s loot card and map marker in Stonetalon Mountains.
 
-Captured November 19, 2026. / Скриншоты от 19 ноября 2026 года. Other addons and the native WoW UI may also be visible.
+![Pinned Sorrow Wing and loot details](docs/images/pinned-rare.webp)
 
-### Creature locations and loot · Места появления и добыча
+**Питомцы / Pets**
 
-![Harvest Golem loot card and separate habitat highlights](docs/images/map-loot-inspection.png)
+Где искать детёныша кроколиска в Штормграде. / Where to look for the crocolisk pet in Stormwind.
 
-Inspect a creature's drops and highlight its known spawn locations. **Pin** keeps the selection; **Unpin** clears it. Rates labeled Classic are reference values. / Карточка Harvest Golem: предметы, редкость, шансы и отдельные фиолетовые пятна мест появления. «Закрепить» оставляет выбор на карте; «Открепить» снимает его. Проценты Classic — справочные.
+![Pet sources on the Stormwind map](docs/images/atlas-pets.webp)
 
-### Atlas and spec filter · Атлас и подбор под спек
+**Перед данжем / Dungeon prep**
 
-![Item atlas with a spec control and native item comparison](docs/images/item-atlas-filters.png)
+Задания и цепочки для Пещер Стенаний. / Wailing Caverns quests and prerequisites.
 
-Search gear, compare item tooltips and open known sources on the map. The spec control is beside the item filters: **Off**, **Auto**, or a manual talent tree. It is off in this screenshot. / Поиск вещей, сравнение характеристик с надетым предметом и переход к источникам на карте. Спек выбирается рядом с фильтрами: «Откл.», «Авто» или вручную. На скриншоте фильтр спека выключен; иконки веток обновлены после съёмки.
+![Wailing Caverns quest preparation](docs/images/dungeon-quests.webp)
 
-### Dungeon preparation · Задания перед данжем
+**Добыча при наведении / Loot on hover**
 
-![Stockade quests with prerequisite and level requirements](docs/images/dungeon-preparation.png)
+Известные предметы прямо в подсказке моба. / Known drops in the creature tooltip.
 
-The Stockade quest list shows prerequisite chains and required levels. Available steps open a pickup marker; future quests stay visible with their level requirement. / Задания для Тюрьмы: видно, где сначала нужна цепочка и с какого уровня доступен квест. Доступный шаг можно открыть на карте; будущие задания остаются в списке с указанием уровня. Внизу — свободное место в сумках и состояние ремонта.
+![Creature tooltip with possible loot](docs/images/creature-hover.webp)
 
-## На русском
+</details>
 
-**Следопыт помогает понять, где достать нужную вещь в WoW Forever.** Найди её в атласе, посмотри мобов или торговцев и выдели известные места на карте. Добычу можно смотреть прямо при наведении на моба, а перед данжем — проверить задания и первые шаги цепочек.
+Метки показывают известные места появления. Обнаружение живых мобов зависит от данных клиента. Проценты Classic подписаны отдельно, а неизвестные шансы и цены отмечены в интерфейсе.
 
-На карте отмечены известные входы в подземелья. Наведи на вход, чтобы увидеть задания, и нажми, чтобы выбрать квест. Его точка останется закреплённой до клика по метке, повторного выбора или кнопки «Открепить» — даже после принятия задания и `/reload`. С Leatrix Maps сохраняются его значки и транспорт, а рядом со входом появляется маленькая кнопка заданий.
+Spawn markers show known locations. Live detection depends on what the game client exposes. Classic rates are labeled and unknown prices or chances are marked in the UI.
 
-Спек выбирается прямо в атласе: «Авто» по талантам или вручную. Фильтр учитывает доступное классу оружие, требования выбранной ветки и известные основные характеристики; это подбор подходящих вещей, а не гарантия BiS. Есть фильтры по редкости, классу, уровню и материалам профессий. База уже внутри: отдельно ставить Questie не нужно.
-
-**Как установить:** скачай [MobAtlas-0.7.9.zip](https://github.com/Simplepres/MobAtlas/releases/latest), положи папку `MobAtlas` в `Interface/AddOns/` клиента Forever и перезапусти WoW.
-
-Карта работает и в бою: можно смотреть добычу, выбирать и закреплять источники. Если WoW блокирует открытие карты из аддона, открой её клавишей **M**.
-
-**Как открыть:** книжка у миникарты или `/mobatlas`. `/mobatlas prep` — задания перед данжем, `/mobatlas settings` — настройки. Язык выбирается по клиенту; кнопка **Auto / RU / EN** меняет его вручную и сохраняет выбор.
-
-**Редкие мобы:** серебристый ромб отмечает справочное место появления. Золотисто-красный значок появляется для обнаруженного моба, когда клиент сообщает его координаты. Есть уведомления при обнаружении, метки на карте и миникарте, мягкая область появления после выбора моба. Настройки: ПКМ по книжке → **«Редкие мобы…»** или `/mobatlas rares`. Опция дальности запрашивает до 80 и включает имена врагов вне боя; фактический предел задаёт WoW. Выключение опции восстанавливает прежние значения, если они не менялись. Точка из базы не означает, что моб сейчас жив; неизвестные координаты не заменяются позицией игрока.
-
-**Это бета.** База ещё пополняется, часть координат и условий заданий неизвестна. Метки показывают известные места появления, а не живых мобов. Проценты из Classic отмечены отдельно от наблюдений Forever. Личные находки никуда не отправляются.
-
-## Feedback · Обратная связь
-
-Found a bug or have an idea? / Нашёл баг или хочешь что-то предложить?
-
-Write directly: [**Telegram @brunotwin**](https://t.me/brunotwin) · [**Threads @teur_person**](https://www.threads.com/@teur_person), or open an [issue](https://github.com/Simplepres/MobAtlas/issues). A screenshot, item or creature name, and a short description of what happened are helpful.
-
-## Data and credits
-
-Hover tooltips show the top few matching items; the count tells you how much more is available in the map card. New Forever creatures are included, but many still have incomplete loot tables. Direct loot observations fill gaps locally; they are not uploaded.
-
-Locations and loot tables are reference data, not a live radar or a complete record of every Forever drop. Classic rates and Forever observations are labeled separately. Some sources, entrances and quest requirements are still missing.
-
-Thanks to QuestieDB/Questie, Everloot, WoW Forever KB and the Classic reference contributors. Item metadata from [AHledger](https://ahledger.com); font: Noto Sans.
-
-[Data, privacy and upstream notices](docs/DATA-AND-CREDITS.md) · [License scope](LICENSE.md) · [Source details](MobAtlas/SOURCES.md) · [Development](docs/DEVELOPING.md)
-
-Independent community addon, not affiliated with Blizzard Entertainment. Third-party data and assets retain their own terms.
-
-### Map icons · 0.7.9
-
-Original, compact map markers. Rare spawn references stay anchored to fixed locations on the minimap. Only confirmed live positions can follow a moving creature.
-
-![Icon design preview, enlarged above and map size below](docs/images/map-markers.png)
+[Источники и авторы / Data and credits](docs/DATA-AND-CREDITS.md) · [Лицензии / Licenses](LICENSE.md) · [Telegram @brunotwin](https://t.me/brunotwin) · [Threads @teur_person](https://www.threads.com/@teur_person)

@@ -61,8 +61,8 @@ function A:AnchorInspection(pin)
  else t:SetPoint('TOPLEFT',pin,'TOPRIGHT',8,12) end
  t.anchorPin=pin
 end
-function A:InspectPin(pin)
- self:FreezeInspection(pin);self.inspectPin=pin;self.hoverPin=pin;self:ShowTooltip(pin,true);if self.PreviewMobHabitat then self:PreviewMobHabitat(pin) end
+function A:InspectPin(pin,keepArea)
+ self:FreezeInspection(pin);self.inspectPin=pin;self.hoverPin=pin;self:ShowTooltip(pin,true);if not keepArea and self.PreviewMobHabitat then self:PreviewMobHabitat(pin) end
 end
 function A:PinInspection()
  local pin=self.inspectPin or self.hoverPin;if not pin then return end

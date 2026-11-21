@@ -157,13 +157,14 @@ function A:PreparationChecks()
  return table.concat(lines,'\n')
 end
 
-function A:QuestLogChanged()
+function A:QuestLogChanged(reason)
  if self.questRefreshPending then return end
  self.questRefreshPending=true
  C_Timer.After(.2,function()
   self.questRefreshPending=false
   -- A pinned pickup survives acceptance, completion and ordinary quest updates.
   if self.prep and self.prep:IsShown() then self:RefreshPreparation() end
+  if reason~='QUEST_LOG_UPDATE' then self.accessibleAtlasSources=nil;if self.atlas then self.atlas.results=nil;self.atlas.recommendScan=nil;if self.atlas:IsShown() then self:RefreshAtlas() end end end
  end)
 end
 local dungeonNames={[717]='Тюрьма (Штормград)',[1581]='Мёртвые копи',[718]='Пещеры Стенаний',[2437]='Огненная Пропасть',[209]='Крепость Тёмного Клыка',[719]='Непроглядная Пучина',[491]='Лабиринты Иглошкурых',[722]='Курганы Иглошкурых',[721]='Гномреган',[796]='Монастырь Алого ордена',[1337]='Ульдаман',[1176]='Зул\'Фаррак',[1477]='Затонувший храм',[1584]='Глубины Чёрной горы',[1583]='Пик Чёрной горы',[2017]='Стратхольм',[2057]='Некроситет',[2100]='Мародон',[2557]='Забытый Город'}

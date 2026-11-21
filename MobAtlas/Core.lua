@@ -1,6 +1,6 @@
 local _,A=...
 _G.MobAtlas=A
-A.version='0.7.9';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
+A.version='0.7.10';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
 A.profNames={[129]='Первая помощь',[164]='Кузнечное дело',[165]='Кожевничество',[171]='Алхимия',[185]='Кулинария',[197]='Портняжное дело',[202]='Инженерное дело',[333]='Наложение чар'}
 A.methods={[1]='Добыча',[2]='Снятие шкур',[3]='Карманная кража',[4]='Forever · способ не разделён',[5]='Продажа · справочник QuestieDB',[6]='Продажа · личное наблюдение',[7]='Добыча · справочник Forever',[8]='Личная находка · способ не определён',[9]='Classic · vMaNGOS через KB',[10]='Награда за задание',[11]='Изготовление',[12]='Сундук / объект · Classic',[13]='Содержимое предмета',[14]='Forever · сообщение игрока',[14]='Forever · сообщение игрока'}
 function A:Safe(fn,...)
@@ -38,14 +38,46 @@ function A:RefreshGearProfile()
   index=nil
   local getSpec=GetSpecialization or C_SpecializationInfo and C_SpecializationInfo.GetSpecialization
   local getInfo=GetSpecializationInfo or C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo
-  local current=self:Safe(getSpec);local id=current and self:Safe(getInfo,current)
+  local current=self:Safe(getSpec);local id=current and self:Safe(getInfo,current);id=id or self:Safe(PlayerUtil and PlayerUtil.GetCurrentSpecID)
   index=specIDs[id]
-  if not index and GetNumTalentTabs and GetTalentTabInfo then
-   local most=0;for i=1,(self:Safe(GetNumTalentTabs) or 0) do local _,_,points=self:Safe(GetTalentTabInfo,i);if type(points)=='number' and points>most then index=i;most=points end end
+  if not index then
+   local primary=self:Safe(GetPrimaryTalentTree,self:Safe(GetActiveTalentGroup) or 1)
+   if type(primary)=='number' and choices[primary] then index=primary end
+  end
+  if not index then
+   local tabInfo=GetTalentTabInfo or C_Talent and C_Talent.GetTalentTabInfo;local numTabs=GetNumTalentTabs or C_Talent and C_Talent.GetNumTalentTabs;local numTalents=GetNumTalents or C_Talent and C_Talent.GetNumTalents;local talentInfo=GetTalentInfo or C_Talent and C_Talent.GetTalentInfo
+   local most=0;local count=self:Safe(numTabs);if type(count)~='number' or count<=0 then count=#choices end
+   for tree=1,count do
+    local info={pcall(tabInfo or function() end,tree)};local points
+    if info[1] then
+     if type(info[2])=='string' then points=info[4] elseif type(info[2])=='number' and type(info[3])=='string' then points=info[6] end
+    end
+    if numTalents and talentInfo then
+     local total=0
+     for talent=1,(self:Safe(numTalents,tree) or 0) do local _,_,_,_,rank=self:Safe(talentInfo,tree,talent);if type(rank)=='number' and rank>=0 and rank<=10 then total=total+rank end end
+     if total>0 then points=total end
+    end
+    if type(points)=='number' and points>most and choices[tree] then most=points;index=tree end
+   end
   end
  end
- self.gearProfile=choices[index];self.gearProfileClass=class;self.gearProfileResolved=true
+ self.gearProfile=choices[index];self.gearProfileSource=index and (self.db.gearSpec and 'manual' or 'talents') or nil
+ if not self.gearProfile then
+  local role=({ROGUE='agility',HUNTER='agility',WARRIOR='strength',DEATHKNIGHT='strength',MAGE='intellect',WARLOCK='intellect',PRIEST='intellect'})[class]
+  if role then self.classFallbackProfiles=self.classFallbackProfiles or {};self.classFallbackProfiles[class]=self.classFallbackProfiles[class] or {'Подбор по классу',role,class=='ROGUE'};self.gearProfile=self.classFallbackProfiles[class];self.gearProfileSource='class' end
+ end
+ self.gearProfileClass=class;self.gearProfileResolved=true;self.db.lastGearProfile={class=class,source=self.gearProfileSource,index=index,label=self.gearProfile and self.gearProfile[1]}
 end
+local function itemStat(stats,key)
+ return tonumber(stats['ITEM_MOD_'..key..'_SHORT'] or stats['ITEM_MOD_'..key]) or 0
+end
+
+local function casterStats(stats)
+ local damage=math.max(itemStat(stats,'SPELL_POWER'),itemStat(stats,'SPELL_DAMAGE_DONE'))
+ local healing=math.max(itemStat(stats,'HEALING_DONE'),itemStat(stats,'SPELL_HEALING_DONE'))
+ return damage,healing
+end
+
 function A:SpecFits(item,id,cacheOnly)
  if not self.db.specOnly or item.classID~=2 and item.classID~=4 then return true end
  if not self.gearProfileResolved then self:RefreshGearProfile() end
@@ -56,11 +88,12 @@ function A:SpecFits(item,id,cacheOnly)
   if melee and item.subclass~=15 then return false end
  end
  self.gearStatCache=self.gearStatCache or {};local stats=self.gearStatCache[id]
- if stats==nil and not cacheOnly and id and id>0 then stats=self:Safe(C_Item and C_Item.GetItemStats or GetItemStats,'item:'..id);if type(stats)~='table' or not next(stats) then stats=false end;self.gearStatCache[id]=stats end
+ if stats==nil and not cacheOnly and id and id>0 then stats=self:ComparisonStats('item:'..id);if type(stats)~='table' or not next(stats) then stats=false end;self.gearStatCache[id]=stats end
  if not stats then return true end
- local function stat(k) return stats['ITEM_MOD_'..k..'_SHORT'] or 0 end
+ local function stat(k) return itemStat(stats,k) end
  local agi,str,int=stat('AGILITY'),stat('STRENGTH'),stat('INTELLECT')
- local caster=int+stat('SPIRIT')+stat('SPELL_POWER')+stat('HEALING_DONE')
+ local damage,healing=casterStats(stats)
+ local caster=int+stat('SPIRIT')+math.max(damage,healing)
  if p[2]=='intellect' then return caster>0 or agi+str==0 end
  if p[2]=='agility' then return agi>0 or str+caster==0 end
  return str>0 or agi+caster==0
@@ -72,9 +105,113 @@ function A:ClassFits(item,id,force,cacheOnly)
  local _,class,classID=UnitClass('player');local data=self.classData.classes[(class or ''):lower()]
  local restrictions=self.classData.restricted or {};local mask=restrictions[tostring(id)] or restrictions[id]
  if mask and classID and math.floor(mask/2^(classID-1))%2==0 then return false end
+ local frill=item.slot=='Held In Off-hand' or item.slot=='Held In Off-Hand' or item.slot=='INVTYPE_HOLDABLE'
+ if frill then
+  if class=='ROGUE' or class=='WARRIOR' or class=='HUNTER' or class=='DEATHKNIGHT' then return false end
+  if self.db.specOnly and self.gearProfile and self.gearProfile[2]~='intellect' then return false end
+ end
  if item.classID==4 and (item.subclass==0 or item.slot=='Back' or item.slot=='Cloak') then return self:SpecFits(item,id,cacheOnly) end
  for _,g in ipairs(data and data.gear or {}) do if g[1]==item.classID and g[2]==item.subclass and g[3]<=UnitLevel('player') then return self:SpecFits(item,id,cacheOnly) end end
  return false
+end
+-- Original transparent comparison heuristic, independent of GearQuest's implementation/data.
+local equipSlots={INVTYPE_HEAD={1},INVTYPE_NECK={2},INVTYPE_SHOULDER={3},INVTYPE_BODY={4},INVTYPE_CHEST={5},INVTYPE_ROBE={5},INVTYPE_WAIST={6},INVTYPE_LEGS={7},INVTYPE_FEET={8},INVTYPE_WRIST={9},INVTYPE_HAND={10},INVTYPE_FINGER={11,12},INVTYPE_TRINKET={13,14},INVTYPE_CLOAK={15},INVTYPE_WEAPON={16},INVTYPE_WEAPONMAINHAND={16},INVTYPE_WEAPONOFFHAND={17},INVTYPE_SHIELD={17},INVTYPE_HOLDABLE={17},INVTYPE_2HWEAPON={16},INVTYPE_RANGED={18},INVTYPE_RANGEDRIGHT={18},INVTYPE_THROWN={18},INVTYPE_RELIC={18}}
+function A:ComparisonInfo(key)
+ self.comparisonInfo=self.comparisonInfo or {};if self.comparisonInfo[key] then return self.comparisonInfo[key] end
+ local fn=C_Item and C_Item.GetItemInfo or GetItemInfo;if not fn then return end
+ local v={pcall(fn,key)};if not v[1] or not v[2] then return end
+ local result={link=v[3] or key,level=v[6] or 0,loc=v[10],classID=v[13],subclass=v[14],quality=v[4]};self.comparisonInfo[key]=result;return result
+end
+-- Load only visible item metadata. No item-ID sweep or startup server scan.
+function A:HydrateAtlasItem(iid)
+ local item=self.items[iid];if not item then return false end
+ local info=self:ComparisonInfo(iid)
+ if not info then
+  self.atlasRequested=self.atlasRequested or {};self.atlasRequestQueue=self.atlasRequestQueue or {}
+  if not self.atlasRequested[iid] or (type(self.atlasRequested[iid])=='number' and (self:Safe(GetTime) or time())-self.atlasRequested[iid]>30) then self.atlasRequested[iid]=self:Safe(GetTime) or time();self.atlasRequestQueue[#self.atlasRequestQueue+1]=iid end
+  if not self.atlasRequestPump and #self.atlasRequestQueue>0 then
+   self.atlasRequestPump=true
+   local function pump()
+    for i=1,4 do local id=table.remove(self.atlasRequestQueue,1);if not id then break end;self:Safe(C_Item and C_Item.RequestLoadItemDataByID,id) end
+    if #self.atlasRequestQueue>0 then C_Timer.After(.1,pump) else self.atlasRequestPump=nil end
+   end
+   C_Timer.After(.1,pump)
+  end
+  return false
+ end
+ local changed=false
+ for field,value in pairs({classID=info.classID,subclass=info.subclass,level=info.level,quality=info.quality,slot=info.loc}) do
+  if value~=nil and value~='' and item[field]~=value then item[field]=value;changed=true end
+ end
+ return changed
+end
+
+function A:ComparisonStats(link)
+ self.comparisonStats=self.comparisonStats or {};if self.comparisonStats[link] then return self.comparisonStats[link] end
+ local stats={};local seen={}
+ for _,fn in pairs({C_Item and C_Item.GetItemStats,GetItemStats}) do
+  if type(fn)=='function' and not seen[fn] then
+   seen[fn]=true;local buffer={};local ok,result=pcall(fn,link)
+   if not ok or type(result)~='table' then ok,result=pcall(fn,link,buffer) end
+   if ok then
+    for key,value in pairs(type(result)=='table' and result or buffer) do if type(value)=='number' and stats[key]==nil then stats[key]=value end end
+   end
+  end
+ end
+ if next(stats) then self.comparisonStats[link]=stats;return stats end
+end
+function A:CompareItem(iid)
+ local item=self.items[iid];if not item or item.classID~=2 and item.classID~=4 then return end
+ local info=self:ComparisonInfo(iid);if not info then return {state='unknown',text=self.atlasLoadFailures and self.atlasLoadFailures[iid] and 'Клиент не вернул описание предмета' or 'Характеристики ещё загружаются'} end
+ if info.level>UnitLevel('player') then return {state='later',text='Позже: с '..info.level..' ур.'} end
+ if not self:ClassFits(item,iid,true) then return {state='wrong',text='Не подходит выбранному классу / спеку'} end
+ local slots=equipSlots[info.loc];if not slots then return {state='unknown',text='Слот пока неизвестен'} end
+ local candidate=self:ComparisonStats(info.link)
+ if not self.gearProfileResolved then self:RefreshGearProfile() end
+ local profile=self.gearProfile
+ if not profile then return {state='unknown',text='Выбери спек для сравнения'} end
+ local primary=({agility='AGILITY',strength='STRENGTH',intellect='INTELLECT'})[profile[2]]
+ local val=itemStat
+ local function score(stats)
+  if not stats then return end
+  local value=val(stats,primary)+val(stats,'STAMINA')*.15+val(stats,'CRIT_RATING')*.35+val(stats,'HIT_RATING')*.35
+  if primary=='INTELLECT' then
+   local damage,healing=casterStats(stats)
+   value=value+math.max(damage*.7,healing*.5)+val(stats,'SPIRIT')*.15
+  else
+   value=value+val(stats,'ATTACK_POWER')*.4
+  end
+  if item.classID==2 then local dps=val(stats,'DAMAGE_PER_SECOND');if dps<=0 then return end;value=value+dps*3 end
+  return value>0 and value or nil
+ end
+ -- Never compare a two-hander against half of a dual-wield setup, or vice versa.
+ if item.classID==2 then
+  local main=self:Safe(GetInventoryItemLink,'player',16);local worn=main and self:ComparisonInfo(main)
+  if info.loc=='INVTYPE_WEAPON' and self:Safe(GetInventoryItemLink,'player',17) or info.loc=='INVTYPE_2HWEAPON' and self:Safe(GetInventoryItemLink,'player',17) or worn and worn.loc=='INVTYPE_2HWEAPON' and info.loc~='INVTYPE_2HWEAPON' then return {state='unknown',text='Нужно сравнение комплекта оружия'} end
+ end
+ local candidateScore=score(candidate);local weakest,baseline,chosen
+ for _,slot in ipairs(slots) do
+  local link=self:Safe(GetInventoryItemLink,'player',slot);local equippedID=self:Safe(GetInventoryItemID,'player',slot)
+  if not link and equippedID then return {state='unknown',text='Нужна ссылка надетого предмета'} end
+  if not link then return {state='empty',text='Заполнит пустой слот',slot=slot} end
+  if link==info.link then return {state='same',text='Уже надето'} end
+  local stats=self:ComparisonStats(link);local power=score(stats)
+  if not power or not candidateScore then return {state='unknown',text=item.classID==2 and 'Нет данных об уроне оружия' or 'Недостаточно характеристик'} end
+  if not weakest or power<weakest then weakest=power;baseline=stats;chosen=slot end
+ end
+ if not baseline or not candidateScore then return {state='unknown',text='Недостаточно характеристик'} end
+ local delta=candidateScore-weakest;local changes={}
+ for _,key in ipairs({primary,'STAMINA',primary=='INTELLECT' and 'SPELL_POWER' or 'ATTACK_POWER'}) do
+  local n=val(candidate,key)-val(baseline,key)
+  if n~=0 then changes[#changes+1]=(n>0 and '+' or '')..n..' '..(({AGILITY='ловк.',STRENGTH='силы',INTELLECT='интел.',STAMINA='выносл.',SPELL_POWER='силы закл.',ATTACK_POWER='силы атаки'})[key] or key) end
+ end
+ return {state=delta>.1 and 'better' or delta<-.1 and 'worse' or 'same',delta=delta,slot=chosen,text=(delta>.1 and 'Возможное улучшение' or delta<-.1 and 'Надетое лучше по оценке' or 'Примерно равно')..(#changes>0 and ' · '..table.concat(changes,', ') or ''),changes=changes}
+end
+function A:AddComparisonTooltip(t,iid)
+ local result=self:CompareItem(iid);if not result then return end
+ self:AddTooltipLine(t,'Сравнение с надетым',1,.85,.55);self:AddTooltipLine(t,result.text,.8,.85,.8)
+ if result.slot then local worn=self:Safe(GetInventoryItemLink,'player',result.slot);if worn then self:AddTooltipLine(t,'Сравниваем с: '..worn,.75,.78,.72) end end
+ self:AddTooltipLine(t,'Оценка по статам, не BiS. Эффекты, комплекты и проки не учтены.',.65,.7,.65)
 end
 function A:Matches(entry,skills)
  if entry[4] and not self.db.sharedLoot then return false end
@@ -136,10 +273,22 @@ function A:Chance(entry)
  if entry[3]<0 then return 'шанс неизвестен' end
  return string.format('%.4g%% · Classic',entry[3])
 end
+function A:HasSpecialMapLoot(id)
+ local mob=self.mobs[id]
+ if not mob or mob.vendor then return false end
+ for _,entry in ipairs(mob.loot or {}) do
+  local item=self.items[entry[1]]
+  local pet=item and item.classID==15 and item.subclass==2
+  if item and (pet or item.quality>=3) and self:Matches(entry,self.skills or {}) then return true end
+ end
+ return false
+end
+
 function A:BuildMap(mapID)
  self.skills=self:Professions();local cells={};local counted={};local total=0
  local function visible(id)
   if self.focus then return self.focus.ids[id]==true end
+  if self.db.specialMobsOnly and not self:HasSpecialMapLoot(id) then return false end
   local mob=self.mobs[id];local faction=self:Safe(UnitFactionGroup,'player');local friendly=mob.friendly or ''
   if not mob.vendor and not mob.huntable and (mob.service or mob.kind=='Humanoid') and (friendly=='AH' or faction=='Alliance' and friendly:find('A',1,true) or faction=='Horde' and friendly:find('H',1,true)) then return false end
   return (#self:Loot(id,self.skills)>0 or mob.huntable and #(mob.loot or {})==0) and (not mob.vendor or friendly=='' or friendly=='AH' or faction=='Alliance' and friendly:find('A',1,true) or faction=='Horde' and friendly:find('H',1,true))
@@ -162,12 +311,12 @@ function A:BuildMap(mapID)
  return out,total
 end
 function A:Invalidate()
- if self.atlas then self.atlas.results=nil end
+ self.accessibleAtlasSources=nil;if self.atlas then self.atlas.results=nil;self.atlas.sourceCache=nil;self.atlas.recommendScan=nil end
  self:ClearFocus(false,true);self:Update()
 end
 function A:Init()
  MobAtlasDB=type(MobAtlasDB)=='table' and MobAtlasDB or {};self.db=MobAtlasDB
- local defaults={specOnly=false,rareEnabled=true,rareAlerts=true,rareSound=true,rareMap=true,rareMinimap=true,rareMaxRange=true,habitatGlow=true,dungeonPins=true,language='auto',enabled=true,quality='all',classOnly=false,prof=0,skinning=true,pickpocket=false,visibleItems=5,sort='chance',unitLoot=true,observed=true,minimapAngle=225,sharedLoot=false,vendorLevel=true,vendorRelevant=true,mapLayer='all',specialFirst=true}
+ local defaults={specialMobsOnly=false,specOnly=false,rareEnabled=true,rareAlerts=true,rareSound=true,rareMap=true,rareMinimap=true,rareMaxRange=true,habitatGlow=true,dungeonPins=true,language='auto',enabled=true,quality='all',classOnly=false,prof=0,skinning=true,pickpocket=false,visibleItems=5,sort='chance',unitLoot=true,observed=true,minimapAngle=225,sharedLoot=false,vendorLevel=true,vendorRelevant=true,mapLayer='all',specialFirst=true}
  for k,v in pairs(defaults) do if self.db[k]==nil then self.db[k]=v end end
  if self.db.language~='auto' and self.db.language~='ruRU' and self.db.language~='enUS' then self.db.language='auto' end
  if not ({all=true,green=true,blue=true,both=true})[self.db.quality] then self.db.quality='all' end
@@ -175,6 +324,7 @@ function A:Init()
   local old=self.db.quality;self.db.qualities={}
   for q=-1,7 do self.db.qualities[q]=old=='all' or old=='green' and q==2 or old=='blue' and q==3 or old=='both' and (q==2 or q==3) end
  end
+ if not self.db.junkFilterInitialized then self.db.qualities[0]=false;self.db.junkFilterInitialized=true end
  if self.db.prof~=0 and self.db.prof~=-1 and self.db.prof~=-2 and not self.profNames[self.db.prof] then self.db.prof=0 end
  if not ({[3]=true,[5]=true,[7]=true})[self.db.visibleItems] then self.db.visibleItems=5 end
  if not ({all=true,mobs=true,vendors=true,none=true})[self.db.mapLayer] then self.db.mapLayer='all' end
@@ -198,12 +348,14 @@ function A:Init()
  C_Timer.NewTicker(.5,function() self:Update() end)
 end
 A.events=CreateFrame('Frame')
-A.events:SetScript('OnEvent',function(_,event,arg)
- if event=='GET_ITEM_INFO_RECEIVED' and A.db then if A.gearStatCache then A.gearStatCache[arg]=nil end;A:RefreshObservedLootItem(arg);if A.db.specOnly then A.dirty=true;if A.atlas then A.atlas.results=nil end end
+A.events:SetScript('OnEvent',function(_,event,arg,success)
+ if (event=='GET_ITEM_INFO_RECEIVED' or event=='ITEM_DATA_LOAD_RESULT') and A.db then A.atlasLoadFailures=A.atlasLoadFailures or {};A.atlasLoadFailures[arg]=success==false or nil;if A.gearStatCache then A.gearStatCache[arg]=nil end;if A.atlasRequirementCache then A.atlasRequirementCache[arg]=nil end;A.atlasReadyItems=A.atlasReadyItems or {};A.atlasReadyItems[arg]=success~=false or nil
+ for _,cache in ipairs({A.comparisonInfo or {},A.comparisonStats or {}}) do for key in pairs(cache) do if key==arg or type(key)=='string' and tonumber(key:match('item:(%d+)'))==arg then cache[key]=nil end end end
+ A:RefreshObservedLootItem(arg);if A.db.specOnly then A.dirty=true;if A.atlas and A.atlas.category~='gear' then A.atlas.results=nil end end;if A.atlas and A.atlas:IsShown() and not A.comparisonRefreshPending then A.comparisonRefreshPending=true;C_Timer.After(.1,function() A.comparisonRefreshPending=nil;if A.atlas and A.atlas:IsShown() then A:RefreshAtlas() end end) end
  elseif (event=='PLAYER_TALENT_UPDATE' or event=='ACTIVE_TALENT_GROUP_CHANGED') and A.db then A:RefreshGearProfile();if A.db.specOnly then A:RefreshSettings();A:Invalidate() end
- elseif event=='PLAYER_LOGIN' then A:Init() elseif A.db and (event=='QUEST_LOG_UPDATE' or event=='QUEST_ACCEPTED' or event=='QUEST_TURNED_IN') then A:QuestLogChanged() elseif A.db and (event=='LOOT_OPENED' or event=='LOOT_READY' or event=='LOOT_SLOT_CHANGED') then A:CaptureLoot() elseif A.db and (event=='MERCHANT_SHOW' or event=='MERCHANT_UPDATE') then A:CaptureMerchant() elseif A.db then A:Invalidate() end
+ elseif event=='PLAYER_LOGIN' then A:Init() elseif A.db and (event=='QUEST_LOG_UPDATE' or event=='QUEST_ACCEPTED' or event=='QUEST_TURNED_IN') then A:QuestLogChanged(event) elseif A.db and (event=='LOOT_OPENED' or event=='LOOT_READY' or event=='LOOT_SLOT_CHANGED') then A:CaptureLoot() elseif A.db and (event=='MERCHANT_SHOW' or event=='MERCHANT_UPDATE') then A:CaptureMerchant() elseif A.db then A:Invalidate();if event=='PLAYER_EQUIPMENT_CHANGED' and A.atlas and A.atlas:IsShown() then A:RefreshAtlas() end end
 end)
-for _,event in ipairs({'PLAYER_TALENT_UPDATE','ACTIVE_TALENT_GROUP_CHANGED','PLAYER_LOGIN','SKILL_LINES_CHANGED','PLAYER_LEVEL_UP','PLAYER_ENTERING_WORLD','MERCHANT_SHOW','MERCHANT_UPDATE','LOOT_OPENED','LOOT_READY','LOOT_SLOT_CHANGED','GET_ITEM_INFO_RECEIVED','QUEST_LOG_UPDATE','QUEST_TURNED_IN','QUEST_ACCEPTED'}) do A.events:RegisterEvent(event) end
+for _,event in ipairs({'PLAYER_EQUIPMENT_CHANGED','PLAYER_TALENT_UPDATE','ACTIVE_TALENT_GROUP_CHANGED','PLAYER_LOGIN','SKILL_LINES_CHANGED','PLAYER_LEVEL_UP','PLAYER_ENTERING_WORLD','MERCHANT_SHOW','MERCHANT_UPDATE','LOOT_OPENED','LOOT_READY','LOOT_SLOT_CHANGED','GET_ITEM_INFO_RECEIVED','ITEM_DATA_LOAD_RESULT','QUEST_LOG_UPDATE','QUEST_TURNED_IN','QUEST_ACCEPTED'}) do A.events:RegisterEvent(event) end
 
 -- Observations stay separate from Classic methods: this feed does not identify the method.
 function A:MergeForever()

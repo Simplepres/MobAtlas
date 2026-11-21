@@ -1,13 +1,21 @@
 local _,A=...
+local skin='Interface\\AddOns\\MobAtlas\\Art\\'
 local function label(parent,text,x,y,w,size,color)
  local f=parent:CreateFontString(nil,'OVERLAY','GameFontNormal');f:SetFont(A.font,size or 12,'');f:SetPoint('TOPLEFT',x,y);f:SetWidth(w);f:SetJustifyH('LEFT');f:SetTextColor(unpack(color or {1,.92,.75}));A:LocalizeWidget(f);f:SetText(text);return f
 end
 local function button(parent,text,x,y,w,fn)
- local b=CreateFrame('Button',nil,parent,'UIPanelButtonTemplate');b:SetPoint('TOPLEFT',x,y);b:SetSize(w,27);A:LocalizeWidget(b);b:SetText(text);b:GetFontString():SetFont(A.font,11,'');b:SetScript('OnClick',fn);return b
+ local b=CreateFrame('Button',nil,parent,'UIPanelButtonTemplate');b:SetPoint('TOPLEFT',x,y);b:SetSize(w,27);A:LocalizeWidget(b);b:SetText(text);b:GetFontString():SetFont(A.font,11,'');b:GetFontString():SetTextColor(.95,.87,.72);b:SetScript('OnClick',fn);b:SetNormalTexture(skin..'JournalButton.tga');if b.SetPushedTexture then b:SetPushedTexture(skin..'JournalButtonDown.tga') end;if b.SetDisabledTexture then b:SetDisabledTexture(skin..'JournalButtonDown.tga') end;return b
 end
 local function panel(name,parent,w,h)
  local f=CreateFrame('Frame',name,parent,'BackdropTemplate');f:SetSize(w,h);f:SetClampedToScreen(true)
- f:SetBackdrop({bgFile='Interface\\Buttons\\WHITE8X8',edgeFile='Interface\\Tooltips\\UI-Tooltip-Border',edgeSize=14});f:SetBackdropColor(.08,.11,.10,.98);f:SetBackdropBorderColor(.65,.53,.28,1);return f
+ f:SetBackdrop({bgFile=skin..'JournalPanel.tga',edgeFile='Interface\\Tooltips\\UI-Tooltip-Border',edgeSize=10});f:SetBackdropColor(1,1,1,1);f:SetBackdropBorderColor(.32,.28,.22,.85);if name and name~='MobAtlasLootCard' then local rule=f:CreateTexture(nil,'ARTWORK');rule:SetColorTexture(.65,.5,.3,.22);rule:SetPoint('TOPLEFT',18,-40);rule:SetPoint('TOPRIGHT',-18,-40);rule:SetHeight(1);f.skinHeaderRule=rule end;return f
+end
+function A:StyleRarityBorder(frame,color,quality)
+ frame:SetBackdropColor(0,0,0,0);frame:SetBackdropBorderColor(0,0,0,0)
+ if not frame.ornament then frame.ornament=frame:CreateTexture(nil,'OVERLAY');frame.ornament:SetTexture(skin..'JournalRarity.tga');frame.ornament:SetAllPoints() end
+ local ornate=quality and quality>=3;frame.ornament:SetTexture(skin..(ornate and 'JournalRarityRare.tga' or 'JournalRarity.tga'))
+ if frame.ornament.SetVertexColor then frame.ornament:SetVertexColor(color[1],color[2],color[3],1) end
+ frame.rarityQuality=quality;frame.rarityColor={color[1],color[2],color[3]}
 end
 local qualityChoices={{-1,'Неизвестное',{.6,.6,.6}},{0,'Серое',{.6,.6,.6}},{1,'Белое',{1,1,1}},{2,'Зелёное',{.2,1,.2}},{3,'Синее',{.3,.6,1}},{4,'Фиолетовое',{.75,.4,1}},{5,'Легендарное',{1,.5,.1}},{6,'Артефакт',{1,.8,.5}},{7,'Наследуемое',{.4,.8,1}}}
 local function check(parent,text,x,y,w,action,color)
@@ -38,7 +46,7 @@ function A:CreateSettings()
  self.specButton=button(f,'',202,-166,158,function() self.specMenu:SetShown(not self.specMenu:IsShown()) end)
  local _,class=UnitClass('player');local specs=self.gearSpecs[class] or {}
  self.specMenu=panel(nil,f,235,78+#specs*28);self.specMenu:SetPoint('TOPRIGHT',self.specButton,'BOTTOMRIGHT',0,-2);self.specMenu:SetFrameLevel(f:GetFrameLevel()+45);self.specMenu:EnableMouse(true)
- local function choose(index,enabled) self.db.gearSpec=index;self.db.specOnly=enabled;if enabled then self.db.classOnly=true end;self:RefreshGearProfile();self.specMenu:Hide();if self.atlas then self.atlas.results=nil;self.atlas.page=1 end;changed();if self.atlas and self.atlas:IsShown() then self:RefreshAtlas() end end
+ local function choose(index,enabled) self.db.gearSpec=index;self.db.specOnly=enabled;if enabled then self.db.classOnly=true end;self:RefreshGearProfile();self.specMenu:Hide();if self.atlas then self.atlas.results=nil;self.atlas.page=1;self.atlas.sourceCache=nil;if enabled and self.atlas.selectedItem and not self:ClassFits(self.items[self.atlas.selectedItem],self.atlas.selectedItem,true) then self.atlas.selectedItem=nil end end;changed();if self.atlas and self.atlas:IsShown() then self:RefreshAtlas() end end
  self.specChoices={}
  local function specChoice(text,y,action,index)
   local row=button(self.specMenu,text,8,y,219,action);if index and self:SetSpecIcon(row,index) then row:GetFontString():SetPoint('CENTER',row,'CENTER',10,0) end;self.specChoices[#self.specChoices+1]=row
@@ -76,7 +84,7 @@ function A:RefreshSettings()
  self.sortButton:SetText(self.db.specialFirst and 'Порядок: особенное в начале' or self.db.sort=='chance' and 'Порядок: чаще выпадает' or 'Порядок: редкость вещи')
  for n,b in pairs(self.countButtons) do if n==self.db.visibleItems then b:Disable() else b:Enable() end end
 end
-local colors={[0]={.6,.6,.6},[1]={.95,.95,.9},[2]={.3,1,.3},[3]={.3,.62,1},[4]={.78,.4,1},[5]={1,.5,.1},[6]={.9,.8,.5},[7]={0,.8,1}}
+local colors={[-1]={.55,.55,.55},[0]={.62,.62,.62},[1]={1,1,1},[2]={.12,1,.12},[3]={.1,.45,1},[4]={.64,.21,.93},[5]={1,.5,0},[6]={.9,.8,.5},[7]={0,.8,1}}
 local qualities={[0]='Низкое',[1]='Обычное',[2]='Необычное',[3]='Редкое',[4]='Эпическое',[5]='Легендарное',[6]='Артефакт',[7]='Наследуемое'}
 function A:CreateLootCard()
  local t=panel('MobAtlasLootCard',UIParent,300,260);t:SetScale(math.min(.8,(UIParent:GetHeight()-30)/350,(UIParent:GetWidth()-30)/300));self.tip=t;t:SetFrameStrata('TOOLTIP');t:EnableMouse(true)
@@ -87,12 +95,12 @@ function A:CreateLootCard()
  t.headerLine=t:CreateTexture(nil,'ARTWORK');t.headerLine:SetColorTexture(.75,.61,.3,.25);t.headerLine:SetPoint('TOPLEFT',12,-51);t.headerLine:SetSize(276,1)
  t.footerLine=t:CreateTexture(nil,'ARTWORK');t.footerLine:SetColorTexture(.75,.61,.3,.20);t.footerLine:SetSize(276,1)
  t.close=CreateFrame('Button',nil,t,'UIPanelCloseButton');t.close:SetPoint('TOPRIGHT',-3,-3);t.close:SetScript('OnClick',function() self:CloseInspection() end)
- t.unpin=button(t,'Открепить',164,-300,122,function() local pin=self.inspectPin or self.hoverPin;if self:IsInspectionTracked(pin) then self:ClearFocus() else self:PinInspection() end end);t.unpin:Hide()
+ t.unpin=button(t,'Открепить',164,-300,122,function() local pin=self.inspectPin or self.hoverPin;if self:IsInspectionTracked(pin) then self:ClearFocus(true,true) else self:PinInspection() end end);t.unpin:Hide()
  t.rows={}
  for i=1,7 do
   local r=CreateFrame('Button',nil,t);r:SetPoint('TOPLEFT',12,-58-(i-1)*40);r:SetSize(276,39)
   r.tint=r:CreateTexture(nil,'BACKGROUND');r.tint:SetAllPoints();r.tint:SetColorTexture(0,0,0,0)
-  r.icon=r:CreateTexture(nil,'ARTWORK');r.icon:SetSize(28,28);r.icon:SetPoint('TOPLEFT',0,-4)
+  r.icon=r:CreateTexture(nil,'ARTWORK');r.icon:SetSize(26,26);r.icon:SetPoint('TOPLEFT',1,-5)
   r.rarityBorder=CreateFrame('Frame',nil,r,'BackdropTemplate');r.rarityBorder:SetPoint('TOPLEFT',-2,-2);r.rarityBorder:SetSize(32,32);r.rarityBorder:EnableMouse(false)
   r.rarityBorder:SetBackdrop({bgFile='Interface\\Buttons\\WHITE8X8',edgeFile='Interface\\Buttons\\WHITE8X8',edgeSize=2})
   r.rarityBorder:Hide()
@@ -140,7 +148,7 @@ function A:ShowTooltip(pin,force)
   r.special=nil;r.hover:Hide();r.arrow:Hide()
   if e then
    r.icon.mobAtlasNpcID=nil;local item=self.items[e[1]];local name,icon=self:ItemDisplay(e[1]);r.icon:SetTexture(icon)
-   local c=colors[item.quality] or {.6,.6,.6};r.rarityBorder:SetBackdropBorderColor(c[1],c[2],c[3],1);r.rarityBorder:SetBackdropColor(c[1],c[2],c[3],item.quality>=3 and .25 or .10);r.itemQuality=item.quality
+   local c=colors[item.quality] or {.6,.6,.6};self:StyleRarityBorder(r.rarityBorder,c,item.quality);r.itemQuality=item.quality
    r.name:SetText(name);r.name:SetTextColor(unpack(colors[item.quality] or {1,.8,.4}))
    local specialRank,specialName=self:SpecialRank(e[1]);local first=specialRank>0
    for j=1,(pin.page-1)*n+i-1 do if self:SpecialRank(rows[j][1])==specialRank then first=false;break end end
@@ -237,18 +245,37 @@ function A:Update()
   for _,pin in ipairs(self.dungeonPins or {}) do pin:Hide() end
   for _,pin in ipairs(self.rareWorldPins or {}) do pin:Hide() end
   self:ClearHabitat();if self.tip then self.tip:Hide() end
-  if self.mapButton then self.mapButton:Hide();self.mapStatus:Hide();self.focusButton:Hide() end
+  if self.mapButton then self.mapButton:Hide();self.mapStatus:Hide();self.focusButton:Hide();self.specialMapCheck:Hide() end
   self.lastMap=nil;return
  end
- if self.mapButton then self.mapButton:Show();self.mapStatus:Show() end
+ if self.mapButton then self.mapButton:Show();self.mapStatus:Show();self.specialMapCheck:Show() end
  if not self.mapButton then
   self.mapButton=button(map,'Следопыт · атлас',15,-35,160,function() self:OpenAtlas() end)
   self.mapButton:ClearAllPoints();self.mapButton:SetPoint('BOTTOMLEFT',map,'BOTTOMLEFT',18,30);self.mapButton:SetFrameLevel(map:GetFrameLevel()+30)
   self.mapStatus=label(map,'',208,-35,500,11,{1,.9,.65});self.mapStatus:ClearAllPoints();self.mapStatus:SetPoint('BOTTOMLEFT',map,'BOTTOMLEFT',188,62)
-  self.focusButton=button(map,'Снять выделение',188,-35,155,function() if self.questFocus then self:UnpinQuest() else self:ClearFocus() end end)
-  self.focusButton:ClearAllPoints();self.focusButton:SetPoint('BOTTOMLEFT',map,'BOTTOMLEFT',188,30);self.focusButton:Hide()
+  self.specialMapCheck=check(map,'Мобы с редкой добычей',0,0,205,function(value)
+   self.db.specialMobsOnly=value
+   self.dirty=true
+   self:Update()
+  end)
+  self.specialMapCheck:ClearAllPoints()
+  self.specialMapCheck:SetPoint('BOTTOMLEFT',map,'BOTTOMLEFT',188,31)
+  self.specialMapCheck:SetScript('OnEnter',function(control)
+   GameTooltip:SetOwner(control,'ANCHOR_RIGHT')
+   self:AddTooltipLine(GameTooltip,'Синие вещи и выше или питомцы. Учитывает фильтры добычи.',1,.85,.55)
+   GameTooltip:Show()
+  end)
+  self.specialMapCheck:SetScript('OnLeave',function() GameTooltip:Hide() end)
+  self.focusButton=button(map,'Снять выделение',188,-35,155,function()
+   if self.focus and self.focus~=self.questFocus then self:ClearFocus(true,true)
+   elseif self.questFocus then self:UnpinQuest()
+   else self:ClearFocus() end
+  end)
+  self.focusButton:ClearAllPoints();self.focusButton:SetPoint('BOTTOMLEFT',map,'BOTTOMLEFT',18,63);self.focusButton:Hide()
  end
+ self.specialMapCheck:SetChecked(self.db.specialMobsOnly)
  local pinLevel,pinStrata=self:MapPinLayer(map,canvas)
+ self.specialMapCheck:SetFrameStrata('TOOLTIP');self.specialMapCheck:SetFrameLevel(pinLevel+30)
  self.focusButton:SetFrameStrata('TOOLTIP');self.focusButton:SetFrameLevel(pinLevel+30)
  local pinScale=map:GetEffectiveScale()/math.max(.01,canvas:GetEffectiveScale())
  for _,pin in ipairs(self.pins or {}) do pin:SetFrameLevel(pinLevel);pin:SetFrameStrata(pinStrata);pin:SetScale(pinScale) end
@@ -420,7 +447,7 @@ function A:RenderFocus()
    point.dot=point:CreateTexture(nil,'OVERLAY');point.dot:SetAllPoints();point.dot:SetTexture('Interface\\AddOns\\MobAtlas\\Art\\MobDot.tga')
    self.habitatPins[used]=point
   end
-  point:SetSize(8,8);point:EnableMouse(false);if point.dot.SetVertexColor then point.dot:SetVertexColor(1,.88,.45,1) end;point.dot:SetTexture('Interface\\AddOns\\MobAtlas\\Art\\MobDot.tga');point.npcID=cell.ids[1];point.sourceX=cell.x;point.sourceY=cell.y
+  point:SetSize(self.focus.explicitMap and 13 or 8,self.focus.explicitMap and 13 or 8);point:EnableMouse(false);if point.dot.SetVertexColor then point.dot:SetVertexColor(1,.88,.45,1) end;point.dot:SetTexture('Interface\\AddOns\\MobAtlas\\Art\\MobDot.tga');point.npcID=cell.ids[1];point.sourceX=cell.x;point.sourceY=cell.y
   point:SetParent(canvas);point:SetScale(scale);point:SetFrameLevel(level+1);point:SetFrameStrata(strata)
   point:ClearAllPoints();point:SetPoint('CENTER',canvas,'TOPLEFT',canvas:GetWidth()*cell.x/100/scale,-canvas:GetHeight()*cell.y/100/scale);point:Show()
  end end
@@ -440,7 +467,7 @@ local specIcons={
  DRUID={'Spell_Nature_StarFall','Ability_Racial_BearForm','Spell_Nature_HealingTouch'},
  DEATHKNIGHT={'Spell_Deathknight_BloodPresence','Spell_Deathknight_FrostPresence','Spell_Deathknight_UnholyPresence'}}
 function A:SetSpecIcon(owner,index)
- local _,class=UnitClass('player');local _,native=self:Safe(GetTalentTabInfo,index)
+ local _,class=UnitClass('player');local first,second,_,fourth=self:Safe(GetTalentTabInfo,index);local native=type(first)=='number' and fourth or second
  local fallback=specIcons[class] and specIcons[class][index]
  local icon=(type(native)=='string' or type(native)=='number') and native or fallback and ('Interface\\Icons\\'..fallback)
  if not icon then return false end
@@ -453,15 +480,197 @@ function A:SetClassIcon(owner)
 end
 
 -- Atlas browsing is separate from the map's filters: finding an item must not hide its sources.
+function A:AtlasSourcePoints(row)
+ local points={};local mapID=row and row.location.mapID
+ if not mapID then return points end
+ if row.npcID then
+  if row.location.kind=='entrance' then
+   local dungeon=self.instances[row.location.area];for _,p in ipairs(dungeon and dungeon.entrances or {}) do if p[1]==mapID then points[#points+1]=p end end
+  else
+   for _,p in ipairs((self.mobs[row.npcID] or {}).points or {}) do if p[1]==mapID then points[#points+1]=p end end
+  end
+ else for _,p in ipairs(row.location.points or {}) do if p[1]==mapID then points[#points+1]=p end end end
+ return points
+end
+function A:PreviewAtlasSource(row)
+ local f=self.atlas;f.previewSource=row;local m=f.mapPreview
+ for _,t in ipairs(m.tiles) do t:Hide() end;for _,p in ipairs(m.pins) do p:Hide() end
+ if not row or not row.location.mapID then m.caption:SetText('Выбери источник с координатами');m.empty:SetText('Выбери строку источника для предпросмотра');m.empty:Show();f.previewWorld:Hide();return end
+ local mapID=row.location.mapID;local points=self:AtlasSourcePoints(row)
+ m.caption:SetText(row.location.kind=='entrance' and ('Вход: '..row.location.name) or self:MapName(mapID));f.previewWorld:Show()
+ local layers=self:Safe(C_Map and C_Map.GetMapArtLayers,mapID);local layer=layers and layers[1]
+ local files=self:Safe(C_Map and C_Map.GetMapArtLayerTextures,mapID,1)
+ local hasArt=layer and layer.layerWidth and layer.layerHeight and layer.tileWidth and layer.tileHeight and type(files)=='table' and files[1]
+ local w,h=m:GetWidth(),m:GetHeight();local rw,rh,x0,y0=w,h,0,0;local usedTiles=0
+ local function tile(file,x,y,tw,th,umax,vmax,overlay)
+  local l,t,r,b=math.max(0,x),math.max(0,y),math.min(w,x+tw),math.min(h,y+th)
+  if r<=l or b<=t or usedTiles>=384 then return end
+  usedTiles=usedTiles+1;local texture=m.tiles[usedTiles]
+  if not texture then texture=m:CreateTexture(nil,overlay and 'ARTWORK' or 'BACKGROUND');m.tiles[usedTiles]=texture end
+  if texture.SetDrawLayer then texture:SetDrawLayer(overlay and 'ARTWORK' or 'BACKGROUND') end
+  texture:SetTexture(file);texture:SetTexCoord((l-x)/tw*umax,(r-x)/tw*umax,(t-y)/th*vmax,(b-y)/th*vmax)
+  texture:SetSize(r-l,b-t);texture:ClearAllPoints();texture:SetPoint('TOPLEFT',m,'TOPLEFT',l,-t);texture:Show()
+ end
+ if hasArt then
+  local cx,cy=.5,.5;local minx,miny,maxx,maxy=1,1,0,0
+  for _,p in ipairs(points) do minx=math.min(minx,p[2]/100);maxx=math.max(maxx,p[2]/100);miny=math.min(miny,p[3]/100);maxy=math.max(maxy,p[3]/100) end
+  if #points>0 then cx=(minx+maxx)/2;cy=(miny+maxy)/2 end
+  local zoom=#points>0 and maxx-minx<.35 and maxy-miny<.35 and 1.3 or 1.05
+  local scale=math.max(w/layer.layerWidth,h/layer.layerHeight)*zoom
+  rw=layer.layerWidth*scale;rh=layer.layerHeight*scale;x0=math.max(w-rw,math.min(0,w/2-cx*rw));y0=math.max(h-rh,math.min(0,h/2-cy*rh))
+  local cols=math.ceil(layer.layerWidth/layer.tileWidth)
+  for index,file in ipairs(files) do
+   local col=(index-1)%cols;local r=math.floor((index-1)/cols);local tw=math.min(layer.tileWidth,layer.layerWidth-col*layer.tileWidth);local th=math.min(layer.tileHeight,layer.layerHeight-r*layer.tileHeight)
+   if tw>0 and th>0 then tile(file,x0+col*layer.tileWidth*scale,y0+r*layer.tileHeight*scale,tw*scale,th*scale,tw/layer.tileWidth,th/layer.tileHeight,false) end
+  end
+  -- Render full zone artwork, independent of this character's explored areas.
+  local artID=self:Safe(C_Map and C_Map.GetMapArtID,mapID);local overlays={};local byRect={}
+  for _,area in ipairs((self.mapReveal or {})[artID] or {}) do local key=table.concat({area[1],area[2],area[3],area[4]},':');overlays[#overlays+1]=area;byRect[key]=#overlays end
+  for _,area in ipairs(self:Safe(C_MapExplorationInfo and C_MapExplorationInfo.GetExploredMapTextures,mapID) or {}) do
+   if area.textureWidth and area.textureWidth>0 then
+    local converted={area.textureWidth,area.textureHeight,area.offsetX,area.offsetY};for _,id in ipairs(area.fileDataIDs or {}) do converted[#converted+1]=id end
+    local key=table.concat({converted[1],converted[2],converted[3],converted[4]},':');if byRect[key] then overlays[byRect[key]]=converted else overlays[#overlays+1]=converted end
+   end
+  end
+  local function padded(n) local size=16;while size<n do size=size*2 end;return size end
+  for _,area in ipairs(overlays) do
+   local columns=math.ceil(area[1]/256)
+   for j=5,#area do
+    local index=j-5;local col=index%columns;local r=math.floor(index/columns);local tw=math.min(256,area[1]-col*256);local th=math.min(256,area[2]-r*256)
+    if tw>0 and th>0 then tile(area[j],x0+(area[3]+col*256)*scale,y0+(area[4]+r*256)*scale,tw*scale,th*scale,tw/padded(tw),th/padded(th),true) end
+   end
+  end
+  m.fullReveal=((self.mapReveal or {})[artID]~=nil);m.empty:Hide()
+ else m.empty:SetText('Изображение карты недоступно.\nМетки показаны по известным координатам.');m.empty:Show() end
+ local occupied={};local used=0
+ for _,point in ipairs(points) do
+  local x,y=x0+rw*point[2]/100,y0+rh*point[3]/100;local key=math.floor(x/9)..':'..math.floor(y/9)
+  if x>=4 and x<=w-4 and y>=4 and y<=h-4 and not occupied[key] and used<64 then occupied[key]=true;used=used+1
+   local p=m.pins[used]
+   if not p then p=CreateFrame('Frame',nil,m);p:EnableMouse(false);p.halo=p:CreateTexture(nil,'BACKGROUND');p.halo:SetTexture('Interface\\AddOns\\MobAtlas\\Art\\SpawnGlow.tga');p.halo:SetSize(36,36);p.halo:SetPoint('CENTER');p.dot=p:CreateTexture(nil,'OVERLAY');p.dot:SetAllPoints();m.pins[used]=p end
+   p:SetSize(row.location.kind=='entrance' and 18 or 11,row.location.kind=='entrance' and 18 or 11);p:SetFrameLevel(m:GetFrameLevel()+3)
+   p.dot:SetTexture('Interface\\AddOns\\MobAtlas\\Art\\'..(row.location.kind=='entrance' and 'MarkerDungeon.tga' or 'MobDot.tga'))
+   if p.dot.SetVertexColor then p.dot:SetVertexColor(1,.84,.24,1);p.halo:SetVertexColor(.68,.36,.95,.48) end
+   p:ClearAllPoints();p:SetPoint('CENTER',m,'TOPLEFT',x,-y);p.sourceX=point[2];p.sourceY=point[3];p:Show()
+  end
+ end
+ f.sourceStatus:SetText(#points>0 and (row.location.kind=='entrance' and 'Метка показывает вход, не позицию босса.' or 'Места появления: '..#points..' · область приближена') or 'Источник известен, но точных координат нет.')
+ if row.entry and row.entry[2]==6 then f.sourceStatus:SetText('Цена сохранена при посещении. Наличие может измениться.') end
+ m.mapID=mapID;m.sourcePointCount=#points;m.visiblePointCount=used;m.hasArt=not not hasArt;m.drawnTiles=usedTiles;m.transform={rw=rw,rh=rh,x=x0,y=y0}
+end
+function A:CreateAtlasPreview(f)
+ local m=CreateFrame('Frame',nil,f,'BackdropTemplate');f.mapPreview=m;m:SetSize(408,252);m:SetPoint('TOPLEFT',456,-150);m:EnableMouse(false);if m.SetClipsChildren then m:SetClipsChildren(true) end
+ m:SetBackdrop({bgFile='Interface\\Buttons\\WHITE8X8',edgeFile='Interface\\Tooltips\\UI-Tooltip-Border',edgeSize=8});m:SetBackdropColor(.06,.05,.04,.85);m:SetBackdropBorderColor(.55,.43,.26,.7);m.tiles={};m.pins={}
+ m.empty=label(m,'Выбери строку источника для предпросмотра',20,-70,368,11,{.8,.8,.7});m.empty:SetJustifyH('CENTER')
+ m.caption=label(f,'Карта источника',456,-132,280,10,{.9,.8,.6})
+ f.previewWorld=button(f,'Карта мира',756,-112,105,function()
+  local row=f.previewSource;if row then GameTooltip:Hide();local ok,why=self:FocusAtlasSource(f.selectedItem,row);if not ok then f.sourceStatus:SetText(why) end end
+ end);f.previewWorld:Hide()
+end
+
+function A:SelectAtlasItem(iid)
+ local f=self.atlas;self:RememberItem(iid);f.selectedItem=iid;f.sourcePage=1;f.sourceCache=nil;f.previewSource=nil;self:RefreshAtlas()
+end
+function A:AtlasSourceDescription(source)
+ local method=source.entry[2];local detail
+   if method==5 or method==6 then
+    if method==6 and source.entry[8] then detail='Купить: нужна специальная валюта'
+    elseif method==6 and type(source.entry[5])=='number' and source.entry[5]>=0 then
+     local copper=source.entry[5];local money=self:Safe(GetCoinTextureString,copper) or string.format('%dз %dс %dм',math.floor(copper/10000),math.floor(copper/100)%100,copper%100)
+     detail='Купить за '..money..((source.entry[6] or 1)>1 and (' · за '..source.entry[6]..' шт.') or '')
+    else detail='Купить: цена ещё неизвестна' end
+   elseif method==10 then detail='Награда за задание'
+   elseif method==11 then detail='Изготовление: нужен рецепт и навык'
+   else detail=(method==2 and 'Шкуры: ' or method==3 and 'Карманная кража: ' or 'Дроп: ')..self:Chance(source.entry)..((method==1 or method==9) and ' · Classic' or '') end
+ if not source.location.mapID then detail=detail..' · нет координат' elseif source.location.kind=='entrance' then detail=detail..' · карта входа' end
+ return detail
+end
+function A:CreateAtlasSourcePane(f)
+ f.sourceTitle=label(f,'Где взять предмет',456,-20,330,15,{1,.85,.6})
+ f.sourceMeta=label(f,'Выбери вещь слева',456,-49,360,11,{.8,.8,.72})
+ f.sourceCompare=label(f,'',456,-75,390,10,{.7,.8,.7});f.sourceCompare:SetWordWrap(true)
+ f.sourceReset=button(f,'Снять выбор',756,-48,105,function() f.selectedItem=nil;f.sourceCache=nil;self:RefreshAtlas() end);f.sourceReset:Hide()
+ f.sourceHeading=label(f,'Источники по локациям',456,-119,290,12,{1,.84,.56})
+ self:CreateAtlasPreview(f)
+ f.sourceRows={}
+ for i=1,3 do
+  local row=CreateFrame('Button',nil,f,'BackdropTemplate');row:SetSize(408,55);row:SetPoint('TOPLEFT',456,-420-(i-1)*56);row:SetBackdrop({bgFile='Interface\\Buttons\\WHITE8X8'});row:SetBackdropColor(.42,.34,.24,.12)
+  row.zone=label(row,'',6,-2,306,10,{.9,.73,.43});row.zone:SetWordWrap(false)
+  row.name=label(row,'',6,-17,299,12);row.name:SetWordWrap(false)
+  row.meta=label(row,'',6,-34,300,9,{.73,.77,.7});row.meta:SetWordWrap(false)
+  row.map=button(row,'Карта',322,-16,78,function() if not row.value then return end
+   GameTooltip:Hide()
+   local opened,reason=self:FocusAtlasSource(f.selectedItem,row.value)
+   if not opened then f.sourceStatus:SetText(reason) end
+  end)
+  row:SetScript('OnEnter',function(b) b:SetBackdropColor(.65,.48,.25,.22);if b.value then GameTooltip:SetOwner(b,'ANCHOR_RIGHT');self:AddTooltipLine(GameTooltip,b.name:GetText(),1,.85,.55);self:AddTooltipLine(GameTooltip,b.value.location.name);self:AddTooltipLine(GameTooltip,b.meta:GetText());GameTooltip:Show() end end)
+  row:SetScript('OnLeave',function(b) b:SetBackdropColor(.42,.34,.24,.12);GameTooltip:Hide() end)
+  row:SetScript('OnClick',function(b) if b.value and b.value.location.mapID then GameTooltip:Hide();self:PreviewAtlasSource(b.value) end end)
+  f.sourceRows[i]=row;row:Hide()
+ end
+ f.sourcePrev=button(f,'‹',456,-599,35,function() f.sourcePage=f.sourcePage-1;self:RefreshAtlasSources() end)
+ f.sourceNext=button(f,'›',829,-599,35,function() f.sourcePage=f.sourcePage+1;self:RefreshAtlasSources() end)
+ f.sourcePager=label(f,'',501,-606,320,11,{.8,.8,.72});f.sourcePager:SetJustifyH('CENTER')
+ f.sourceStatus=label(f,'',456,-638,408,10,{.7,.75,.68})
+end
+function A:RefreshAtlasSources()
+ local f=self.atlas;local iid=f.selectedItem;local selected=iid and self.items[iid]
+ f.sourceReset:SetShown(selected~=nil)
+ if not selected then
+  f.sourceTitle:SetText('Где взять предмет');f.sourceMeta:SetText('Выбери вещь слева');f.sourceCompare:SetText('Список останется на месте. Здесь появятся мобы, продавцы и задания.');f.sourceStatus:SetText('Метки на карте — только для известных координат.');f.sourcePager:SetText('')
+  self:PreviewAtlasSource(nil);for _,row in ipairs(f.sourceRows) do row:Hide() end;f.sourcePrev:Hide();f.sourceNext:Hide();return
+ end
+ f.sourceTitle:SetText(self:ItemDisplay(iid));f.sourceTitle:SetWordWrap(false)
+ local comparison=self:CompareItem(iid);f.sourceCompare:SetText(comparison and comparison.text or '')
+ local key=tostring(iid)..':'..f.scope..':'..f.category..':'..tostring(f.knownOnly)
+ if not f.sourceCache or f.sourceCacheKey~=key then
+  local sources=self:AtlasSources(iid,f.scope);if f.knownOnly or f.category=='gear' then local mapped={};for _,source in ipairs(sources) do if (not f.knownOnly or source.location.mapID) and (f.category~='gear' or self:AtlasSourceAccessible(source)) then mapped[#mapped+1]=source end end;sources=mapped end;local current=self:Safe(C_Map and C_Map.GetBestMapForUnit,'player')
+  for _,source in ipairs(sources) do source.group=(source.location.kind=='entrance' and 'Подземелье: ' or '')..source.location.name end
+  table.sort(sources,function(a,b)
+   local aMap,bMap=a.location.mapID~=nil,b.location.mapID~=nil;if aMap~=bMap then return aMap end
+   local aHere,bHere=a.location.mapID==current,b.location.mapID==current;if aHere~=bHere then return aHere end
+   if a.group~=b.group then return a.group<b.group end
+   if a.entry[3]~=b.entry[3] then return a.entry[3]>b.entry[3] end
+   return (a.npcID or a.source and a.source.id or 0)<(b.npcID or b.source and b.source.id or 0)
+  end)
+  f.sourceCache=sources;f.sourceCacheKey=key
+ end
+ local sources=f.sourceCache;local groups={};for _,source in ipairs(sources) do groups[source.group]=true end
+ local n=0;for _ in pairs(groups) do n=n+1 end
+ f.sourceMeta:SetText('Источников: '..#sources..' · локаций: '..n)
+ local pages=math.max(1,math.ceil(#sources/3));f.sourcePage=math.max(1,math.min(f.sourcePage or 1,pages));local previous
+ for i,row in ipairs(f.sourceRows) do
+  local source=sources[(f.sourcePage-1)*3+i];row.value=source;row:SetShown(source~=nil)
+  if source then
+   row.zone:SetText(source.group~=previous and source.group or '');previous=source.group
+   local mob=source.npcID and self.mobs[source.npcID];row.name:SetText(mob and (mob.name..(not mob.vendor and mob.min and mob.min>0 and (' · '..mob.min..'–'..mob.max..' ур.') or '')) or source.source and source.source.name or 'Источник')
+   local detail=self:AtlasSourceDescription(source)
+   row.meta:SetText(detail)
+   if source.location.mapID then row.map:Enable() else row.map:Disable() end
+  end
+ end
+ f.sourcePrev:Show();f.sourceNext:Show();if f.sourcePage>1 then f.sourcePrev:Enable() else f.sourcePrev:Disable() end;if f.sourcePage<pages then f.sourceNext:Enable() else f.sourceNext:Disable() end;f.sourcePager:SetText(f.sourcePage..' / '..pages)
+ if not f.previewSource then for _,source in ipairs(sources) do if source.location.mapID then f.previewSource=source;break end end end
+ self:PreviewAtlasSource(f.previewSource)
+ if #sources==0 then f.sourceStatus:SetText('Нет источников с координатами по этим фильтрам.') end
+end
+
 function A:CreateAtlas()
- local f=panel('MobAtlasAtlas',UIParent,440,532);self.atlas=f;f:SetPoint('CENTER');f:SetFrameStrata('DIALOG');f:EnableMouse(true)
- f:SetScale(math.min(.95,(UIParent:GetHeight()-30)/532));f:SetMovable(true);f:RegisterForDrag('LeftButton');f:SetScript('OnDragStart',function() f:StartMoving() end);f:SetScript('OnDragStop',function() f:StopMovingOrSizing() end)
+ local f=panel('MobAtlasAtlas',UIParent,880,660);self.atlas=f;f:SetPoint('CENTER');f:SetFrameStrata('DIALOG');f:EnableMouse(true)
+ f:SetScale(.85*math.min(1.1875,(UIParent:GetHeight()-30)/660,(UIParent:GetWidth()-30)/880));f:SetBackdrop({bgFile=skin..'AtlasBook.tga'});f:SetBackdropColor(1,1,1,1);if f.skinHeaderRule then f.skinHeaderRule:Hide() end;for _,x in ipairs({16,456}) do local line=f:CreateTexture(nil,'ARTWORK');line:SetColorTexture(.65,.5,.3,.22);line:SetPoint('TOPLEFT',x,-40);line:SetSize(408,1) end;f:SetMovable(true);f:RegisterForDrag('LeftButton');f:SetScript('OnDragStart',function() f:StartMoving() end);f:SetScript('OnDragStop',function() f:StopMovingOrSizing() end)
  tinsert(UISpecialFrames,'MobAtlasAtlas');f.category='gear';f.scope='all';f.page=1;f.myLevel=true;f.knownOnly=true
  label(f,'Следопыт · атлас добычи',16,-15,205,15,{1,.79,.32})
  local close=CreateFrame('Button',nil,f,'UIPanelCloseButton');close:SetPoint('TOPRIGHT',-4,-4);close:SetScript('OnClick',function() f:Hide() end)
  f.search=CreateFrame('EditBox',nil,f,'InputBoxTemplate');f.search:SetSize(393,28);f.search:SetPoint('TOPLEFT',22,-49);f.search:SetFont(self.font,12,'');f.search:SetAutoFocus(false);f.search:SetMaxLetters(160)
  f.search:SetScript('OnEscapePressed',function(b) b:ClearFocus() end)
- local function search() f.selectedItem=nil;f.page=1;f.results=nil;self:RefreshAtlas() end
+ local function search()
+  f.selectedItem=nil
+  f.previewSource=nil
+  f.page=1
+  f.results=nil
+  f.recommendScan=nil
+  self:RefreshAtlas()
+ end
  f.search:SetScript('OnEnterPressed',function(b) b:ClearFocus();search() end)
  f.search:SetScript('OnTextChanged',function(_,user)
   if not user then return end
@@ -474,32 +683,69 @@ function A:CreateAtlas()
   local mode=choice[1];button(f.languageMenu,choice[2],6,-6-(i-1)*29,138,function() f.languageMenu:Hide();self:SetLanguage(mode) end)
  end
  f.languageMenu:Hide()
- f.languageButton=button(f,'',225,-10,68,function() self.specMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:SetShown(not f.languageMenu:IsShown()) end)
+ f.languageButton=button(f,'',225,-10,68,function() self.specMenu:Hide();f.gearMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:SetShown(not f.languageMenu:IsShown()) end)
  f.languageButton:SetText(self.db.language=='ruRU' and 'RU v' or self.db.language=='enUS' and 'EN v' or 'Auto v')
  f.languageButton:SetScript('OnEnter',function(b) GameTooltip:SetOwner(b,'ANCHOR_RIGHT');self:AddTooltipLine(GameTooltip,'Язык интерфейса');self:AddTooltipLine(GameTooltip,'Авто: по языку WoW. Другие языки используют English.');GameTooltip:Show() end)
  f.languageButton:SetScript('OnLeave',function() GameTooltip:Hide() end)
  f.clearFocus=button(f,'Снять выбор',300,-10,124,function() self:ClearFocus();self:RefreshAtlas() end);f.clearFocus:Hide()
  f.myLevelCheck=check(f,'Мой уровень',16,-76,180,function(v) f.myLevel=v;search() end)
- f.knownCheck=check(f,'Известен источник',205,-76,220,function(v) f.knownOnly=v;search() end)
- local categories={{'all','Все предметы'},{'useful','Полезное мне сейчас'},{'gear','Экипировка'},{'bags','Сумки'},{'materials','Материалы профессий'},{'recipes','Рецепты'},{'consumables','Расходники'},{'pets','Питомцы'},{'rare','Редкие вещи'},{'epic','Эпические вещи'}}
+ f.myLevelCheck:SetScript('OnEnter',function(control)
+  GameTooltip:SetOwner(control,'ANCHOR_RIGHT')
+  self:AddTooltipLine(GameTooltip,'Вещи, доступные по уровню персонажа')
+  GameTooltip:Show()
+ end)
+ f.myLevelCheck:SetScript('OnLeave',function() GameTooltip:Hide() end)
+ f.knownCheck=check(f,'Есть место на карте',205,-76,220,function(v) f.knownOnly=v;search() end)
+ local categories={{'all','Все предметы'},{'useful','Полезное мне сейчас'},{'gear','Для меня'},{'catalog','Вся экипировка'},{'bags','Сумки'},{'materials','Материалы профессий'},{'recipes','Рецепты'},{'consumables','Расходники'},{'pets','Питомцы'},{'rare','Редкие вещи'},{'epic','Эпические вещи'}}
  f.categoryNames={};for _,v in ipairs(categories) do f.categoryNames[v[1]]=v[2] end
  f.categoryMenu=panel(nil,f,245,12+#categories*28);f.categoryMenu:SetPoint('TOPLEFT',16,-134);f.categoryMenu:SetFrameLevel(f:GetFrameLevel()+40);f.categoryMenu:EnableMouse(true)
- for i,v in ipairs(categories) do local id=v[1];button(f.categoryMenu,v[2],6,-6-(i-1)*28,233,function() f.category=id;f.categoryMenu:Hide();search() end) end
+ local gearTypes={{nil,'Все типы'},{'cloth','Ткань'},{'leather','Кожа'},{'mail','Кольчуга'},{'plate','Латы'},{'shield','Щиты'},{'accessory','Плащи и аксессуары'},{'weapon','Оружие'}}
+ f.gearTypeNames={}
+ f.gearMenu=panel(nil,f,245,12+(#gearTypes+1)*28)
+ f.gearMenu:SetPoint('TOPLEFT',16,-134)
+ f.gearMenu:SetFrameLevel(f:GetFrameLevel()+40)
+ f.gearMenu:EnableMouse(true)
+ button(f.gearMenu,'‹ Категории',6,-6,233,function() f.gearMenu:Hide();f.categoryMenu:Show() end)
+ for i,choice in ipairs(gearTypes) do
+  local kind,name=choice[1],choice[2]
+  if kind then f.gearTypeNames[kind]=name end
+  button(f.gearMenu,name,6,-6-i*28,233,function()
+   f.category=f.gearMenuCategory
+   f.gearType=kind
+   f.gearMenu:Hide()
+   search()
+  end)
+ end
+ f.gearMenu:Hide()
+ for i,choice in ipairs(categories) do
+  local id,name=choice[1],choice[2]
+  local hasTypes=id=='catalog' or id=='gear'
+  button(f.categoryMenu,name..(hasTypes and '  ›' or ''),6,-6-(i-1)*28,233,function()
+   f.categoryMenu:Hide()
+   if hasTypes then
+    f.gearMenuCategory=id
+    f.gearMenu:Show()
+   else
+    f.category=id
+    f.gearType=nil
+    search()
+   end
+  end)
+ end
  f.categoryMenu:Hide()
  f.scopeMenu=panel(nil,f,201,124);f.scopeMenu:SetPoint('TOPLEFT',180,-134);f.scopeMenu:SetFrameLevel(f:GetFrameLevel()+40);f.scopeMenu:EnableMouse(true)
- for i,v in ipairs({{'all','Все источники'},{'world','Открытый мир'},{'dungeons','Данжи и рейды'},{'recent','Недавно выбраны'}}) do local id=v[1];button(f.scopeMenu,v[2],6,-6-(i-1)*28,189,function() f.scope=id;f.scopeMenu:Hide();search() end) end
+ for i,v in ipairs({{'all','Все источники'},{'world','Открытый мир'},{'dungeons','Данжи и рейды'},{'recent','Недавно выбраны'}}) do local id=v[1];button(f.scopeMenu,v[2],6,-6-(i-1)*28,189,function() f.scope=id;f.scopeMenu:Hide();f.results=nil;f.page=1;f.sourcePage=1;f.sourceCache=nil;f.previewSource=nil;self:RefreshAtlas() end) end
  f.scopeMenu:Hide()
  f.categoryButton=button(f,'',16,-104,158,function()
-  if f.selectedItem then local ok,why=self:ShowItemOnMap(f.selectedItem);if not ok then f.status:SetText(why) end
-  else self.specMenu:Hide();f.scopeMenu:Hide();f.categoryMenu:SetShown(not f.categoryMenu:IsShown()) end
+  local open=f.categoryMenu:IsShown() or f.gearMenu:IsShown()
+  f.gearMenu:Hide();self.specMenu:Hide();f.scopeMenu:Hide();f.categoryMenu:SetShown(not open)
  end)
  f.scopeButton=button(f,'',180,-104,112,function()
-  if f.selectedItem then f.selectedItem=nil;f.page=f.searchPage or 1;self:RefreshAtlas()
-  else self.specMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:SetShown(not f.scopeMenu:IsShown()) end
+  self.specMenu:Hide();f.gearMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:SetShown(not f.scopeMenu:IsShown())
  end)
  f.specButton=button(f,'',298,-104,126,function()
   local menu=self.specMenu;local open=menu:IsShown() and menu:GetParent()==f
-  f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:Hide();GameTooltip:Hide()
+  f.gearMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:Hide();GameTooltip:Hide()
   menu:Hide();menu:SetParent(f);menu:ClearAllPoints();menu:SetPoint('TOPRIGHT',f.specButton,'BOTTOMRIGHT',0,-3);menu:SetFrameLevel(f:GetFrameLevel()+50);menu:SetShown(not open)
  end)
  self:SetClassIcon(f.specButton)
@@ -511,100 +757,101 @@ function A:CreateAtlas()
  end)
  f.specButton:SetScript('OnLeave',function() GameTooltip:Hide() end)
  f.heading=label(f,'',17,-143,330,12,{1,.86,.56});f.heading:SetWordWrap(false)
- f.allItems=button(f,'Сброс',350,-137,74,function() f.category='all';f.scope='all';f.myLevel=false;f.knownOnly=false;f.results=nil;f.page=1;self:RefreshAtlas() end)
+ f.allItems=button(f,'Сброс',350,-137,74,function() f.category='all';f.gearType=nil;f.scope='all';f.myLevel=false;f.knownOnly=false;f.selectedItem=nil;f.sourceCache=nil;f.results=nil;f.page=1;self:RefreshAtlas() end)
  f.rows={}
- for i=1,6 do
-  local r=CreateFrame('Button',nil,f,'BackdropTemplate');r:SetSize(408,48);r:SetPoint('TOPLEFT',16,-166-(i-1)*49)
-  r:SetBackdrop({bgFile='Interface\\Buttons\\WHITE8X8'});r:SetBackdropColor(.2,.23,.2,.32)
+ for i=1,8 do
+  local r=CreateFrame('Button',nil,f,'BackdropTemplate');r:SetSize(408,48);r:SetPoint('TOPLEFT',16,-166-(i-1)*51)
+  r:SetBackdrop({bgFile='Interface\\Buttons\\WHITE8X8'});r:SetBackdropColor(.42,.34,.24,.12)
   r.icon=r:CreateTexture(nil,'ARTWORK');r.icon:SetSize(32,32);r.icon:SetPoint('TOPLEFT',7,-8)
   r.border=CreateFrame('Frame',nil,r,'BackdropTemplate');r.border:SetPoint('TOPLEFT',5,-6);r.border:SetSize(36,36);r.border:EnableMouse(false);r.border:SetBackdrop({edgeFile='Interface\\Buttons\\WHITE8X8',edgeSize=2})
   r.title=label(r,'',48,-5,338,12);r.title:SetWordWrap(false)
   r.meta=label(r,'',48,-21,330,10,{.75,.77,.7});r.meta:SetWordWrap(false)
-  r.detail=label(r,'',48,-34,330,9,{.67,.72,.68});r.detail:SetWordWrap(false)
+  r.detail=label(r,'',48,-35,330,9,{.67,.72,.68});r.detail:SetWordWrap(false)
   r.action=label(r,'›',391,-16,15,15,{1,.8,.4})
-  r.mapButton=button(r,'Карта',340,-10,62,function() if r.itemID then local ok,why=self:ShowItemOnMap(r.itemID);if not ok then f.status:SetText(why) end end end)
+  r.mapButton=button(r,'Где взять',340,-10,62,function() if r.itemID then self:SelectAtlasItem(r.itemID) end end)
   r:SetScript('OnEnter',function(b)
-   b:SetBackdropColor(.35,.31,.18,.55)
+   b:SetBackdropColor(.65,.48,.25,.22)
    local iid=b.itemID or f.selectedItem
-   if iid then GameTooltip:SetOwner(b,'ANCHOR_RIGHT');GameTooltip:SetHyperlink('item:'..iid);self:ItemMetadataCredit(GameTooltip,iid);if b.source then self:ItemEvidence(GameTooltip,b.source.entry);self:AddTooltipLine(GameTooltip,b.source.location.name,1,.85,.5);self:AddTooltipLine(GameTooltip,b.source.location.kind=='entrance' and 'Клик: вход в подземелье. Позиция босса неизвестна.' or b.source.location.mapID and 'Клик: оставить на карте только этот источник.' or 'Координат пока нет.',.8,.8,.7) end;GameTooltip:Show() end
+   if iid then GameTooltip:SetOwner(b,'ANCHOR_RIGHT');if self:ComparisonInfo(iid) then GameTooltip:SetHyperlink('item:'..iid) else self:AddTooltipLine(GameTooltip,self:ItemDisplay(iid));self:AddTooltipLine(GameTooltip,self.atlasLoadFailures and self.atlasLoadFailures[iid] and 'Клиент не вернул описание. Источник указан по справочнику.' or 'Описание ещё загружается. Источник взят из справочника.',.75,.8,.72);self:HydrateAtlasItem(iid) end;self:ItemMetadataCredit(GameTooltip,iid);self:AddComparisonTooltip(GameTooltip,iid);if b.source then self:ItemEvidence(GameTooltip,b.source.entry);self:AddTooltipLine(GameTooltip,b.source.location.name,1,.85,.5);self:AddTooltipLine(GameTooltip,b.source.location.kind=='entrance' and 'Клик: вход в подземелье. Позиция босса неизвестна.' or b.source.location.mapID and 'Клик: оставить на карте только этот источник.' or 'Координат пока нет.',.8,.8,.7) end;GameTooltip:Show() end
   end)
-  r:SetScript('OnLeave',function(b) b:SetBackdropColor(.2,.23,.2,.32);GameTooltip:Hide() end)
+  r:SetScript('OnLeave',function(b) b:SetBackdropColor(.42,.34,.24,.12);GameTooltip:Hide() end)
   r:SetScript('OnClick',function(b)
    GameTooltip:Hide()
-   if b.itemID then self:RememberItem(b.itemID);f.selectedItem=b.itemID;f.searchPage=f.page;f.page=1;self:RefreshAtlas()
+   if b.itemID then self:SelectAtlasItem(b.itemID)
    elseif b.source then local ok,why=self:FocusAtlasSource(f.selectedItem,b.source);if not ok then f.status:SetText(why) end end
   end)
   f.rows[i]=r
  end
- f.prev=button(f,'‹',16,-467,35,function() f.page=f.page-1;self:RefreshAtlas() end)
- f.next=button(f,'›',389,-467,35,function() f.page=f.page+1;self:RefreshAtlas() end)
- f.pager=label(f,'',57,-473,78,11,{.8,.8,.72})
- f.prepButton=button(f,'Перед данжем',139,-467,115,function() f:Hide();self:OpenPreparation() end)
- button(f,'Настройки',261,-467,118,function() f:Hide();self.settings:Show();self:RefreshSettings() end)
- f.status=label(f,'',17,-506,407,10,{.67,.72,.68})
+ self:CreateAtlasSourcePane(f)
+ f.moreCandidates=button(f,'Проверить ещё',300,-631,124,function() local scan=f.recommendScan;if scan then scan.limit=math.min(#scan.list,scan.limit+128);self:RefreshAtlas() end end);f.moreCandidates:Hide()
+ f.prev=button(f,'‹',16,-599,35,function() f.page=f.page-1;self:RefreshAtlas() end)
+ f.next=button(f,'›',389,-599,35,function() f.page=f.page+1;self:RefreshAtlas() end)
+ f.pager=label(f,'',57,-605,78,11,{.8,.8,.72})
+ f.prepButton=button(f,'Перед данжем',139,-599,115,function() f:Hide();self:OpenPreparation() end)
+ button(f,'Настройки',261,-599,118,function() f:Hide();self.settings:Show();self:RefreshSettings() end)
+ f.status=label(f,'',17,-638,407,10,{.67,.72,.68})
  f:EnableMouseWheel(true);f:SetScript('OnMouseWheel',function(_,d) f.page=f.page-d;self:RefreshAtlas() end)
- f:SetScript('OnHide',function() GameTooltip:Hide();f.search:ClearFocus();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:Hide();self.specMenu:Hide() end)
+ f:SetScript('OnHide',function() GameTooltip:Hide();f.search:ClearFocus();f.gearMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:Hide();self.specMenu:Hide() end)
  f:Hide()
 end
 function A:OpenAtlas(query)
+ self.atlasRequirementCache=nil;local previousProfile=self.gearProfile;self:RefreshGearProfile();if self.atlas and previousProfile~=self.gearProfile then self.atlas.results=nil end
  if not self.atlas then self:CreateAtlas() end
  self.settings:Hide();if self.tip then self.tip:Hide() end;if self.prep then self.prep:Hide() end
  local f=self.atlas
- if query then f.category='all';f.scope='all';f.myLevel=false;f.knownOnly=false;f.search:SetText(query);f.selectedItem=nil;f.results=nil;f.page=1 end
+ if query then f.category='all';f.gearType=nil;f.scope='all';f.myLevel=false;f.knownOnly=false;f.search:SetText(query);f.selectedItem=nil;f.results=nil;f.page=1 end
  self:RefreshAtlas();f:Show()
 end
 function A:RefreshAtlas()
  local f=self.atlas;if not f then return end
- f.specButton:SetText(not self.db.specOnly and 'Спек: откл.  v' or not self.db.gearSpec and 'Спек: авто  v' or self.gearProfile and (self.gearProfile[1]..'  v') or 'Спек: авто  v')
- local selected=f.selectedItem;local values;f.allItems:SetShown(not selected);f.clearFocus:SetShown(self.focus~=nil);f.myLevelCheck:SetShown(not selected);f.knownCheck:SetShown(not selected);f.myLevelCheck:SetChecked(f.myLevel);f.knownCheck:SetChecked(f.knownOnly)
- if selected then
-  values=self:AtlasSources(selected,f.scope);f.heading:SetText(self:ItemDisplay(selected));f.categoryButton:SetText('Источники вещи');f.scopeButton:SetText('‹ К вещам')
-  f.hint:SetText('Выбери источник, чтобы выделить его на карте.')
- else
-  f.showingRecent=f.scope=='recent';f.recentResults=f.showingRecent
-  if not f.results then f.results=self:FindItems(f.search:GetText(),f.category,f.scope,nil,{level=f.myLevel,known=f.knownOnly,recent=f.showingRecent}) end
-  values=f.results;f.heading:SetText((f.showingRecent and 'Недавно выбраны: ' or 'Найдено: ')..#values)
-  f.categoryButton:SetText((f.categoryNames[f.category] or 'Все предметы')..'  v')
-  f.scopeButton:SetText((({all='Источники',world='Мир',dungeons='Данжи',recent='Недавние'})[f.scope] or 'Все источники')..'  v')
-  f.hint:SetText('')
- end
- local pages=math.max(1,math.ceil(#values/6));f.page=math.max(1,math.min(pages,f.page));f.pager:SetText(f.page..' / '..pages)
+ f.specButton:SetText(not self.db.specOnly and 'Спек: откл.  v' or not self.db.gearSpec and (self.gearProfileSource=='class' and 'По классу  v' or self.gearProfile and 'Спек: авто  v' or 'Спек: ?  v') or self.gearProfile and (self.gearProfile[1]..'  v') or 'Спек: ?  v')
+ f.allItems:Show();f.clearFocus:SetShown(self.focus~=nil);f.myLevelCheck:Show();f.knownCheck:Show();f.myLevelCheck:SetChecked(f.myLevel);f.knownCheck:SetChecked(f.knownOnly)
+ f.showingRecent=f.scope=='recent';f.recentResults=f.showingRecent
+ local function results() return self:FindItems(f.search:GetText(),f.category,f.scope,nil,{level=f.myLevel,known=f.knownOnly,recent=f.showingRecent,gearType=f.gearType}) end
+ if not f.results then f.results=results() end
+ local values=f.category=='gear' and self:PersonalRecommendations(f.results) or f.results;if f.category~='gear' then f.moreCandidates:Hide() end;local pages=math.max(1,math.ceil(#values/8));f.page=math.max(1,math.min(pages,f.page))
+ local changed=false
+ for i=1,8 do local iid=values[(f.page-1)*8+i];if iid and self:HydrateAtlasItem(iid) then changed=true end end
+ if changed then f.results=results();values=f.category=='gear' and self:PersonalRecommendations(f.results) or f.results;pages=math.max(1,math.ceil(#values/8));f.page=math.max(1,math.min(pages,f.page)) end
+ f.heading:SetText((f.showingRecent and 'Недавно выбраны: ' or 'Найдено: ')..#values)
+ f.categoryButton:SetText((f.gearTypeNames[f.gearType] or f.categoryNames[f.category] or 'Все предметы')..'  v')
+ f.scopeButton:SetText((({all='Источники',world='Мир',dungeons='Данжи',recent='Недавние'})[f.scope] or 'Источники')..'  v')
+ f.hint:SetText('');f.pager:SetText(f.page..' / '..pages)
  for i,r in ipairs(f.rows) do
-  local value=values[(f.page-1)*6+i];r:SetShown(value~=nil);r.itemID=nil;r.source=nil
-  if value then
-   if selected then
-    r.mapButton:Hide();r.title:SetWidth(330);r.meta:SetWidth(330);r.source=value;local mob=value.npcID and self.mobs[value.npcID] or {name=value.source.name,min=0,max=0,kind='Unknown'};r.icon:SetTexture(value.source and ('Interface\\Icons\\'..(({quest='INV_Misc_Note_01',crafted='Trade_BlackSmithing',object='INV_Chest_Cloth_17',container='INV_Misc_Bag_10'})[value.source.kind] or 'INV_Misc_QuestionMark')) or self:CreatureIcon(mob));r.border:Hide()
-    r.title:SetText(mob.name..(mob.min>0 and (' · '..mob.min..'–'..mob.max..' ур.') or ''));r.title:SetTextColor(1,.88,.65)
-    r.meta:SetText((value.source and (({quest='Квест · ',crafted='Крафт · ',object='Объект · ',container='Внутри · '})[value.source.kind] or '') or value.location.kind=='entrance' and 'Вход: ' or '')..value.location.name);r.detail:SetText(self:Chance(value.entry));r.action:SetShown(value.location.mapID~=nil)
-   else
-    r.detail:SetText('');r.action:Hide();r.mapButton:Show();r.mapButton:Enable();if not self:HasMappableSource(value) then r.mapButton:Disable() end;r.title:SetWidth(282);r.meta:SetWidth(282);r.itemID=value;local item=self.items[value];local name,icon=self:ItemDisplay(value);local c=colors[item.quality] or {.65,.65,.65};r.icon:SetTexture(icon);r.border:Show();r.border:SetBackdropBorderColor(c[1],c[2],c[3],1)
-    r.title:SetText(name);r.title:SetTextColor(c[1],c[2],c[3])
-    local rank,special=self:SpecialRank(value)
-    r.meta:SetText((special or qualities[item.quality] or 'Качество неизвестно')..(item.level and item.level>0 and (' · с '..item.level..' ур.') or '')..' · источников: '..(#self.itemSources[value]+#((self.otherSources or {})[value] or {})))
-   end
+  local iid=values[(f.page-1)*8+i];r:SetShown(iid~=nil);r.itemID=iid;r.source=nil
+  if iid then
+   local item=self.items[iid];local name,icon=self:ItemDisplay(iid);local c=colors[item.quality] or {.65,.65,.65}
+   r.action:Hide();r.mapButton:Show();r.mapButton:Enable();r.title:SetWidth(282);r.meta:SetWidth(282);r.icon:SetTexture(icon);r.border:Show();self:StyleRarityBorder(r.border,c,item.quality)
+   r.title:SetText(name);r.title:SetTextColor(c[1],c[2],c[3])
+   local _,special=self:SpecialRank(iid);local comparison=self:CompareItem(iid);r.detail:SetText(comparison and comparison.text or '')
+   local better=comparison and (comparison.state=='better' or comparison.state=='empty');r.detail:SetTextColor(better and .35 or .72,better and .95 or .73,.62)
+   r.meta:SetText((special or qualities[item.quality] or 'Качество неизвестно')..(item.level and item.level>0 and (' · с '..item.level..' ур.') or '')..' · источников: '..(#self.itemSources[iid]+#((self.otherSources or {})[iid] or {})))
+   r:SetBackdropColor(.42,.34,.24,iid==f.selectedItem and .35 or .12)
   end
  end
- if #values==0 then f.status:SetText('Ничего не найдено. Попробуй часть названия, другой раздел или ID.')
- elseif selected then f.status:SetText('Клик по источнику → карта. «Снять выделение» вернёт остальных.')
- else f.status:SetText('Карта: источники · Перед данжем: задания') end
+ if f.category=='gear' then
+  local scan=f.recommendScan;local pending=(f.recommendPending or 0)+(scan and math.max(0,scan.limit-scan.cursor+1) or 0)
+  f.status:SetWidth(f.moreCandidates:IsShown() and 278 or 407)
+  f.status:SetText(f.recommendNeedsProfile and 'Спек не определён. Выбери ветку в меню сверху.' or pending>0 and ('Проверяем кандидатов: '..pending) or #values==0 and 'Подтверждённых улучшений нет. Можно открыть каталог.' or 'Подтверждённые по оценке улучшения и пустые слоты.')
+ else f.status:SetWidth(407);f.status:SetText(#values==0 and 'Ничего не найдено. Попробуй другой раздел или фильтр.' or 'Выбери вещь: источники появятся справа') end
+ self:RefreshAtlasSources()
 end
 
 function A:RenderLocationFocus(canvas,scale,level,strata,used)
- local target=self.questFocus or self.focus
+ local targets={};if self.focus then targets[#targets+1]=self.focus end;if self.questFocus and self.questFocus~=self.focus then targets[#targets+1]=self.questFocus end
  local mapID=WorldMapFrame:GetMapID();local seen={}
- for _,p in ipairs(target and target.points or {}) do if p[1]==mapID then
-  local key=p[2]..':'..p[3]
+ for _,target in ipairs(targets) do for _,p in ipairs(target.points or {}) do if p[1]==mapID then
+  local key=(target.kind or '')..':'..p[2]..':'..p[3]
   if not seen[key] then
    seen[key]=true;used=used+1;local point=self.habitatPins[used]
    if not point then point=CreateFrame('Frame',nil,canvas);point.mobAtlasPin=true;point.dot=point:CreateTexture(nil,'OVERLAY');point.dot:SetAllPoints();self.habitatPins[used]=point end
-   point:SetSize(22,22);point:EnableMouse(true);point:SetParent(canvas);point:SetScale(scale);point:SetFrameLevel(level+2);point:SetFrameStrata(strata)
-   point.dot:SetTexture(target.kind=='rare' and 'Interface\\AddOns\\MobAtlas\\Art\\MarkerRareLive.tga' or target.kind=='quest' and 'Interface\\GossipFrame\\AvailableQuestIcon' or target.kind=='entrance' and 'Interface\\AddOns\\MobAtlas\\Art\\TrackDungeon.tga' or 'Interface\\Minimap\\Tracking\\Object')
-   point:ClearAllPoints();point:SetPoint('CENTER',canvas,'TOPLEFT',canvas:GetWidth()*p[2]/100/scale,-canvas:GetHeight()*p[3]/100/scale)
-   point.sourceX=p[2];point.sourceY=p[3]
-   point:SetScript('OnEnter',function(b) if not target then return end;GameTooltip:SetOwner(b,'ANCHOR_RIGHT');self:AddTooltipLine(GameTooltip,target.label,1,.85,.35);self:AddTooltipLine(GameTooltip,self:MapName(mapID)..string.format(' · %.1f, %.1f',p[2],p[3]),.8,.8,.7);if target.questID then local _,why=self:QuestState(target.questID);self:AddTooltipLine(GameTooltip,why,.8,.8,.7);self:AddTooltipLine(GameTooltip,'Нажми метку, чтобы открепить.',.8,.85,.7) end;GameTooltip:Show() end)
+   point:SetSize(target.explicitMap and 28 or 22,target.explicitMap and 28 or 22);point:EnableMouse(true);point:SetParent(canvas);point:SetScale(scale);point:SetFrameLevel(level+3);point:SetFrameStrata(strata)
+   point.dot:SetTexture(target.kind=='rare' and 'Interface\\AddOns\\MobAtlas\\Art\\MarkerRareLive.tga' or (target.kind=='rareSpawn' or target.kind=='rareLast') and 'Interface\\AddOns\\MobAtlas\\Art\\MarkerRare.tga' or target.kind=='quest' and 'Interface\\GossipFrame\\AvailableQuestIcon' or target.kind=='entrance' and 'Interface\\AddOns\\MobAtlas\\Art\\MarkerDungeon.tga' or 'Interface\\Minimap\\Tracking\\Object')
+   point:ClearAllPoints();point:SetPoint('CENTER',canvas,'TOPLEFT',canvas:GetWidth()*p[2]/100/scale,-canvas:GetHeight()*p[3]/100/scale);point.sourceX=p[2];point.sourceY=p[3]
+   point:SetScript('OnEnter',function(b) GameTooltip:SetOwner(b,'ANCHOR_RIGHT');self:AddTooltipLine(GameTooltip,target.label,1,.85,.35);self:AddTooltipLine(GameTooltip,self:MapName(mapID)..string.format(' · %.1f, %.1f',p[2],p[3]),.8,.8,.7);if target.questID then local _,why=self:QuestState(target.questID);self:AddTooltipLine(GameTooltip,why,.8,.8,.7);self:AddTooltipLine(GameTooltip,'Нажми метку, чтобы открепить.',.8,.85,.7) end;GameTooltip:Show() end)
    point:SetScript('OnLeave',function() GameTooltip:Hide() end);point:SetScript('OnMouseUp',function() if self.questFocus==target then GameTooltip:Hide();self:UnpinQuest() end end);point:Show()
   end
- end end
+ end end end
 end
 function A:CreatePreparation()
  local f=panel('MobAtlasPreparation',UIParent,450,530);self.prep=f;f:SetPoint('CENTER');f:SetFrameStrata('DIALOG');f:SetScale(math.min(.95,(UIParent:GetHeight()-30)/530));f:EnableMouse(true)

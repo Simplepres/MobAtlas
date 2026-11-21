@@ -21,8 +21,10 @@ function A:CreateRarePin(parent)
  p.icon=p:CreateTexture(nil,'ARTWORK');p.icon:SetAllPoints();p.icon:SetTexture('Interface\\AddOns\\MobAtlas\\Art\\MarkerRare.tga')
  p:SetScript('OnEnter',function(b) self:RarePinTooltip(b) end)
  p:SetScript('OnLeave',function() GameTooltip:Hide() end)
+ p:SetScript('OnMouseDown',function(b) b.pressedEntry=b.entry end)
  p:SetScript('OnClick',function(b)
-  GameTooltip:Hide();local ok,why=self:TrackRare(b.entry.id)
+  local entry=b.pressedEntry or b.entry;b.pressedEntry=nil
+  GameTooltip:Hide();local ok,why=self:TrackRare(entry.id)
   if not ok and DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage(self:L(why)) end
  end)
  return p
@@ -37,7 +39,7 @@ function A:UpdateRareWorld(canvas,scale,level,strata)
  if not self.db.enabled or not self.db.rareEnabled or not self.db.rareMap then for _,pin in ipairs(self.rareWorldPins) do pin:Hide() end;return end
  local entries=self:RareMapEntries(WorldMapFrame:GetMapID());local used=0;local occupied={}
  for _,entry in ipairs(entries) do
-  if not self.focus or (self.focus.ids or {})[entry.id] or entry.exact then
+  if self.focus and (self.focus.ids or {})[entry.id] or not self.focus and (not self.db.specialMobsOnly or self:HasSpecialMapLoot(entry.id)) then
    local x,y=entry.point[2],entry.point[3];local key=math.floor(canvas:GetWidth()*x/100/scale/20)..':'..math.floor(canvas:GetHeight()*y/100/scale/20)
    if not occupied[key] and used<48 then
     occupied[key]=true;used=used+1;local pin=self.rareWorldPins[used] or self:CreateRarePin(canvas);self.rareWorldPins[used]=pin
@@ -108,17 +110,103 @@ function A:UpdateRareMinimap()
   pin:ClearAllPoints();pin:SetPoint('CENTER',Minimap,'CENTER',entry.x,entry.y);pin:Show()
  end
 end
-function A:ShowRareAlert(id)
+function A:PlayRareAlertSound()
+ local primary=SOUNDKIT and SOUNDKIT.RAID_WARNING or 8959
+ local fallback=SOUNDKIT and SOUNDKIT.IG_QUEST_LOG_OPEN or 882
+ local played=self:Safe(PlaySound,primary,'Master',false)
+ if played==false then
+  C_Timer.After(.2,function()
+   if self.db.rareEnabled and self.db.rareSound then self:Safe(PlaySound,fallback,'Master',false) end
+  end)
+ end
+end
+
+function A:OpenRareAlertMap(sighting)
+ local ok,reason=self:TrackRare(sighting.id,sighting)
+ if not ok and InCombatLockdown() and reason and reason:find('В бою',1,true)==1 then
+  self.pendingRareMap=sighting
+  if self.rareAlert and self.rareAlert.sighting==sighting then self.rareAlert.hint:SetText('Карта откроется после боя') end
+ elseif not ok then
+  if self.rareAlert and self.rareAlert.sighting==sighting then self.rareAlert.hint:SetText(reason) end
+ elseif self.rareAlert and self.rareAlert.sighting==sighting then
+  self.rareAlert:Hide()
+ end
+end
+
+function A:SyncRareTargetButton()
+ local button=self.rareTargetButton
+ if not button or InCombatLockdown() then return end
+ local visible=self.rareAlert and self.rareAlert:IsShown()
+ if not visible then button.pressedSighting=nil end
+ button:SetShown(visible)
+end
+
+function A:CreateRareTargetButton()
+ if not RegisterStateDriver or InCombatLockdown() or self.rareTargetButton then return end
+ -- Separate from the banner so combat lockdown never blocks its visibility or close button.
+ local button=CreateFrame('Button',nil,UIParent,'SecureActionButtonTemplate,SecureHandlerStateTemplate')
+ self.rareTargetButton=button
+ button:SetSize(288,72)
+ button:SetPoint('TOP',UIParent,'TOP',-21,-110)
+ button:SetFrameStrata('DIALOG')
+ button:SetFrameLevel(self.rareAlert:GetFrameLevel()+2)
+ button:RegisterForClicks('LeftButtonUp')
+ button:SetAttribute('useOnKeyDown',false)
+ button:EnableMouse(true)
+ button:SetAttribute('_onstate-mobatlascombat',[[if newstate == 'combat' then self:Hide() end]])
+ RegisterStateDriver(button,'mobatlascombat','[combat] combat; idle')
+ button:SetScript('OnMouseDown',function(b) b.pressedSighting=self.rareAlert.sighting end)
+ button:SetScript('PreClick',function(b)
+  if InCombatLockdown() then return end
+  b.sighting=nil
+  local alert=self.rareAlert
+  if not alert or not alert:IsShown() then return end
+  local sighting=b.pressedSighting or alert.sighting
+  b.pressedSighting=nil
+  b.sighting=sighting
+  local live=self:RareLiveRecord(sighting.id)
+  local dead=live and self:Safe(UnitIsDeadOrGhost,live.unit)
+  if live and live.guid==sighting.guid and not (issecretvalue and issecretvalue(dead)) and not dead then
+   b:SetAttribute('unit',live.unit)
+   b:SetAttribute('type','target')
+  end
+ end)
+ button:SetScript('PostClick',function(b)
+  if InCombatLockdown() then return end
+  b:SetAttribute('type',nil)
+  b:SetAttribute('unit',nil)
+  local sighting=b.sighting;b.sighting=nil
+  if not sighting then return end
+  local guid=self:Safe(UnitGUID,'target')
+  if sighting.guid and not (issecretvalue and issecretvalue(guid)) and guid==sighting.guid then
+   if self.rareAlert.sighting==sighting then self.rareAlert:Hide() end
+  else
+   self:OpenRareAlertMap(sighting)
+  end
+ end)
+ self:SyncRareTargetButton()
+end
+
+function A:ShowRareAlert(id,record)
  if not self.rareAlert then
   local f=CreateFrame('Button','MobAtlasRareAlert',UIParent,'BackdropTemplate');self.rareAlert=f;f:SetSize(330,72);f:SetPoint('TOP',UIParent,'TOP',0,-110);f:SetFrameStrata('DIALOG');f:SetClampedToScreen(true)
-  f:SetBackdrop({bgFile='Interface\\Buttons\\WHITE8X8',edgeFile='Interface\\Tooltips\\UI-Tooltip-Border',edgeSize=12});f:SetBackdropColor(.08,.09,.12,.96);f:SetBackdropBorderColor(.6,.47,.72,.9)
+  f:SetBackdrop({bgFile='Interface\\AddOns\\MobAtlas\\Art\\JournalPanel.tga',edgeFile='Interface\\Tooltips\\UI-Tooltip-Border',edgeSize=10});f:SetBackdropColor(1,1,1,1);f:SetBackdropBorderColor(.6,.47,.72,.9)
   f.icon=f:CreateTexture(nil,'ARTWORK');f.icon:SetTexture(skull);f.icon:SetSize(34,34);f.icon:SetPoint('LEFT',12,0)
-  text(f,'Редкий моб обнаружен',57,-10,245,10);f.name=text(f,'',57,-25,240,14);text(f,'Нажми, чтобы открыть карту',57,-48,245,10)
+  text(f,'Редкий моб обнаружен',57,-10,245,10);f.name=text(f,'',57,-25,240,14);f.hint=text(f,'Клик: цель рядом или карта',57,-48,245,10)
   local close=CreateFrame('Button',nil,f,'UIPanelCloseButton');close:SetPoint('TOPRIGHT',-2,-2);close:SetScript('OnClick',function() f:Hide() end)
-  f:SetScript('OnClick',function() local ok,why=self:TrackRare(f.npcID);if ok then f:Hide() elseif DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage(self:L(why)) end end)
+  f:SetScript('OnClick',function() self:OpenRareAlertMap(f.sighting) end)
+  f:SetScript('OnHide',function() self:SyncRareTargetButton() end)
  end
- local f=self.rareAlert;f.npcID=id;f.name:SetText(self.mobs[id].name);f:Show();f.serial=(f.serial or 0)+1;local serial=f.serial
- if self.db.rareSound then self:Safe(PlaySound,SOUNDKIT and (SOUNDKIT.RAID_WARNING or SOUNDKIT.IG_QUEST_LOG_OPEN) or 8959,'Master') end
+ local f=self.rareAlert
+ record=record or {}
+ f.npcID=id
+ f.sighting={id=id,guid=record.guid,point=record.point,mapID=record.mapID}
+ f.name:SetText(self.mobs[id].name)
+ f.hint:SetText('Клик: цель рядом или карта')
+ f:Show()
+ self:CreateRareTargetButton()
+ self:SyncRareTargetButton()
+ f.serial=(f.serial or 0)+1;local serial=f.serial
  C_Timer.After(12,function() if f.serial==serial then f:Hide() end end)
 end
 function A:HideHabitatAreas()
@@ -155,7 +243,7 @@ end
 function A:OpenRareSettings()
  if not self.rareSettings then
   local f=CreateFrame('Frame','MobAtlasRareSettings',UIParent,'BackdropTemplate');self.rareSettings=f;f:SetSize(370,310);f:SetPoint('CENTER');f:SetFrameStrata('DIALOG');f:EnableMouse(true);f:SetClampedToScreen(true)
-  f:SetBackdrop({bgFile='Interface\\Buttons\\WHITE8X8',edgeFile='Interface\\Tooltips\\UI-Tooltip-Border',edgeSize=14});f:SetBackdropColor(.08,.1,.12,.98);f:SetBackdropBorderColor(.65,.5,.75,1);tinsert(UISpecialFrames,'MobAtlasRareSettings')
+  f:SetBackdrop({bgFile='Interface\\AddOns\\MobAtlas\\Art\\JournalPanel.tga',edgeFile='Interface\\Tooltips\\UI-Tooltip-Border',edgeSize=10});f:SetBackdropColor(1,1,1,1);f:SetBackdropBorderColor(.65,.5,.75,1);tinsert(UISpecialFrames,'MobAtlasRareSettings')
   text(f,'Редкие мобы',16,-16,300,16);local close=CreateFrame('Button',nil,f,'UIPanelCloseButton');close:SetPoint('TOPRIGHT',-3,-3);close:SetScript('OnClick',function() f:Hide() end)
   f.checks={}
   local choices={{'rareEnabled','Отслеживать редких мобов'},{'rareAlerts','Показывать уведомления'},{'rareSound','Звук при обнаружении'},{'rareMap','Метки на карте'},{'rareMinimap','Метки на миникарте'},{'rareMaxRange','Дальность имён до 80'},{'habitatGlow','Мягкая подсветка области'}}

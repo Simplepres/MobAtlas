@@ -26,12 +26,12 @@ function WorldMapFrame:GetMapID() return mapID end
 function WorldMapFrame:SetMapID(id) mapID=id end
 function OpenWorldMap() WorldMapFrame:Show() end
 A:OpenAtlas('5191');assert(A.atlas.rows[1].itemID==5191)
-A.atlas.rows[1].scripts.OnClick(A.atlas.rows[1]);assert(A.atlas.selectedItem==5191 and A.atlas.rows[1].source)
+A.atlas.rows[1].scripts.OnClick(A.atlas.rows[1]);assert(A.atlas.selectedItem==5191 and A.atlas.sourceRows[1].value and A.atlas.rows[1].itemID==5191)
 assert(A:FocusSource(5191,639,1436));assert(A.focus.ids[639] and A.focusButton:IsShown())
 local cells,total=A:BuildMap(1436);assert(total==1 and #cells>0)
 for _,c in ipairs(cells) do assert(c.dungeon==1581 and #c.ids==1 and c.ids[1]==639) end
 local pin=A.pins[1];assert(pin:IsShown() and pin.cell.dungeon==1581)
-pin.scripts.OnClick(pin,'LeftButton');assert(A.tip.rows[1].itemID==5191);assert(A.tip.unpin:GetText()=='Закрепить');A:PinInspection();assert(A.pinned==pin)
+pin.scripts.OnClick(pin,'LeftButton');assert(A.tip.rows[1].itemID==5191);assert(A.tip.unpin:GetText()=='Открепить');A:PinInspection();assert(A.pinned==pin)
 A.tip:Hide();A:Update();assert(A.focus and not A.inspectPin,'closing details preserves explicitly pinned tracking');assert(A:FocusSource(5191,639,1436))
 canvas:SetScale(2);A:Update();assert(A.focus and math.abs(A.pins[1].point[4]*A.pins[1].scale-canvas:GetWidth()*A.pins[1].cell.x/100)<.001)
 A.focusButton.scripts.OnClick();assert(not A.focus and not A.focusButton:IsShown())
@@ -58,7 +58,7 @@ function GetLootSourceInfo() error('source inaccessible') end
 A:CaptureLoot();assert(#A.mobs[43].loot==n,'inaccessible API never uses target fallback')
 -- Direct map action, bounded recents and safe Shift-link search.
 A:ClearFocus(false);A:OpenAtlas('5191');assert(A.atlas.rows[1].mapButton:IsShown())
-A.atlas.rows[1].mapButton.scripts.OnClick();assert(A.focus.itemID==5191 and mapID==1436)
+A.atlas.rows[1].mapButton.scripts.OnClick();assert(A.atlas.selectedItem==5191 and A.atlas.sourceRows[1].value);A.atlas.sourceRows[1].map.scripts.OnClick();assert(A.focus.itemID==5191)
 A:RememberItem(8499);A:RememberItem(5191);assert(A.db.recentItems[1]==5191 and A.db.recentItems[2]==8499)
 A:OpenAtlas('');A.atlas.scope='recent';A.atlas.results=nil;A:RefreshAtlas();assert(A.atlas.showingRecent and A.atlas.rows[1].itemID==5191)
 A.atlas.allItems.scripts.OnClick();assert(not A.atlas.showingRecent and #A.atlas.results>12)
@@ -79,7 +79,7 @@ assert(A:ShowQuestOnMap(167) and WorldMapFrame:IsShown(),'UI panel fallback open
 A:UnpinQuest();ShowUIPanel=nil;WorldMapFrame:Hide();assert(not A:ShowQuestOnMap(167),'failed open must not report success')
 function OpenWorldMap() WorldMapFrame:Show() end
 A:ClearFocus(false);A.atlas=nil;A:OpenAtlas();assert(A.atlas.category=='gear' and A.atlas.myLevel and A.atlas.knownOnly)
-for _,iid in ipairs(A.atlas.results) do local item=A.items[iid];assert((item.classID==2 or item.classID==4) and A:AtlasLevelFits(item) and A:HasKnownSource(iid)) end
+for _,iid in ipairs(A.atlas.results) do local item=A.items[iid];assert((item.classID==2 or item.classID==4) and (item.level or 0)<=UnitLevel('player') and A:HasKnownSource(iid)) end
 A.atlas.categoryButton.scripts.OnClick();assert(A.atlas.categoryMenu:IsShown(),'explicit category chooser')
 A.atlas.scopeButton.scripts.OnClick();assert(A.atlas.scopeMenu:IsShown() and not A.atlas.categoryMenu:IsShown())
 A.atlas.allItems.scripts.OnClick();assert(A.atlas.category=='all' and not A.atlas.myLevel and not A.atlas.knownOnly)
