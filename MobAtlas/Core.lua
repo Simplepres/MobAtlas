@@ -1,6 +1,6 @@
 local _,A=...
 _G.MobAtlas=A
-A.version='0.7.10';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
+A.version='0.7.11';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
 A.profNames={[129]='Первая помощь',[164]='Кузнечное дело',[165]='Кожевничество',[171]='Алхимия',[185]='Кулинария',[197]='Портняжное дело',[202]='Инженерное дело',[333]='Наложение чар'}
 A.methods={[1]='Добыча',[2]='Снятие шкур',[3]='Карманная кража',[4]='Forever · способ не разделён',[5]='Продажа · справочник QuestieDB',[6]='Продажа · личное наблюдение',[7]='Добыча · справочник Forever',[8]='Личная находка · способ не определён',[9]='Classic · vMaNGOS через KB',[10]='Награда за задание',[11]='Изготовление',[12]='Сундук / объект · Classic',[13]='Содержимое предмета',[14]='Forever · сообщение игрока',[14]='Forever · сообщение игрока'}
 function A:Safe(fn,...)
@@ -277,9 +277,7 @@ function A:HasSpecialMapLoot(id)
  local mob=self.mobs[id]
  if not mob or mob.vendor then return false end
  for _,entry in ipairs(mob.loot or {}) do
-  local item=self.items[entry[1]]
-  local pet=item and item.classID==15 and item.subclass==2
-  if item and (pet or item.quality>=3) and self:Matches(entry,self.skills or {}) then return true end
+  if self:SpecialRank(entry[1])>0 and self:Matches(entry,self.skills or {}) then return true end
  end
  return false
 end

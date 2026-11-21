@@ -7,8 +7,12 @@ function A:SearchText(text)
  return text:gsub('ё','е'):gsub('^[ \t\r\n]+',''):gsub('[ \t\r\n]+$','')
 end
 function A:SpecialRank(id)
+ -- Sealed Journeyman's Writ is a shared drop, not a notable reward for a specific mob.
+ if id==262888 then return 0 end
  local item=self.items[id];if not item then return 0 end
  if item.classID==15 and item.subclass==2 then return 50,'Питомец' end
+ if item.quality==6 then return 42,'Артефакт' end
+ if item.quality==7 then return 41,'Наследуемое' end
  if item.quality==5 then return 40,'Легендарное' end
  if item.quality==4 then return 30,'Эпическое' end
  if item.quality==3 then return 20,'Редкое' end
