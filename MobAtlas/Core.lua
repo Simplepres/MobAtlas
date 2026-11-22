@@ -1,8 +1,8 @@
 local _,A=...
 _G.MobAtlas=A
-A.version='0.7.11';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
+A.version='0.7.13';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
 A.profNames={[129]='Первая помощь',[164]='Кузнечное дело',[165]='Кожевничество',[171]='Алхимия',[185]='Кулинария',[197]='Портняжное дело',[202]='Инженерное дело',[333]='Наложение чар'}
-A.methods={[1]='Добыча',[2]='Снятие шкур',[3]='Карманная кража',[4]='Forever · способ не разделён',[5]='Продажа · справочник QuestieDB',[6]='Продажа · личное наблюдение',[7]='Добыча · справочник Forever',[8]='Личная находка · способ не определён',[9]='Classic · vMaNGOS через KB',[10]='Награда за задание',[11]='Изготовление',[12]='Сундук / объект · Classic',[13]='Содержимое предмета',[14]='Forever · сообщение игрока',[14]='Forever · сообщение игрока'}
+A.methods={[1]='Добыча',[2]='Снятие шкур',[3]='Карманная кража',[4]='Forever · способ не разделён',[5]='Продажа · справочник QuestieDB',[6]='Продажа · личное наблюдение',[7]='Добыча · справочник Forever',[8]='Личная находка · способ не определён',[9]='Classic · vMaNGOS через KB',[10]='Награда за задание',[11]='Изготовление',[12]='Сундук / объект · Classic',[13]='Содержимое предмета',[14]='Forever · сообщение игрока'}
 function A:Safe(fn,...)
  if type(fn)~='function' then return end
  local ok,a,b,c,d,e,f,g=pcall(fn,...);if ok then return a,b,c,d,e,f,g end
@@ -213,7 +213,7 @@ function A:AddComparisonTooltip(t,iid)
  if result.slot then local worn=self:Safe(GetInventoryItemLink,'player',result.slot);if worn then self:AddTooltipLine(t,'Сравниваем с: '..worn,.75,.78,.72) end end
  self:AddTooltipLine(t,'Оценка по статам, не BiS. Эффекты, комплекты и проки не учтены.',.65,.7,.65)
 end
-function A:Matches(entry,skills)
+function A:Matches(entry,skills,includeRareFinds)
  if entry[4] and not self.db.sharedLoot then return false end
  if entry[2]==4 and not self.db.observed then return false end
  local item=self.items[entry[1]];if not item then return false end
@@ -222,7 +222,8 @@ function A:Matches(entry,skills)
  if (entry[2]==5 or entry[2]==6) and item.classID~=1 and item.classID~=2 and item.classID~=4 and item.classID~=7 and item.classID~=9 then return false end
  if not self.db.qualities[item.quality] then return false end
  if entry[2]==2 and not self.db.skinning or entry[2]==3 and not self.db.pickpocket then return false end
- if not self:ClassFits(item,entry[1]) then return false end
+ local rareFind=includeRareFinds and (entry[2]==8 or entry[2]==14) and self:SpecialRank(entry[1])>0
+ if not rareFind and not self:ClassFits(item,entry[1]) then return false end
  local prof=self.db.prof
  if prof~=0 then
   local found=false
@@ -231,10 +232,13 @@ function A:Matches(entry,skills)
  end
  return true
 end
-function A:Loot(id,skills,forceSpecial)
+function A:IsSpecialMapDrop(entry)
+ return not entry[4] and self:SpecialRank(entry[1])>0
+end
+function A:Loot(id,skills,forceSpecial,includeRareFinds,rareOnly)
  local mob=self.mobs[id];local list=mob and (mob.vendor and mob.stock or mob.loot) or {}
  local unique={};local out={}
- for _,entry in ipairs(list or {}) do if self:Matches(entry,skills or self.skills or {}) then
+ for _,entry in ipairs(list or {}) do if (not rareOnly or not mob or mob.vendor or self:IsSpecialMapDrop(entry)) and self:Matches(entry,skills or self.skills or {},includeRareFinds) then
   local previous=unique[entry[1]]
   local priority=entry[2]==8 and 5 or entry[2]==6 and 4 or entry[2]==4 and 3 or entry[2]==14 and 2 or entry[4] and 0 or 1
   if not previous then
@@ -247,6 +251,13 @@ function A:Loot(id,skills,forceSpecial)
  for _,entry in pairs(unique) do out[#out+1]=entry end
  table.sort(out,function(a,b)
   local aq,bq=self.items[a[1]].quality,self.items[b[1]].quality
+  if rareOnly and mob and not mob.vendor then
+   if aq~=bq then return aq>bq end
+   local knownA,knownB=a[3]>=0,b[3]>=0
+   if knownA~=knownB then return knownA end
+   if a[3]~=b[3] then return a[3]<b[3] end
+   return a[1]<b[1]
+  end
   if (forceSpecial or self.db.specialFirst) and not (mob and mob.vendor) then local ar,br=self:SpecialRank(a[1]),self:SpecialRank(b[1]);if ar~=br then return ar>br end end
   if (mob and mob.vendor or self.db.sort=='quality') and aq~=bq then return aq>bq end
   if a[3]~=b[3] then return a[3]>b[3] end
@@ -262,14 +273,18 @@ function A:Chance(entry)
  if entry[2]==9 or entry[2]==12 then return entry[3]<0 and 'Шанс неизвестен · Classic' or string.format('%.3g%% · Classic',entry[3]) end
  if entry[2]==14 then return 'Сообщение игрока · шанс неизвестен' end
  if entry[2]==8 then return 'Лично найдено · шанс неизвестен' end
- if entry[2]==7 then return 'шанс неизвестен · Forever DB' end
+ if entry[2]==7 then return entry[4] and 'Общий или условный дроп · Forever DB' or 'шанс неизвестен · Forever DB' end
+ if entry[4] then return 'Общий или условный дроп · шанс неизвестен · Classic' end
  if entry[2]==5 then return 'Покупка · справочник' end
  if entry[2]==6 then
   if entry[8] then return 'Особая стоимость · у продавца' end
   if type(entry[5])~='number' or entry[5]<0 then return 'Цена уточняется' end
   local p=entry[5];return string.format('%dз %dс %dм',math.floor(p/10000),math.floor(p/100)%100,p%100)..(entry[6] and entry[6]>1 and (' / '..entry[6]..' шт.') or '')
  end
- if entry[2]==4 then return string.format('%.3g%% · Forever',entry[3]) end
+ if entry[2]==4 then
+  local historical=entry[8] and self.foreverAsOf and entry[8]~=self.foreverAsOf:sub(1,10)
+  return string.format('%.3g%% · Forever',entry[3])..(historical and (' · архив '..entry[8]) or '')
+ end
  if entry[3]<0 then return 'шанс неизвестен' end
  return string.format('%.4g%% · Classic',entry[3])
 end
@@ -277,7 +292,7 @@ function A:HasSpecialMapLoot(id)
  local mob=self.mobs[id]
  if not mob or mob.vendor then return false end
  for _,entry in ipairs(mob.loot or {}) do
-  if self:SpecialRank(entry[1])>0 and self:Matches(entry,self.skills or {}) then return true end
+  if self:IsSpecialMapDrop(entry) and self:Matches(entry,self.skills or {},true) then return true end
  end
  return false
 end
@@ -286,9 +301,9 @@ function A:BuildMap(mapID)
  self.skills=self:Professions();local cells={};local counted={};local total=0
  local function visible(id)
   if self.focus then return self.focus.ids[id]==true end
-  if self.db.specialMobsOnly and not self:HasSpecialMapLoot(id) then return false end
   local mob=self.mobs[id];local faction=self:Safe(UnitFactionGroup,'player');local friendly=mob.friendly or ''
   if not mob.vendor and not mob.huntable and (mob.service or mob.kind=='Humanoid') and (friendly=='AH' or faction=='Alliance' and friendly:find('A',1,true) or faction=='Horde' and friendly:find('H',1,true)) then return false end
+  if self.db.specialMobsOnly then return self.db.mapLayer~='vendors' and self:HasSpecialMapLoot(id) end
   return (#self:Loot(id,self.skills)>0 or mob.huntable and #(mob.loot or {})==0) and (not mob.vendor or friendly=='' or friendly=='AH' or faction=='Alliance' and friendly:find('A',1,true) or faction=='Horde' and friendly:find('H',1,true))
    and (self.db.mapLayer=='all' or self.db.mapLayer=='vendors' and mob.vendor or self.db.mapLayer=='mobs' and not mob.vendor)
  end
@@ -363,7 +378,7 @@ function A:MergeForever()
   if not self.mobs[id] then self.mobs[id]={name=(self.foreverNames or {})[id] or ('Существо #'..id),min=0,max=0,points={},loot={}} end
   local mob=self.mobs[id];local exists=false
   for _,e in ipairs(mob.loot) do if e[1]==itemID and e[2]==4 then exists=true end end
-  if not exists then table.insert(mob.loot,{itemID,4,r[3],false,r[4],r[5],r[6]}) end
+  if not exists then table.insert(mob.loot,{itemID,4,r[3],false,r[4],r[5],r[6],r[7]}) end
  end
 end
 function A:ApplyForeverItems()
@@ -408,8 +423,6 @@ function A:ApplyCatalog()
   if mob or c.vendor or c.referenceLoot or c.reportedLoot then
    if not mob then mob={loot={}};self.mobs[id]=mob end
    for _,k in ipairs({'name','min','max','points','instances','kind','family','vendor','stock','friendly','huntable','service','reportSource'}) do mob[k]=c[k] end
-   local reported={};for _,e in ipairs(mob.loot) do if e[2]==14 then reported[e[1]]=true end end
-   for _,iid in ipairs(c.reportedLoot or {}) do if self.items[iid] and not reported[iid] then mob.loot[#mob.loot+1]={iid,14,-1,false} end end
    local existing={};local conditional={};local direct={}
    for _,e in ipairs(mob.loot) do
     if e[2]==7 then existing[e[1]]=true end

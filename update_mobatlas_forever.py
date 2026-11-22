@@ -36,11 +36,20 @@ def run(offline=False):
     # Do not infer a loot method: feed aggregates all windows of the NPC.
     data={'schemaVersion':1,'source':'https://everloot.app/api/rollups/drops','dataAsOf':pages[0]['dataAsOf'],'attribution':pages[0]['attribution'],'rates':rows}
     (CACHE/'forever-drops.json').write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
+    current_keys={(r['sourceNpcId'],r['itemId']) for r in rows}
+    history_path=CACHE/'drops-history.json'
+    history=json.loads(history_path.read_text()) if history_path.exists() else None
+    observed=[(r,data['dataAsOf']) for r in rows]
+    if history:
+        assert history['attribution']['licence']=='CC BY-SA 4.0'
+        assert history['dataAsOf']<=data['dataAsOf']
+        observed.extend((r,history['dataAsOf']) for r in history['rates']
+                        if (r['sourceNpcId'],r['itemId']) not in current_keys)
     lines=['local _,A=...','A.foreverAsOf='+json.dumps(data['dataAsOf']), 'A.foreverRates={']
-    for r in rows:
-        lines.append('{%d,%d,%.10g,%d,%d,%d},'%(r['sourceNpcId'],r['itemId'],100*r['rate'],r['drops'],r['kills'],r['reporters']))
+    for r,date in observed:
+        lines.append('{%d,%d,%.10g,%d,%d,%d,%s},'%(r['sourceNpcId'],r['itemId'],100*r['rate'],r['drops'],r['kills'],r['reporters'],json.dumps(date[:10])))
     lines+=['}', 'A.foreverNames={']
-    for npc,name in sorted({r['sourceNpcId']:r['sourceName'] for r in rows if r.get('sourceName')}.items()):
+    for npc,name in sorted({r['sourceNpcId']:r['sourceName'] for r,_ in observed if r.get('sourceName')}.items()):
         lines.append('[%d]=%s,'%(npc,json.dumps(name,ensure_ascii=False)))
     lines+=['}', 'A.foreverItems={']
     for item,cls,sub,slot,q in client['items']:
@@ -53,6 +62,6 @@ def run(offline=False):
     for item,values in sorted(prof.items()):lines.append('[%d]={%s},'%(item,','.join(map(str,sorted(values)))))
     lines+=['}', 'A.foreverBuild='+json.dumps(client['build']['version']), '-- Everloot https://everloot.app · CC BY-SA 4.0. Loot windows, not kills.']
     path=ROOT/'MobAtlas/Forever.lua';tmp=path.with_suffix('.tmp');tmp.write_text('\n'.join(lines)+'\n');tmp.replace(path)
-    print(f"Forever snapshot {data['dataAsOf']}: {len(rows)} NPC/item observations, {len(pages)} pages")
+    print(f"Forever snapshot {data['dataAsOf']}: {len(rows)} NPC/item observations, {len(observed)-len(rows)} historical links, {len(pages)} pages")
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--offline',action='store_true');run(parser.parse_args().offline)

@@ -6,9 +6,10 @@ function A:SearchText(text)
  text=(text or ''):gsub('[A-Z]',function(c)return string.char(c:byte()+32) end);for i,c in ipairs(upper) do text=text:gsub(c,lower[i]) end
  return text:gsub('ё','е'):gsub('^[ \t\r\n]+',''):gsub('[ \t\r\n]+$','')
 end
+-- Shared crafting writs remain in the full catalog.
+local craftingWrits={[22568]=true,[248206]=true,[262887]=true,[262888]=true,[262889]=true,[262890]=true}
 function A:SpecialRank(id)
- -- Sealed Journeyman's Writ is a shared drop, not a notable reward for a specific mob.
- if id==262888 then return 0 end
+ if craftingWrits[id] then return 0 end
  local item=self.items[id];if not item then return 0 end
  if item.classID==15 and item.subclass==2 then return 50,'Питомец' end
  if item.quality==6 then return 42,'Артефакт' end
@@ -39,10 +40,15 @@ function A:BuildAtlasIndex()
  end
  for iid,item in pairs(self.items) do self.itemSources[iid]=self.itemSources[iid] or {};local item=self.items[iid];self.searchTerms[iid]=self:SearchText(item.name..' '..(item.ruName or '')..' '..(item.referenceName or '')) end
 end
+function A:SourceEvidenceTier(entry)
+ local method=entry[2]
+ if method==8 or method==4 or method==14 then return 2 end
+ return entry[4] and 0 or 1
+end
 function A:SourceEntry(source)
  local best,rank
  for _,e in ipairs(source.entries) do
-  local value=e[2]==8 and 6 or e[2]==4 and 5 or e[2]==14 and 4 or e[2]==6 and 4 or e[2]==7 and 3 or e[2]==14 and 3 or e[4] and 0 or 2
+  local value=e[2]==8 and 6 or e[2]==4 and 5 or e[2]==14 and 4 or e[2]==6 and 4 or e[4] and 0 or e[2]==7 and 3 or 2
   if not best or value>rank then best=e;rank=value end
  end
  return best
@@ -167,11 +173,11 @@ function A:FindItems(query,category,scope,relevant,options)
   matches=matches and (not category or category=='all' or category=='pets' and rank==50 or category=='rare' and item.quality==3 or category=='epic' and item.quality>=4 and item.quality<=5 or category=='useful' and self:UsefulItem(iid) or (category=='gear' or category=='catalog') and (item.classID==2 or item.classID==4) or category=='bags' and item.classID==1 or category=='materials' and item.classID==7 or category=='recipes' and item.classID==9 or category=='consumables' and item.classID==0)
   if matches and (category=='catalog' or category=='gear') then matches=matchesGearType(item,options.gearType) end
   if matches and category=='gear' and not self:RecommendationStaticFits(item,iid,scope) then matches=false end
-  if matches and category~='catalog' and (self.db.classOnly or self.db.specOnly) and not self:ClassFits(item,iid,false,true) then matches=false end
+  if matches and category~='catalog' and not (category=='all' and query~='') and (self.db.classOnly or self.db.specOnly) and not self:ClassFits(item,iid,false,true) then matches=false end
   if matches and options.known and not self:HasMappableSource(iid) then matches=false end
   if matches and options.recent and not recent[iid] then matches=false end
-  if matches and options.level then
-   if category=='catalog' or category=='gear' then
+  if matches and options.level and not (category=='all' and exact) then
+   if category=='catalog' or category=='gear' or category=='all' and query~='' then
     matches=(item.level or 0)<=UnitLevel('player')
    else
     matches=self:AtlasLevelFits(item)
@@ -234,7 +240,7 @@ function A:AtlasSources(iid,scope)
  end
  table.sort(rows,function(a,b)
   if (a.location.mapID~=nil)~=(b.location.mapID~=nil) then return a.location.mapID~=nil end
-  if (a.entry[2]==4)~=(b.entry[2]==4) then return a.entry[2]==4 end
+  local ae,be=self:SourceEvidenceTier(a.entry),self:SourceEvidenceTier(b.entry);if ae~=be then return ae>be end
   if a.entry[3]~=b.entry[3] then return a.entry[3]>b.entry[3] end
   if (a.npcID or 0)~=(b.npcID or 0) then return (a.npcID or 0)<(b.npcID or 0) end
   if a.source and b.source and a.source.id~=b.source.id then return a.source.id<b.source.id end
@@ -294,7 +300,7 @@ function A:FocusedLoot(id)
    local e=self:SourceEntry(source);local copy={};for i=1,8 do copy[i]=e[i] end;copy.alternatives=source.entries;return {copy}
   end end
  end
- return self:Loot(id,self.skills)
+ return self:Loot(id,self.skills,nil,true,self.db.specialMobsOnly)
 end
 
 function A:RememberItem(iid)

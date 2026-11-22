@@ -142,7 +142,7 @@ function A:ShowTooltip(pin,force)
 
  t.title:SetText(mob.name);t.title:SetWordWrap(false);self:SetNpcPortrait(t.portrait,id)
  t.subtitle:SetText(pin.cell.dungeon and ('Вход: '..self.instances[pin.cell.dungeon].name) or mob.vendor and 'Торговец · экипировка, сумки, ремесло' or ((mob.min>0 and ('Ур. '..mob.min..'–'..mob.max..' · ') or '')..self:CreatureKind(mob)))
- if #rows==0 then t.subtitle:SetText(not mob.vendor and #(mob.loot or {})==0 and 'Добыча пока неизвестна.' or 'Нет вещей по текущим фильтрам') end
+ if #rows==0 then t.subtitle:SetText(not mob.vendor and #(mob.loot or {})==0 and 'Добыча пока неизвестна.' or (self.db.specialMobsOnly and not mob.vendor and 'Нет редкой добычи по фильтрам' or 'Нет вещей по текущим фильтрам')) end
  for i,r in ipairs(t.rows) do
   local e=i<=n and rows[(pin.page-1)*n+i] or nil;r:SetShown(e~=nil);r.itemID=e and e[1] or nil;r.npcID=nil;r.npcIndex=nil;r.rarityBorder:SetShown(e~=nil)
   r.special=nil;r.hover:Hide();r.arrow:Hide()
@@ -153,7 +153,7 @@ function A:ShowTooltip(pin,force)
    local specialRank,specialName=self:SpecialRank(e[1]);local first=specialRank>0
    for j=1,(pin.page-1)*n+i-1 do if self:SpecialRank(rows[j][1])==specialRank then first=false;break end end
    r.special=first and specialName or nil;r.tint:SetColorTexture(c[1],c[2],c[3],first and .14 or 0)
-   r.meta:SetText((e[3]<0 and (e[2]==5 and 'У продавца' or 'Шанс не измерен') or self:Chance(e))..(e[2]==2 and ' · шкуры' or e[2]==3 and ' · кража' or ''))
+   r.meta:SetText((e[2]==5 and 'У продавца' or (e[3]<0 and not e[4] and e[2]~=8 and e[2]~=14 and 'Шанс не измерен' or self:Chance(e)))..(e[2]==2 and ' · шкуры' or e[2]==3 and ' · кража' or ''))
    r.meta:SetWordWrap(false);r.entry=e
   end
  end
@@ -178,7 +178,7 @@ function A:UnitLootTooltip(tooltip)
  if not id or tooltip.mobAtlasID==id then return end
  if not self.mobs[id] and self.EnsureObservedNpc then self:EnsureObservedNpc(id) end
  if not self.mobs[id] then return end
- tooltip.mobAtlasID=id;local rows=self:Loot(id,self:Professions(),true)
+ tooltip.mobAtlasID=id;local rows=self:Loot(id,self:Professions(),true,true)
  self:AddTooltipLine(tooltip,' ');self:AddTooltipLine(tooltip,self.mobs[id].vendor and 'Следопыт · в продаже' or 'Следопыт · возможная добыча',1,.8,.35)
  if #rows==0 then self:AddTooltipLine(tooltip,#(self.mobs[id].loot or {})==0 and 'Добыча пока неизвестна. Находки будут сохраняться.' or 'Нет вещей по текущим фильтрам',.7,.7,.7) end
  for i=1,math.min(#rows,self.db.visibleItems) do
@@ -262,7 +262,7 @@ function A:Update()
   self.specialMapCheck:SetPoint('BOTTOMLEFT',map,'BOTTOMLEFT',188,31)
   self.specialMapCheck:SetScript('OnEnter',function(control)
    GameTooltip:SetOwner(control,'ANCHOR_RIGHT')
-   self:AddTooltipLine(GameTooltip,'Синие вещи и выше или питомцы. Учитывает фильтры добычи.',1,.85,.55)
+   self:AddTooltipLine(GameTooltip,'Синие вещи и выше или питомцы. Карточка показывает только редкую добычу.',1,.85,.55)
    GameTooltip:Show()
   end)
   self.specialMapCheck:SetScript('OnLeave',function() GameTooltip:Hide() end)
@@ -344,6 +344,7 @@ function A:ItemEvidence(t,e)
  if e[2]==6 then self:AddTooltipLine(t,'Цена и наличие на момент последнего визита.',.7,.7,.7) end
  if e[2]==4 then
   self:AddTooltipLine(t,e[5]..' выпадений / '..e[6]..' окон · '..e[7]..' источников',.8,.8,.7)
+  if e[8] then self:AddTooltipLine(t,'Снимок наблюдений: '..e[8],.7,.7,.7) end
   self:AddTooltipLine(t,'Everloot · CC BY-SA 4.0 · everloot.app',.7,.7,.7)
  end
 end
@@ -410,7 +411,7 @@ function A:ShowGroupTooltip(pin)
   r:SetShown(id~=nil);r.hover:Hide();r.arrow:Hide();r.tint:SetColorTexture(0,0,0,0);r.rarityBorder:Hide();r.itemID=nil;r.entry=nil;r.npcID=id;r.npcIndex=id and index or nil
   if id then
    local mob=self.mobs[id];self:SetNpcPortrait(r.icon,id);r.name:SetText(mob.name);r.name:SetTextColor(1,.86,.54)
-   r.meta:SetText((mob.vendor and 'Продавец' or ('Ур. '..mob.min..'–'..mob.max))..' · предметов: '..#self:Loot(id,self.skills))
+   r.meta:SetText((mob.vendor and 'Продавец' or ('Ур. '..mob.min..'–'..mob.max))..' · предметов: '..#self:FocusedLoot(id))
   end
  end
  self:LayoutLootCard(pin,count,pages,false);t:Show()
@@ -581,7 +582,7 @@ function A:AtlasSourceDescription(source)
     else detail='Купить: цена ещё неизвестна' end
    elseif method==10 then detail='Награда за задание'
    elseif method==11 then detail='Изготовление: нужен рецепт и навык'
-   else detail=(method==2 and 'Шкуры: ' or method==3 and 'Карманная кража: ' or 'Дроп: ')..self:Chance(source.entry)..((method==1 or method==9) and ' · Classic' or '') end
+   else detail=(method==2 and 'Шкуры: ' or method==3 and 'Карманная кража: ' or 'Дроп: ')..self:Chance(source.entry) end
  if not source.location.mapID then detail=detail..' · нет координат' elseif source.location.kind=='entrance' then detail=detail..' · карта входа' end
  return detail
 end
@@ -628,6 +629,7 @@ function A:RefreshAtlasSources()
   for _,source in ipairs(sources) do source.group=(source.location.kind=='entrance' and 'Подземелье: ' or '')..source.location.name end
   table.sort(sources,function(a,b)
    local aMap,bMap=a.location.mapID~=nil,b.location.mapID~=nil;if aMap~=bMap then return aMap end
+   local ae,be=self:SourceEvidenceTier(a.entry),self:SourceEvidenceTier(b.entry);if ae~=be then return ae>be end
    local aHere,bHere=a.location.mapID==current,b.location.mapID==current;if aHere~=bHere then return aHere end
    if a.group~=b.group then return a.group<b.group end
    if a.entry[3]~=b.entry[3] then return a.entry[3]>b.entry[3] end
@@ -664,6 +666,10 @@ function A:CreateAtlas()
  f.search=CreateFrame('EditBox',nil,f,'InputBoxTemplate');f.search:SetSize(393,28);f.search:SetPoint('TOPLEFT',22,-49);f.search:SetFont(self.font,12,'');f.search:SetAutoFocus(false);f.search:SetMaxLetters(160)
  f.search:SetScript('OnEscapePressed',function(b) b:ClearFocus() end)
  local function search()
+  local query=self:SearchText(f.search:GetText())
+  if query:match('^%d+$') or query:match('item:%d+') then
+   f.category='all';f.gearType=nil;f.scope='all';f.myLevel=false;f.knownOnly=false
+  end
   f.selectedItem=nil
   f.previewSource=nil
   f.page=1

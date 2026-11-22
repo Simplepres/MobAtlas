@@ -84,5 +84,24 @@ A.atlas.categoryButton.scripts.OnClick();assert(A.atlas.categoryMenu:IsShown(),'
 A.atlas.scopeButton.scripts.OnClick();assert(A.atlas.scopeMenu:IsShown() and not A.atlas.categoryMenu:IsShown())
 A.atlas.allItems.scripts.OnClick();assert(A.atlas.category=='all' and not A.atlas.myLevel and not A.atlas.knownOnly)
 assert(A:ShowQuestOnMap(167));A:OpenAtlas();assert(A.atlas.clearFocus:IsShown());A.atlas.clearFocus.scripts.OnClick();assert(not A.focus)
+-- Exact Forever report beats the Classic shared-pool link for the same NPC.
+MOCK.class='PRIEST';MOCK.playerLevel=26;A.db.classOnly=true;A.db.specOnly=true;A:RefreshGearProfile()
+A.db.qualities={[3]=true};A.db.sharedLoot=false;A.db.prof=0
+assert(not A:ClassFits(A.items[12992],12992))
+assert(A:FindItems('Огненный клинок','all','all',nil,{level=true,known=true})[1]==12992)
+assert(A:FindItems('12992','gear','all')[1]==nil)
+local card=A:FocusedLoot(628);assert(card[1][1]==12992 and card[1][2]==14 and card[1][3]==-1)
+local sources=A:AtlasSources(12992,'all')
+assert(sources[1].npcID==628 and sources[1].location.mapID==1431 and sources[1].entry[2]==14)
+local shared
+for _,source in ipairs(A.itemSources[12992]) do
+ if source.npcID==628 then for _,entry in ipairs(source.entries) do if entry[2]==1 and entry[4] then shared=entry end end end
+end
+assert(shared and A:Chance(shared):find('Classic',1,true) and shared[3]==-1)
+A.db.sharedLoot=true;A.db.classOnly=false;A.db.specOnly=false
+A.mobs[999911]={loot={shared}};assert(not A:HasSpecialMapLoot(999911))
+A.mobs[999911]=nil
+A:OpenAtlas();A.atlas.category='gear';A.atlas.search:SetText('12992');A.atlas.search.scripts.OnEnterPressed(A.atlas.search)
+assert(A.atlas.category=='all' and A.atlas.rows[1].itemID==12992)
 print('PASS atlas: RU/EN/ID, dungeon sources/entrances, pet/rare ranking, unknown rates, filtered search, item focus, zoom, reset, combat guard')
 ''')

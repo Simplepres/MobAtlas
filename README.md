@@ -2,33 +2,35 @@
 
 # MobAtlas · Следопыт
 
-Атлас добычи, экипировки и заданий для **WoW Forever**. **Бета 0.7.11.**
+Атлас добычи, экипировки и заданий для **WoW Forever**. **Бета 0.7.13.**
 
-A loot atlas, gear finder and dungeon quest guide for **WoW Forever**. **Beta 0.7.11.**
+A loot atlas, gear finder and dungeon quest guide for **WoW Forever**. **Beta 0.7.13.**
 
 [**Скачать / Download**](https://github.com/Simplepres/MobAtlas/releases/latest) · [Скриншоты / Gallery](#скриншоты--gallery) · [Сообщить о баге / Report an issue](https://github.com/Simplepres/MobAtlas/issues)
 
-## Что нового в 0.7.11
+## Что нового в 0.7.13
 
 - **Атлас в виде книги.** Восемь предметов слева, источники и мини-карта справа. «Карта» сразу ставит метку на карте мира.
 - **Подбор экипировки.** Сравнение с надетыми вещами, фильтры по уровню, классу и спеку, отдельный выбор ткани, кожи, кольчуги, лат и оружия.
-- **Редкие мобы.** Клик по уведомлению берёт обнаруженного моба в цель вне боя, если он ещё доступен, или показывает известное место на карте. Галочка «Мобы с редкой добычей» оставляет источники синих вещей и выше или питомцев. «Запечатанное задание подмастерья» не учитывается этим фильтром.
+- **Редкие мобы.** Клик по уведомлению берёт обнаруженного моба в цель вне боя, если он ещё доступен, или показывает известное место на карте. Галочка «Мобы с редкой добычей» показывает на карте и в карточках синие вещи и выше, а также питомцев. Запечатанные ремесленные задания остаются в обычной добыче.
+- **Обновлённая база.** 432 новые связи «моб → предмет» из Everloot и находка «Огненный Клинок» у Чёрного опустошителя.
 
 **Уже в аддоне:** поиск по названию и ID, добыча при наведении, торговцы с известными ценами, питомцы, входы в подземелья и задания с цепочками. Источники, мобы и точки начала квестов можно закреплять. База поставляется вместе с аддоном.
 
-## What’s new in 0.7.11
+## What’s new in 0.7.13
 
 - **Two-page atlas.** Eight items on the left, a source list and map preview on the right. **Map** opens the world map with the selected source pinned.
 - **Gear finder.** Compare with equipped gear, filter by level, class and spec, or browse cloth, leather, mail, plate and weapons.
-- **Rare tracking.** Click an alert to target a detected rare out of combat, or open its known location on the map. A map checkbox shows mobs that drop blue-quality items or better, or pets. Sealed Journeyman's Writ is excluded from this filter.
+- **Rare tracking.** Click an alert to target a detected rare out of combat, or open its known location on the map. The rare-loot checkbox limits the map and its loot cards to blue-quality items or better and pets. Sealed crafting writs remain in the regular loot lists.
+- **Loot data refresh.** 432 new NPC–item pairs from Everloot and a player report of Searing Blade from Black Ravager.
 
 Also includes item search, loot on hover, vendors with known prices, pet sources, dungeon entrances, quests and prerequisites. The reference database is bundled.
 
 ## Установка / Install
 
-Распакуй **MobAtlas-0.7.11.zip** в `Interface/AddOns/` клиента Forever и полностью перезапусти WoW. Открой атлас через книжку у миникарты или `/mobatlas`. ПКМ по книжке открывает настройки отслеживания.
+Распакуй **MobAtlas-0.7.13.zip** в `Interface/AddOns/` клиента Forever и полностью перезапусти WoW. Открой атлас через книжку у миникарты или `/mobatlas`. ПКМ по книжке открывает настройки отслеживания.
 
-Extract **MobAtlas-0.7.11.zip** into the Forever client’s `Interface/AddOns/` folder and restart WoW. Click the minimap book or type `/mobatlas`. Right-click the book for tracking settings.
+Extract **MobAtlas-0.7.13.zip** into the Forever client’s `Interface/AddOns/` folder and restart WoW. Click the minimap book or type `/mobatlas`. Right-click the book for tracking settings.
 
 ## Скриншоты / Gallery
 

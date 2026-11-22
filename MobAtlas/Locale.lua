@@ -2,7 +2,8 @@ local _,A=...
 -- Source phrases stay intact; translation is confined to addon-owned UI text.
 local en={
  ["Мобы с редкой добычей"]="Mobs with rare loot",
- ["Синие вещи и выше или питомцы. Учитывает фильтры добычи."]="Blue gear or better, or pets. Uses your loot filters.",
+ ["Синие вещи и выше или питомцы. Карточка показывает только редкую добычу."]="Blue items or better, or pets. The map card shows rare loot only.",
+ ["Нет редкой добычи по фильтрам"]="No rare loot matches your filters.",
  ["Клик: цель рядом или карта"]="Click: target nearby or open map",
  ["Карта откроется после боя"]="Map opens after combat",
  ["Последнее наблюдение"]="Last seen",
@@ -397,6 +398,10 @@ en['Моб замечен, но его координаты недоступны
 en['За краем миникарты: показано направление.']='Outside the minimap view: showing direction.'
 en['Forever · сообщение игрока']='Forever · player report'
 en['Сообщение игрока · шанс неизвестен']='Player report · unknown chance'
+en['Общий или условный дроп · шанс неизвестен · Classic']='Shared or conditional drop · unknown chance · Classic'
+en[' · архив ']=' · archived '
+en['Снимок наблюдений: ']='Observation snapshot: '
+en['Общий или условный дроп · Forever DB']='Shared or conditional drop · Forever DB'
 en['Связь добавлена по сообщению игрока. Шанс и частота не измерены.']='Added from a player report. Chance and frequency have not been measured.'
 en['Добыча пока неизвестна. Находки будут сохраняться.']='Loot not known yet. Your finds will be recorded.'
 en['Показано: ']='Showing: '

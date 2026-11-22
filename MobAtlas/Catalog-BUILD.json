@@ -20,7 +20,7 @@
     "vendor/QuestieDB/data/Forever/foreverItemDB.lua": "987d037b6df94d5b0b1dc326a1670581e3abb952736a4ae055fd9f161328b71c",
     "vendor/QuestieDB/support/Forever/Zones/areaIdToUiMapId.lua": "805544d9e6234876c6cc1047fc0fbde1c034a46bb418d5f5b19384b8f615206b",
     "vendor/QuestieDB/support/Forever/Zones/dungeons.lua": "e2291c9f55d366957ca47cc4e7e744a7d1ab84ce421bc116417848b14039b5c9",
-    "vendor/extra/npc-overrides.json": "43549541f895c6b9fbb1568a4e70e7ef0ef63434ad686df9d1d2b2c5be417926",
+    "vendor/extra/npc-overrides.json": "1ea49734cd38649bef4a2fff4701e586f4c95ebb80dea4f14714c7eca30be533",
     "vendor/QuestieDB/src/corrections/Forever/generated/foreverBaseNpc.lua": "3a63d7b214417745bd2d5189b1ac95285dcd2537699cafece64ac1a5782c8b64",
     "vendor/QuestieDB/src/corrections/Forever/generated/foreverBaseItem.lua": "0901232641800ed8aa31008176f5bfd6877bd00af938af661274258b1b29643b",
     "vendor/QuestieDB/src/corrections/Forever/traces/foreverNpcTraces.lua": "4b3fab27cb2241563c55b74e97d8b8c29b091ea05e39020e5cb7b78fd4f34796",

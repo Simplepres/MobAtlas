@@ -14,6 +14,7 @@ local function mapped(id)
  return false
 end
 assert(mapped(277645),'neutral Gray Fox not hidden as friendly NPC')
+A.db.qualities[0]=true -- Sharp Canine is grey; explicitly include junk for the loot evidence assertions.
 local canine;for _,e in ipairs(A:Loot(277645)) do if e[1]==3301 then canine=e end end
 assert(canine and canine[2]==14 and canine[3]==-1 and not A:Chance(canine):find('%%'),'player report is not invented measured rate')
 local meta=0;local withLoot=0

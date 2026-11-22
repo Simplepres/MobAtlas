@@ -117,7 +117,28 @@ assert(#ordinary==2 and ordinary[1][1]==999703 and ordinary[2][1]==262888,'writ 
 assert(A:FindItems('262888','all','all')[1]==262888,'writ remains searchable')
 A.mobs[999714].loot[3]={999702,7,-1}
 assert(A:HasSpecialMapLoot(999714),'writ does not hide a genuine rare drop')
-A.db.specialMobsOnly=false
+for _,id in ipairs({22568,248206,262887,262888,262889,262890}) do
+ assert(A.items[id] and A:SpecialRank(id)==0,'all sealed crafting writs are ordinary')
+end
+assert(not A:HasSpecialMapLoot(507) and #A:FocusedLoot(507)==0,'Fenros does not qualify from Sealed Expert’s Writ')
+A.items[999704]={quality=4,classID=0,subclass=0}
+A.items[999705]={quality=3,classID=0,subclass=0}
+A.items[999706]={quality=3,classID=0,subclass=0}
+A.items[999707]={quality=4,classID=0,subclass=0}
+local mob=A.mobs[999714]
+mob.loot={{262889,7,-1},{999703,1,50},{999702,7,-1},{999704,1,15},
+ {999705,1,2},{999706,1,1},{999701,7,-1},{999707,1,-1,true}}
+A.db.sharedLoot=true;A.db.specialFirst=false;A.db.sort='chance'
+local list=A:FocusedLoot(999714)
+local expected={999704,999706,999705,999702,999701}
+assert(#list==#expected)
+for i,id in ipairs(expected) do assert(list[i][1]==id,'map card sorts by quality, known ascending chance, then unknown') end
+A.focus={itemID=262889,ids={[999714]=true}}
+A.itemSources[262889]={{npcID=999714,entries={mob.loot[1]}}}
+assert(A:FocusedLoot(999714)[1][1]==262889,'explicit item navigation remains available')
+A.focus=nil;A.db.specialMobsOnly=false
+assert(#A:FocusedLoot(999714)==#mob.loot,'normal card restores the full list')
+A.db.sharedLoot=false;A.db.specialFirst=true
 -- Two visible spawns of one NPC must retain their own coordinates and frames.
 A.rareCatalog[999601]={points={{1429,45,54},{1429,55,54}}}
 A.rareZones[1429]={999601};A.rareMiniAnchorCache={};A.rareSeen={}
