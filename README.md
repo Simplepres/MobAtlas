@@ -38,6 +38,14 @@ Extract **MobAtlas-0.7.11.zip** into the Forever client’s `Interface/AddOns/` 
 
 ![Gear recommendations and a source map](docs/images/atlas-gear.webp)
 
+**Обнаружение редких мобов / Rare discovery**
+
+Следопыт заметил Крыло скорби. Клик по уведомлению берёт моба в цель вне боя, если он ещё доступен, или открывает карту с известным местом появления.
+
+MobAtlas spotted Sorrow Wing. Click the alert to target it out of combat if it is still available, or open its known spawn location on the map.
+
+![Уведомление об обнаружении Крыла скорби / Sorrow Wing detection alert](docs/images/rare-alert.webp)
+
 <details>
 <summary>Ещё скриншоты / More screenshots</summary>
 
