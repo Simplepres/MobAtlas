@@ -67,6 +67,12 @@ for path in sorted(cache.glob('ahledger-*.json')):
   if not record:record={'name':name,'classID':cls,'subclass':sub.get(cls,{}).get(subname,-1),'slot':slot or '', 'prof':[]};itemmeta[iid]=record
   # AHledger catalog is game-file metadata, not evidence of a drop.
   record.update(name=name,quality=quality.get(q,-1),level=level,itemLevel=ilvl,metadataSource='ahledger',estimated=False);ahcount+=1
+# A recipe tooltip explicitly identifies the craft it teaches. Ambiguous titles are left unlinked.
+recipes={}
+for item in kbitems:
+ if item.get('item_class')=='Recipe':
+  match=re.search(r'(?:^|\| )Learn: (.+?)(?: \||$)',item.get('effects') or '')
+  if match:recipes.setdefault((match[1],item.get('subclass')),[]).append(item['id'])
 extra_mobs={};other={};links=0;seen=set()
 for s in sources:
  iid=s['item_id'];kind=s['kind'];sid=s.get('source_id',0)
@@ -87,6 +93,10 @@ for s in sources:
   if kind=='quest':
    q=quests[sid];record['givers']=[giver('npc',id) for id in values(q[2][1] if q and q[2] else None)]+[giver('object',id) for id in values(q[2][2] if q and q[2] else None)]
   elif kind=='object':record['points']=giver('object',sid)['points']
+  elif kind=='crafted':
+   record['skill']=s.get('min_level')
+   ids=recipes.get((itemmeta[iid]['name'],record['name']),[])
+   if len(ids)==1 and ids[0] in itemmeta:record['recipeID']=ids[0]
   other.setdefault(iid,[]).append(record)
 # World equipment pools must stay conditional, or every wolf becomes a unique epic source.
 frequency={}

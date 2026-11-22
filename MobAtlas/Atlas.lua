@@ -83,20 +83,27 @@ function A:AtlasSourceAccessible(row)
  end
  return true
 end
-function A:HasAccessibleAtlasSource(iid,scope)
+function A:HasAccessibleAtlasSource(iid,scope,requireMap)
  local sourceScope=scope=='recent' and 'all' or scope or 'all'
+ local key=sourceScope..(requireMap and ':map' or '')
  self.accessibleAtlasSources=self.accessibleAtlasSources or {}
- local cache=self.accessibleAtlasSources[sourceScope]
+ local cache=self.accessibleAtlasSources[key]
  if not cache then
   cache={}
-  self.accessibleAtlasSources[sourceScope]=cache
+  self.accessibleAtlasSources[key]=cache
  end
  if cache[iid]~=nil then return cache[iid] end
  local accessible=false
- for _,row in ipairs(self:AtlasSources(iid,sourceScope)) do
-  if row.location.mapID and row.entry[2]~=11 and self:AtlasSourceAccessible(row) then
-   accessible=true
-   break
+ for _,source in ipairs(self.itemSources[iid] or {}) do
+  local mob=self.mobs[source.npcID]
+  local hasWorld=#(mob.points or {})>0
+  local hasDungeon=#(mob.instances or {})>0
+  if (sourceScope=='all' and (not requireMap or hasWorld or hasDungeon) or sourceScope=='world' and hasWorld or sourceScope=='dungeons' and hasDungeon)
+   and self:AtlasSourceAccessible({npcID=source.npcID,entry=self:SourceEntry(source)}) then accessible=true;break end
+ end
+ if not accessible and (self.otherSources or {})[iid] then
+  for _,row in ipairs(self:AtlasSources(iid,sourceScope)) do
+   if (not requireMap or row.location.mapID) and self:AtlasSourceAccessible(row) then accessible=true;break end
   end
  end
  cache[iid]=accessible
@@ -116,41 +123,79 @@ function A:UnmetAtlasRequirement(iid)
  end
  self.atlasRequirementCache[iid]=false;return false
 end
-function A:RecommendationStaticFits(item,iid,scope)
- return (item.classID==2 or item.classID==4) and (item.quality or -1)>=1 and (item.level or 0)<=UnitLevel('player') and self:ClassFits(item,iid,true,true) and self:HasAccessibleAtlasSource(iid,scope)
+function A:RecommendationStaticFits(item,iid,scope,requireMap,levelOnly)
+ return (item.classID==2 or item.classID==4) and (item.quality or -1)>=1 and (not levelOnly or (item.level or 0)<=UnitLevel('player')) and self:ClassFits(item,iid,true,true) and self:HasAccessibleAtlasSource(iid,scope,requireMap)
 end
 function A:PersonalRecommendations(candidates)
- local f=self.atlas;local key=table.concat({f.search:GetText(),f.scope,f.gearType or '',tostring(f.myLevel),tostring(f.knownOnly),tostring(UnitLevel('player')),tostring(self.gearProfile and self.gearProfile[1])},'|')
+ local f=self.atlas
+ local key=table.concat({f.search:GetText(),f.scope,f.gearType or '',f.gearSlot or '',tostring(f.myLevel),tostring(f.knownOnly),tostring(UnitLevel('player')),tostring(self.db.specOnly),tostring(self.gearProfile and self.gearProfile[1])},'|')
  local scan=f.recommendScan
- f.recommendNeedsProfile=not self.gearProfile
- if f.recommendNeedsProfile then f.moreCandidates:Hide();return {} end
- if not scan or scan.key~=key then scan={key=key,list=candidates,cursor=1,limit=math.min(128,#candidates),active={}};f.recommendScan=scan end
- local checked=0
- while scan.cursor<=scan.limit and checked<8 do
-  local iid=scan.list[scan.cursor];scan.active[#scan.active+1]=iid;self:HydrateAtlasItem(iid);scan.cursor=scan.cursor+1;checked=checked+1
+ if not scan or scan.key~=key then
+  local list=f.gearSlot and candidates or self:BalanceGearSlots(candidates)
+  scan={key=key,list=list,cursor=1,limit=math.min(128,#list),pending={},scores={}}
+  f.recommendScan=scan
  end
- local result={};local scores={};local pending=0
- for _,iid in ipairs(scan.active) do
+ local function evaluate(iid,request)
   local info=self.comparisonInfo and self.comparisonInfo[iid]
-  if not info and self.atlasReadyItems and self.atlasReadyItems[iid] then info=self:ComparisonInfo(iid) end
-  if info then self:HydrateAtlasItem(iid) end
-  if info and info.loc and info.loc~='' and not self:UnmetAtlasRequirement(iid) and self:RecommendationStaticFits(self.items[iid],iid,f.scope) then
+  if not info and request then self:HydrateAtlasItem(iid);info=self.comparisonInfo and self.comparisonInfo[iid] end
+  if not info then
+   if not (self.atlasLoadFailures and self.atlasLoadFailures[iid]) then scan.pending[iid]=true end
+   return
+  end
+  self:HydrateAtlasItem(iid)
+  if self:RecommendationStaticFits(self.items[iid],iid,f.scope,f.knownOnly,true) then
    local comparison=self:CompareItem(iid)
-   if comparison and (comparison.state=='better' or comparison.state=='empty') then result[#result+1]=iid;scores[iid]=comparison end
-  elseif not info and not (self.atlasLoadFailures and self.atlasLoadFailures[iid]) then pending=pending+1 end
+   if comparison then scan.scores[iid]=comparison end
+  end
+ end
+ for checked=1,8 do
+  local iid=scan.cursor<=scan.limit and scan.list[scan.cursor]
+  if not iid then break end
+  scan.cursor=scan.cursor+1
+  evaluate(iid,true)
+ end
+ local pending=0
+ for iid in pairs(scan.pending) do
+  if self.comparisonInfo and self.comparisonInfo[iid]
+   or self.atlasReadyItems and self.atlasReadyItems[iid]
+   or self.atlasLoadFailures and self.atlasLoadFailures[iid] then
+   scan.pending[iid]=nil
+   evaluate(iid,true)
+  end
+  if scan.pending[iid] then pending=pending+1 end
+ end
+ local result={}
+ local unknown=0
+ for iid,comparison in pairs(scan.scores) do
+  if comparison.state=='better' or comparison.state=='empty' then result[#result+1]=iid end
+  if comparison.state=='unknown' then unknown=unknown+1 end
  end
  table.sort(result,function(a,b)
-  local as,bs=scores[a],scores[b];local priority={empty=3,better=2,unknown=1};local ap,bp=priority[as.state] or 0,priority[bs.state] or 0
-  if ap~=bp then return ap>bp end
+  local as,bs=scan.scores[a],scan.scores[b]
+  if as.state~=bs.state then return as.state=='better' end
   if (as.delta or 0)~=(bs.delta or 0) then return (as.delta or 0)>(bs.delta or 0) end
   if self.items[a].quality~=self.items[b].quality then return self.items[a].quality>self.items[b].quality end
   return a<b
  end)
- f.recommendPending=pending;f.moreCandidates:SetShown(scan.cursor>scan.limit and scan.limit<#scan.list)
+ f.recommendPending=pending
+ f.recommendUnknown=unknown
+ f.moreCandidates:SetShown(scan.cursor>scan.limit and scan.limit<#scan.list)
  if scan.cursor<=scan.limit and not f.recommendPump then
-  f.recommendPump=true;C_Timer.After(.12,function() f.recommendPump=nil;if f:IsShown() and f.category=='gear' and f.recommendScan then self:RefreshAtlas() end end)
+  f.recommendPump=true
+  C_Timer.After(.12,function()
+   f.recommendPump=nil
+   if f:IsShown() and f.category=='upgrades' and f.recommendScan then self:RefreshAtlas() end
+  end)
  end
  return result
+end
+
+function A:RefreshRecommendationItem(iid)
+ local scan=self.atlas and self.atlas.recommendScan
+ if scan and scan.scores[iid] and scan.scores[iid].state=='unknown' then
+  scan.scores[iid]=nil
+  scan.pending[iid]=true
+ end
 end
 
 local armorTypes={cloth=1,leather=2,mail=3,plate=4,shield=6}
@@ -164,27 +209,52 @@ local function matchesGearType(item,kind)
  return item.subclass==armorTypes[kind] and not cloak
 end
 
+local namedSlots={head='head',neck='neck',shoulder='shoulder',shoulders='shoulder',chest='chest',robe='chest',waist='waist',legs='legs',feet='feet',wrist='wrist',hands='hand',hand='hand',finger='finger',trinket='trinket',back='cloak',cloak='cloak',
+ ['one-hand']='weapon',['two-hand']='weapon',['main hand']='weapon',weapon='weapon',weaponmainhand='weapon',['2hweapon']='weapon',['off hand']='offhand',['off-hand']='offhand',['held in off-hand']='offhand',weaponoffhand='offhand',holdable='offhand',shield='offhand',ranged='ranged',rangedright='ranged',thrown='ranged',relic='ranged'}
+function A:GearSlot(item)
+ if item.classID==2 and item.subclass==19 then return 'wand' end
+ return namedSlots[(item.slot or ''):lower():gsub('^invtype_','')]
+end
+
+function A:BalanceGearSlots(results)
+ local groups,order={},{}
+ for _,iid in ipairs(results) do
+  local slot=self:GearSlot(self.items[iid]) or 'other'
+  if not groups[slot] then groups[slot]={};order[#order+1]=groups[slot] end
+  local group=groups[slot];group[#group+1]=iid
+ end
+ local balanced={}
+ local row=1
+ while #order>0 do
+  for i=#order,1,-1 do if not order[i][row] then table.remove(order,i) end end
+  for _,group in ipairs(order) do balanced[#balanced+1]=group[row] end
+  row=row+1
+ end
+ return balanced
+end
+
 function A:FindItems(query,category,scope,relevant,options)
  options=options or {};local recent={};if options.recent then for _,id in ipairs(self.db.recentItems or {}) do recent[id]=true end end
+ local personal=category=='gear' or category=='upgrades'
  query=self:SearchText(query);local exact=tonumber(query) or tonumber(query:match('item:(%d+)'));local results={}
  for iid,sources in pairs(self.itemSources or {}) do
   local item=self.items[iid];local rank=self:SpecialRank(iid)
   local matches=(exact and iid==exact) or (not exact and (query=='' or self.searchTerms[iid]:find(query,1,true)))
-  matches=matches and (not category or category=='all' or category=='pets' and rank==50 or category=='rare' and item.quality==3 or category=='epic' and item.quality>=4 and item.quality<=5 or category=='useful' and self:UsefulItem(iid) or (category=='gear' or category=='catalog') and (item.classID==2 or item.classID==4) or category=='bags' and item.classID==1 or category=='materials' and item.classID==7 or category=='recipes' and item.classID==9 or category=='consumables' and item.classID==0)
-  if matches and (category=='catalog' or category=='gear') then matches=matchesGearType(item,options.gearType) end
-  if matches and category=='gear' and not self:RecommendationStaticFits(item,iid,scope) then matches=false end
+  matches=matches and (not category or category=='all' or category=='pets' and rank==50 or category=='rare' and item.quality==3 or category=='epic' and item.quality>=4 and item.quality<=5 or category=='useful' and self:UsefulItem(iid) or (personal or category=='catalog') and (item.classID==2 or item.classID==4) or category=='bags' and item.classID==1 or category=='materials' and item.classID==7 or category=='recipes' and item.classID==9 or category=='consumables' and item.classID==0)
+  if matches and (category=='catalog' or personal) then matches=matchesGearType(item,options.gearType) and (not options.slot or self:GearSlot(item)==options.slot) end
+  if matches and personal and not self:RecommendationStaticFits(item,iid,scope,options.known,category=='upgrades' or options.level) then matches=false end
   if matches and category~='catalog' and not (category=='all' and query~='') and (self.db.classOnly or self.db.specOnly) and not self:ClassFits(item,iid,false,true) then matches=false end
-  if matches and options.known and not self:HasMappableSource(iid) then matches=false end
+  if matches and options.known and not personal and not self:HasMappableSource(iid) then matches=false end
   if matches and options.recent and not recent[iid] then matches=false end
   if matches and options.level and not (category=='all' and exact) then
-   if category=='catalog' or category=='gear' or category=='all' and query~='' then
+   if category=='catalog' or personal or category=='all' and query~='' then
     matches=(item.level or 0)<=UnitLevel('player')
    else
     matches=self:AtlasLevelFits(item)
    end
   end
   if matches and relevant then matches=matches and self:ClassFits(item,iid,true) and (item.level==nil or item.level<=UnitLevel('player')) end
-  if matches and scope and scope~='all' and scope~='recent' then
+  if matches and not personal and scope and scope~='all' and scope~='recent' then
    matches=false
    for _,source in ipairs(sources) do
     local mob=self.mobs[source.npcID]
@@ -207,12 +277,13 @@ function A:FindItems(query,category,scope,relevant,options)
  table.sort(results,function(a,b)
   local ai,bi=self.items[a],self.items[b]
   local ak,bk=self:HasKnownSource(a),self:HasKnownSource(b);if ak~=bk then return ak end
-  if category=='all' or category=='gear' or category=='catalog' or category=='useful' then
+  if category=='all' or personal or category=='catalog' or category=='useful' then
    local ag,bg=(ai.classID==2 or ai.classID==4),(bi.classID==2 or bi.classID==4);if ag~=bg then return ag end
    local ad,bd=math.abs((ai.level or 0)-UnitLevel('player')),math.abs((bi.level or 0)-UnitLevel('player'));if ad~=bd then return ad<bd end
-  end;if (category=='gear' or category=='catalog' or category=='useful' or category=='rare' or category=='epic') and ai.quality~=bi.quality then return ai.quality>bi.quality end
+  end;if (personal or category=='catalog' or category=='useful' or category=='rare' or category=='epic') and ai.quality~=bi.quality then return ai.quality>bi.quality end
   if ai.name~=bi.name then return ai.name<bi.name end;return a<b
  end)
+ if category=='gear' and not options.slot and query=='' then return self:BalanceGearSlots(results) end
  return results
 end
 function A:AtlasSources(iid,scope)
@@ -230,6 +301,18 @@ function A:AtlasSources(iid,scope)
   if kind=='quest' then for _,giver in ipairs(source.givers or {}) do for _,p in ipairs(giver.points or {}) do points[#points+1]=p end end
   elseif kind=='object' then points=source.points or {} end
   local byMap={};for _,p in ipairs(points) do byMap[p[1]]=byMap[p[1]] or {};table.insert(byMap[p[1]],p) end
+  if kind=='crafted' and source.recipeID then
+   for _,recipeSource in ipairs(self.itemSources[source.recipeID] or {}) do
+    local entry=self:SourceEntry(recipeSource)
+    if entry[2]==5 or entry[2]==6 then
+     for _,loc in ipairs(self:SourceLocations(recipeSource.npcID)) do
+      if loc.kind=='spawn' and (not scope or scope=='all' or scope=='world') then
+       rows[#rows+1]={source=source,npcID=recipeSource.npcID,entry=entry,location=loc,recipeID=source.recipeID}
+      end
+     end
+    end
+   end
+  end
   if not next(byMap) then byMap[0]={} end
   for mapID,coords in pairs(byMap) do
    local quest=source.kind=='quest' and (self.dungeonQuests or {})[source.id]
@@ -294,13 +377,13 @@ function A:FocusSource(iid,npcID,mapID,location)
  self.db.enabled=true;self.dirty=true;self:Update();return true
 end
 -- Filters apply to browsing. A deliberate item/source selection is visible even if filters exclude it.
-function A:FocusedLoot(id)
- if self.focus and self.focus.itemID then
+function A:FocusedLoot(id,fullLoot)
+ if not fullLoot and self.focus and self.focus.itemID then
   for _,source in ipairs(self.itemSources[self.focus.itemID] or {}) do if source.npcID==id then
    local e=self:SourceEntry(source);local copy={};for i=1,8 do copy[i]=e[i] end;copy.alternatives=source.entries;return {copy}
   end end
  end
- return self:Loot(id,self.skills,nil,true,self.db.specialMobsOnly)
+ return self:Loot(id,self.skills,true,true,self.db.specialMobsOnly and not fullLoot)
 end
 
 function A:RememberItem(iid)
@@ -324,7 +407,7 @@ function A:ShowItemOnMap(iid)
  self.db.enabled=true;self.dirty=true;self:RememberItem(iid);self:Update();return true
 end
 function A:FocusAtlasSource(iid,row)
- if row.npcID then return self:FocusSource(iid,row.npcID,row.location.mapID,row.location) end
+ if row.npcID then return self:FocusSource(row.recipeID or iid,row.npcID,row.location.mapID,row.location) end
  if row.source.kind=='quest' and (self.dungeonQuests or {})[row.source.id] then return self:ShowQuestOnMap(row.source.id) end
  return self:FocusLocation(row.location.points,row.source.name,nil,row.source.kind)
 end
@@ -335,7 +418,7 @@ function A:HookItemSearch()
   local f=self.atlas
   if not f or not f:IsShown() or not f.search:HasFocus() or type(link)~='string' then return end
   local id=tonumber(link:match('item:(%d+)'));if not id then return end
-  f.category='all';f.gearType=nil;f.scope='all';f.selectedItem=nil;f.results=nil;f.page=1;f.search:SetText(tostring(id));self:RefreshAtlas()
+  f.category='all';f.gearType=nil;f.gearSlot=nil;f.scope='all';f.selectedItem=nil;f.results=nil;f.page=1;f.search:SetText(tostring(id));self:RefreshAtlas()
  end)
 end
 
@@ -379,6 +462,9 @@ function A:HasMappableSource(iid)
  end
  if not result then for _,s in ipairs((self.otherSources or {})[iid] or {}) do
   if #(s.points or {})>0 then result=true;break end
+  if s.kind=='crafted' and s.recipeID then
+   for _,row in ipairs(self:AtlasSources(iid,'all')) do if row.recipeID and row.location.mapID then result=true;break end end
+  end
   for _,g in ipairs(s.givers or {}) do if #(g.points or {})>0 then result=true;break end end
   if result then break end
  end end

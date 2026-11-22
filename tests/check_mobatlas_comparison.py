@@ -24,6 +24,26 @@ A.comparisonStats=nil;assert(A:CompareItem(999801).state=='better','legacy stats
 MOCK.items[999806]={loc='INVTYPE_WEAPON',level=10,class=2,stats={ITEM_MOD_AGILITY_SHORT=8}};A.items[999806]={classID=2,subclass=15,name='Dagger'};MOCK.items[999807]={loc='INVTYPE_WEAPON',level=10,class=2,stats={ITEM_MOD_AGILITY_SHORT=3}};MOCK.equipped[16]=999807
 assert(A:CompareItem(999806).state=='unknown','no weapon upgrade claim without DPS')
 MOCK.equipped[17]=999802;assert(A:CompareItem(999806).text:find('комплекта'),'dual wield requires paired comparison')
+MOCK.equipped[11]=nil;MOCK.equipped[12]=999804
+assert(A:CompareItem(999804).state=='same','second ring already worn despite empty first slot')
+local originalInventoryLink=GetInventoryItemLink
+function GetInventoryItemLink(unit,slot) if slot==12 then return 'item:999804:0:0:0:0:0:-4' end return originalInventoryLink(unit,slot) end
+assert(A:CompareItem(999804).text:find('вариант'),'an equipped variant is not an empty-slot upgrade')
+GetInventoryItemLink=originalInventoryLink
+MOCK.class='PRIEST';A.db.specOnly=false;A:RefreshGearProfile()
+local function weapon(id,loc,sub,stats)
+ MOCK.items[id]={loc=loc,level=10,class=2,subclass=sub,stats=stats};A.items[id]={classID=2,subclass=sub,name='Test weapon'}
+end
+weapon(999810,'INVTYPE_2HWEAPON',10,{ITEM_MOD_STAMINA_SHORT=5})
+weapon(999811,'INVTYPE_2HWEAPON',10,{ITEM_MOD_INTELLECT_SHORT=8})
+weapon(999812,'INVTYPE_RANGEDRIGHT',19,{ITEM_MOD_DAMAGE_PER_SECOND_SHORT=12})
+weapon(999813,'INVTYPE_RANGEDRIGHT',19,{ITEM_MOD_DAMAGE_PER_SECOND_SHORT=20})
+MOCK.items[999814]={loc='INVTYPE_HOLDABLE',level=10,class=4,subclass=0,stats={ITEM_MOD_INTELLECT_SHORT=5}}
+A.items[999814]={classID=4,subclass=0,name='Orb'}
+MOCK.equipped[16]=999810;MOCK.equipped[17]=nil;MOCK.equipped[18]=999812
+assert(A:CompareItem(999811).state=='better','caster staff compares caster stats without melee DPS')
+assert(A:CompareItem(999813).state=='better','wand compares against wand while a staff is equipped')
+assert(A:CompareItem(999814).state=='unknown','offhand with two-handed staff is not an empty slot upgrade')
 A.BuildAtlasIndex=function() error('comparison must not rebuild atlas') end;A:CompareItem(999801)
 print('PASS comparison: worn slots, weaker ring, required level, exact links, unknown stats, legacy output-table API, weapon DPS/paired guards, no full indexing')
 ''')

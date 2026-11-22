@@ -7,6 +7,20 @@ for n in (r/'MobAtlas/MobAtlas.toc').read_text().splitlines():
  if n.endswith('.lua'):load((r/'MobAtlas'/n).read_text(),a)
 l.execute('''
 local A=MobAtlas;A:Init();MOCK.playerLevel=25;A.db.specOnly=true;A.db.classOnly=true;A.db.gearSpec=3;A:RefreshGearProfile()
+-- Reproduce the priest screenshot against shipped data with cold item metadata.
+MOCK.class='PRIEST';MOCK.playerLevel=26;A.db.specOnly=false;A:RefreshGearProfile()
+local heads=A:FindItems('','gear','all',nil,{slot='head',level=true})
+local found={};for _,id in ipairs(heads) do found[id]=true end
+assert(#heads>20 and found[253955] and found[253981],'both crafted circlets appear with no item cache')
+assert(#A:FindItems('','gear','all',nil,{slot='wand',level=true})>10,'wands have their own slot')
+local recipe
+for _,row in ipairs(A:AtlasSources(253955,'all')) do if row.recipeID==253956 and row.npcID==256735 then recipe=row end end
+assert(recipe and recipe.location.mapID==1433 and recipe.source.skill==125,'recipe offers mapped Redridge vendor and known required skill')
+assert(A:HasAccessibleAtlasSource(253955,'all',true),'craft is browseable with map filter')
+assert(A:HasAccessibleAtlasSource(253981,'all',false) and not A:HasAccessibleAtlasSource(253981,'all',true),'unmapped craft respects map checkbox')
+local gear=A:FindItems('','gear','all',nil,{level=true});local slots={}
+for i=1,8 do local slot=A:GearSlot(A.items[gear[i]]) or 'other';assert(not slots[slot],'first page is spread across slots');slots[slot]=true end
+MOCK.class='ROGUE';MOCK.playerLevel=25;A.db.specOnly=true;A:RefreshGearProfile()
 A.itemSources={};A.searchTerms={};A.mappableItems={};A.accessibleAtlasSources={}
 A.mobs[999800]={name='Test mob',min=24,max=25,points={{1429,30,40}},loot={}}
 A.mobs[999801]={name='Enemy vendor',vendor=true,friendly='H',points={{1429,40,40}},stock={}}
@@ -22,21 +36,24 @@ add(999909,0,2,25);MOCK.items[999909].stats={}
 MOCK.items[999900]={name='Worn',class=4,subclass=2,loc='INVTYPE_CHEST',quality=2,level=20,stats={ITEM_MOD_AGILITY_SHORT=5}}
 MOCK.equipped[5]=999900;function GetInventoryItemLink(_,slot) local id=MOCK.equipped[slot];return id and 'item:'..id end
 C_Item.GetItemInfo=function(id) if type(id)=='string' then id=tonumber(id:match('item:(%d+)')) end;local d=MOCK.items[id];if not d then return end;return d.name,'item:'..id,d.quality,30,d.level,'Armor','Leather',1,d.loc,134400,1,d.class,d.subclass end
-A:OpenAtlas();for i=1,4 do A:RefreshAtlas() end
+A:OpenAtlas()
+assert(A.atlas.category=='gear' and #A.atlas.results>0,'class catalog defaults on')
+local f=A.atlas
+f.category='upgrades';f.results=nil
+for i=1,4 do A:RefreshAtlas() end
 assert(#A.atlas.rows==8,'eight item rows')
-assert(A.atlas.category=='gear' and #A.atlas.results>0,'personal mode defaults on')
 local visible={};for _,row in ipairs(A.atlas.rows) do if row:IsShown() then visible[row.itemID]=true end end
 assert(visible[999901],'confirmed upgrade visible')
 for _,id in ipairs({999902,999903,999904,999905,999906,999907,999908,999909}) do assert(not visible[id],'exclude bad candidate '..id) end
 A.events.scripts.OnEvent(A.events,'ITEM_DATA_LOAD_RESULT',999901,true);A:RefreshAtlas();local retained=false;for _,row in ipairs(A.atlas.rows) do if row:IsShown() and row.itemID==999901 then retained=true end end;assert(retained,'loading another item never clears confirmed recommendations')
-C_TooltipInfo={GetHyperlink=function() return {lines={{leftText='Requires Test Faction - Exalted',leftColor={r=1,g=0,b=0}}}} end};A.atlasRequirementCache=nil;A:RefreshAtlas();local blocked=true;for _,row in ipairs(A.atlas.rows) do if row:IsShown() and row.itemID==999901 then blocked=false end end;assert(blocked,'red client reputation requirement blocks recommendation');C_TooltipInfo=nil;A.atlasRequirementCache=nil
+C_TooltipInfo={GetHyperlink=function() return {lines={{leftText='Requires Test Faction - Exalted',leftColor={r=1,g=0,b=0}}}} end};A.events.scripts.OnEvent(A.events,'UPDATE_FACTION');A:RefreshAtlas();local blocked=true;for _,row in ipairs(A.atlas.rows) do if row:IsShown() and row.itemID==999901 then blocked=false end end;assert(blocked,'red client reputation requirement blocks recommendation');C_TooltipInfo=nil;A.atlasRequirementCache=nil
 assert(A.atlas.recommendScan.limit<=128,'bounded validation batch')
 local description=A:AtlasSourceDescription({entry={999901,6,-1,false,12345,2,-1,false},location={mapID=1429}})
 assert(description:find('Купить за') and description:find('1з 23с 45м'),'observed buy price rendered')
 assert(A:AtlasSourceDescription({entry={999901,5,-1},location={mapID=1429}}):find('неизвестна'),'reference vendor never invents a price')
 assert(A:AtlasSourceDescription({entry={999901,1,12.5},location={mapID=1429}}):find('12.5',1,true),'drop rate rendered')
 -- Catalog material filtering works across classes and includes useful low-level gear.
-MOCK.class='PRIEST';A:RefreshGearProfile()
+MOCK.class='PRIEST';A.db.gearSpec=2;A:RefreshGearProfile()
 A.items[999901].subclass=1;A.items[999901].level=8
 MOCK.items[999901].subclass=1;MOCK.items[999901].level=8;MOCK.items[999901].stats={ITEM_MOD_SPELL_HEALING_DONE_SHORT=20}
 A.comparisonInfo=nil;A.comparisonStats=nil;A.gearStatCache=nil
@@ -51,5 +68,9 @@ MOCK.items[999901].stats={ITEM_MOD_SPELL_HEALING_DONE_SHORT=20}
 MOCK.items[999900].stats={ITEM_MOD_INTELLECT_SHORT=3}
 A.comparisonStats=nil;A.gearStatCache=nil
 assert(A:CompareItem(999901).state=='better','classic healing bonus counts for priest')
+A.db.gearSpec=3;A:RefreshGearProfile()
+assert(A:CompareItem(999901).state~='better','shadow priest does not receive a damage upgrade from healing-only stats')
+A.db.specOnly=false
+assert(A:CompareItem(999901).state=='better','disabling spec uses general priest priorities')
 print('PASS personal recommendations: client-confirmed upgrade, weaker/grey/future/unavailable/caster/wand/enemy-vendor rejection, eight rows, bounded work, actual buy price and drop rate')
 ''')

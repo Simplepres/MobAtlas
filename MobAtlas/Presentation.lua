@@ -88,9 +88,10 @@ function A:IsInspectionTracked(pin)
  return true
 end
 
-function A:LayoutLootCard(pin,count,pages,multiple)
+function A:LayoutLootCard(pin,count,pages,multiple,lootMode)
  local t=self.tip;local y=58+count*40;local paged=pages>1;local actionY=y+(paged and 43 or 13)
- t:SetHeight(actionY+39);t.footerLine:ClearAllPoints();t.footerLine:SetPoint('TOPLEFT',12,-y-4)
+ t.lootMode:ClearAllPoints();t.lootMode:SetPoint('TOPLEFT',14,-actionY-32);t.lootMode:SetShown(lootMode==true)
+ t:SetHeight(actionY+(lootMode and 71 or 39));t.footerLine:ClearAllPoints();t.footerLine:SetPoint('TOPLEFT',12,-y-4)
  t.prev:ClearAllPoints();t.prev:SetPoint('TOPLEFT',14,-y-9);t.prev:SetShown(paged)
  t.next:ClearAllPoints();t.next:SetPoint('TOPLEFT',251,-y-9);t.next:SetShown(paged)
  t.pageText:ClearAllPoints();t.pageText:SetPoint('TOPLEFT',55,-y-15);t.pageText:SetWidth(190);t.pageText:SetText(paged and (pin.page..' / '..pages) or '');t.pageText:SetShown(paged)

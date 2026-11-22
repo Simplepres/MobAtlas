@@ -96,6 +96,10 @@ function A:CreateLootCard()
  t.footerLine=t:CreateTexture(nil,'ARTWORK');t.footerLine:SetColorTexture(.75,.61,.3,.20);t.footerLine:SetSize(276,1)
  t.close=CreateFrame('Button',nil,t,'UIPanelCloseButton');t.close:SetPoint('TOPRIGHT',-3,-3);t.close:SetScript('OnClick',function() self:CloseInspection() end)
  t.unpin=button(t,'Открепить',164,-300,122,function() local pin=self.inspectPin or self.hoverPin;if self:IsInspectionTracked(pin) then self:ClearFocus(true,true) else self:PinInspection() end end);t.unpin:Hide()
+ t.lootMode=button(t,'Вся добыча',14,-300,272,function()
+  local pin=self.inspectPin or self.hoverPin
+  if pin then self:FreezeInspection(pin);self.inspectPin=pin;pin.fullLoot=not pin.fullLoot;pin.page=1;self:ShowTooltip(pin,true) end
+ end);t.lootMode:Hide()
  t.rows={}
  for i=1,7 do
   local r=CreateFrame('Button',nil,t);r:SetPoint('TOPLEFT',12,-58-(i-1)*40);r:SetSize(276,39)
@@ -113,7 +117,7 @@ function A:CreateLootCard()
   r:SetScript('OnClick',function(b)
    local p=self.inspectPin or self.hoverPin;if not p then return end
    self:FreezeInspection(p);self.inspectPin=p
-   if b.npcIndex then p.mobIndex=b.npcIndex;p.selected=true;p.page=1;GameTooltip:Hide();self:ShowTooltip(p,true);if self.PreviewMobHabitat then self:PreviewMobHabitat(p) end
+   if b.npcIndex then p.mobIndex=b.npcIndex;p.selected=true;p.page=1;p.fullLoot=nil;GameTooltip:Hide();self:ShowTooltip(p,true);if self.PreviewMobHabitat then self:PreviewMobHabitat(p) end
    elseif b.itemID then GameTooltip:SetOwner(b,'ANCHOR_RIGHT');GameTooltip:SetHyperlink('item:'..b.itemID);self:ItemEvidence(GameTooltip,b.entry);GameTooltip:Show() end
   end)
   t.rows[i]=r
@@ -135,14 +139,16 @@ function A:ShowTooltip(pin,force)
  self.hoverPin=pin
 
  if #pin.cell.ids>1 and not pin.selected then self:ShowGroupTooltip(pin);return end
- local t=self.tip;local id=pin.cell.ids[pin.mobIndex or 1];local mob=self.mobs[id];local rows=self:FocusedLoot(id)
+ local t=self.tip;local id=pin.cell.ids[pin.mobIndex or 1];local mob=self.mobs[id];local exact=self.focus and self.focus.itemID
+ local limited=not mob.vendor and (self.db.specialMobsOnly or exact~=nil)
+ local rows=self:FocusedLoot(id,pin.fullLoot)
  local n=self.db.visibleItems;local pages=math.max(1,math.ceil(#rows/n));pin.page=math.min(math.max(1,pin.page or 1),pages);pin.pages=pages
  self:AnchorInspection(pin)
  local shown=math.min(n,math.max(0,#rows-(pin.page-1)*n));local multiple=#pin.cell.ids>1
 
  t.title:SetText(mob.name);t.title:SetWordWrap(false);self:SetNpcPortrait(t.portrait,id)
  t.subtitle:SetText(pin.cell.dungeon and ('Вход: '..self.instances[pin.cell.dungeon].name) or mob.vendor and 'Торговец · экипировка, сумки, ремесло' or ((mob.min>0 and ('Ур. '..mob.min..'–'..mob.max..' · ') or '')..self:CreatureKind(mob)))
- if #rows==0 then t.subtitle:SetText(not mob.vendor and #(mob.loot or {})==0 and 'Добыча пока неизвестна.' or (self.db.specialMobsOnly and not mob.vendor and 'Нет редкой добычи по фильтрам' or 'Нет вещей по текущим фильтрам')) end
+ if #rows==0 then t.subtitle:SetText(not mob.vendor and #(mob.loot or {})==0 and 'Добыча пока неизвестна.' or (limited and not pin.fullLoot and 'Нет редкой добычи по фильтрам' or 'Нет вещей по текущим фильтрам')) end
  for i,r in ipairs(t.rows) do
   local e=i<=n and rows[(pin.page-1)*n+i] or nil;r:SetShown(e~=nil);r.itemID=e and e[1] or nil;r.npcID=nil;r.npcIndex=nil;r.rarityBorder:SetShown(e~=nil)
   r.special=nil;r.hover:Hide();r.arrow:Hide()
@@ -153,12 +159,13 @@ function A:ShowTooltip(pin,force)
    local specialRank,specialName=self:SpecialRank(e[1]);local first=specialRank>0
    for j=1,(pin.page-1)*n+i-1 do if self:SpecialRank(rows[j][1])==specialRank then first=false;break end end
    r.special=first and specialName or nil;r.tint:SetColorTexture(c[1],c[2],c[3],first and .14 or 0)
-   r.meta:SetText((e[2]==5 and 'У продавца' or (e[3]<0 and not e[4] and e[2]~=8 and e[2]~=14 and 'Шанс не измерен' or self:Chance(e)))..(e[2]==2 and ' · шкуры' or e[2]==3 and ' · кража' or ''))
+   r.meta:SetText((e[4] and 'Общий / условный · справочник' or e[2]==5 and 'У продавца' or (e[3]<0 and not e[4] and e[2]~=8 and e[2]~=14 and 'Шанс не измерен' or self:Chance(e)))..(e[2]==2 and ' · шкуры' or e[2]==3 and ' · кража' or ''))
    r.meta:SetWordWrap(false);r.entry=e
   end
  end
+ t.lootMode:SetText(pin.fullLoot and (exact and 'Выбранный предмет' or 'Редкая добыча') or 'Вся добыча')
  t.mobNext:SetText(pin.cell.vendor and 'К торговцам' or 'К группе мобов')
- self:LayoutLootCard(pin,shown,pages,#pin.cell.ids>1);t:Show()
+ self:LayoutLootCard(pin,shown,pages,#pin.cell.ids>1,limited);t:Show()
 end
 function A:CreateMinimapButton()
  if not Minimap then return end
@@ -185,7 +192,7 @@ function A:UnitLootTooltip(tooltip)
   local e=rows[i];local item=self.items[e[1]];local name,icon=self:ItemDisplay(e[1]);local c=colors[item.quality] or {1,.8,.4}
   self:AddTooltipLine(tooltip,'|T'..icon..':18|t '..name..' · '..self:Chance(e),unpack(c))
  end
- if #rows>self.db.visibleItems then self:AddTooltipLine(tooltip,'Показано: '..self.db.visibleItems..' из '..#rows..' · остальное в карточке на карте.',.7,.75,.7) end
+ if #rows>self.db.visibleItems then self:AddTooltipLine(tooltip,'Показано: '..self.db.visibleItems..' из '..#rows..(self.db.specialMobsOnly and not self.mobs[id].vendor and ' · на карте: «Вся добыча».' or ' · остальное в карточке на карте.'),.7,.75,.7) end
  self:AddTooltipLine(tooltip,'Everloot · CC BY-SA 4.0; Classic — справка',.7,.7,.7)
  tooltip:Show()
 end
@@ -262,7 +269,7 @@ function A:Update()
   self.specialMapCheck:SetPoint('BOTTOMLEFT',map,'BOTTOMLEFT',188,31)
   self.specialMapCheck:SetScript('OnEnter',function(control)
    GameTooltip:SetOwner(control,'ANCHOR_RIGHT')
-   self:AddTooltipLine(GameTooltip,'Синие вещи и выше или питомцы. Карточка показывает только редкую добычу.',1,.85,.55)
+   self:AddTooltipLine(GameTooltip,'Метки показывают мобов с редкой добычей. В карточке видны также синие вещи и выше из общих пулов.',1,.85,.55)
    GameTooltip:Show()
   end)
   self.specialMapCheck:SetScript('OnLeave',function() GameTooltip:Hide() end)
@@ -314,7 +321,7 @@ function A:Update()
    self.pins[i]=pin
   end
   pin:SetParent(canvas);pin:SetFrameLevel(pinLevel);pin:SetFrameStrata(pinStrata);pin:SetScale(pinScale);pin.dot:SetSize(16,16)
-  pin.cell=cell;pin.page=1;pin.mobIndex=1;pin.selected=false;self:StyleGroupPin(pin)
+  pin.cell=cell;pin.page=1;pin.mobIndex=1;pin.selected=false;pin.fullLoot=nil;self:StyleGroupPin(pin)
   pin:ClearAllPoints();pin:SetPoint('CENTER',canvas,'TOPLEFT',width*cell.x/100/pinScale,-height*cell.y/100/pinScale);pin:Show()
  end
  self.dirty=false;if self.focus then self:RenderFocus() end
@@ -573,6 +580,10 @@ function A:SelectAtlasItem(iid)
  local f=self.atlas;self:RememberItem(iid);f.selectedItem=iid;f.sourcePage=1;f.sourceCache=nil;f.previewSource=nil;self:RefreshAtlas()
 end
 function A:AtlasSourceDescription(source)
+ if source.recipeID then
+  local recipe=self:ItemDisplay(source.recipeID)
+  return 'Рецепт: '..recipe..(source.source.skill and (' · навык '..source.source.skill) or '')..(source.location.mapID and '' or ' · нет координат')
+ end
  local method=source.entry[2];local detail
    if method==5 or method==6 then
     if method==6 and source.entry[8] then detail='Купить: нужна специальная валюта'
@@ -581,7 +592,7 @@ function A:AtlasSourceDescription(source)
      detail='Купить за '..money..((source.entry[6] or 1)>1 and (' · за '..source.entry[6]..' шт.') or '')
     else detail='Купить: цена ещё неизвестна' end
    elseif method==10 then detail='Награда за задание'
-   elseif method==11 then detail='Изготовление: нужен рецепт и навык'
+   elseif method==11 then detail='Изготовление: '..source.source.name..(source.source.skill and (' · навык '..source.source.skill) or '')
    else detail=(method==2 and 'Шкуры: ' or method==3 and 'Карманная кража: ' or 'Дроп: ')..self:Chance(source.entry) end
  if not source.location.mapID then detail=detail..' · нет координат' elseif source.location.kind=='entrance' then detail=detail..' · карта входа' end
  return detail
@@ -590,6 +601,7 @@ function A:CreateAtlasSourcePane(f)
  f.sourceTitle=label(f,'Где взять предмет',456,-20,330,15,{1,.85,.6})
  f.sourceMeta=label(f,'Выбери вещь слева',456,-49,360,11,{.8,.8,.72})
  f.sourceCompare=label(f,'',456,-75,390,10,{.7,.8,.7});f.sourceCompare:SetWordWrap(true)
+ f.sourceBaseline=label(f,'',456,-102,402,10,{.75,.72,.65});f.sourceBaseline:SetWordWrap(false)
  f.sourceReset=button(f,'Снять выбор',756,-48,105,function() f.selectedItem=nil;f.sourceCache=nil;self:RefreshAtlas() end);f.sourceReset:Hide()
  f.sourceHeading=label(f,'Источники по локациям',456,-119,290,12,{1,.84,.56})
  self:CreateAtlasPreview(f)
@@ -618,14 +630,18 @@ function A:RefreshAtlasSources()
  local f=self.atlas;local iid=f.selectedItem;local selected=iid and self.items[iid]
  f.sourceReset:SetShown(selected~=nil)
  if not selected then
-  f.sourceTitle:SetText('Где взять предмет');f.sourceMeta:SetText('Выбери вещь слева');f.sourceCompare:SetText('Список останется на месте. Здесь появятся мобы, продавцы и задания.');f.sourceStatus:SetText('Метки на карте — только для известных координат.');f.sourcePager:SetText('')
+  f.sourceTitle:SetText('Сравнение и источники');f.sourceMeta:SetText('Выбери предмет слева');f.sourceCompare:SetText('Здесь появятся сравнение с экипировкой и способы получения.');f.sourceBaseline:SetText('');f.sourceStatus:SetText('');f.sourcePager:SetText('')
   self:PreviewAtlasSource(nil);for _,row in ipairs(f.sourceRows) do row:Hide() end;f.sourcePrev:Hide();f.sourceNext:Hide();return
  end
  f.sourceTitle:SetText(self:ItemDisplay(iid));f.sourceTitle:SetWordWrap(false)
  local comparison=self:CompareItem(iid);f.sourceCompare:SetText(comparison and comparison.text or '')
+ local worn=comparison and comparison.slot and self:Safe(GetInventoryItemLink,'player',comparison.slot)
+ local baseline=worn and self:ComparisonInfo(worn)
+ f.sourceBaseline:SetText(baseline and comparison.delta~=nil and ('Надето: '..baseline.name) or '')
+
  local key=tostring(iid)..':'..f.scope..':'..f.category..':'..tostring(f.knownOnly)
  if not f.sourceCache or f.sourceCacheKey~=key then
-  local sources=self:AtlasSources(iid,f.scope);if f.knownOnly or f.category=='gear' then local mapped={};for _,source in ipairs(sources) do if (not f.knownOnly or source.location.mapID) and (f.category~='gear' or self:AtlasSourceAccessible(source)) then mapped[#mapped+1]=source end end;sources=mapped end;local current=self:Safe(C_Map and C_Map.GetBestMapForUnit,'player')
+  local sources=self:AtlasSources(iid,f.scope);if f.knownOnly or (f.category=='gear' or f.category=='upgrades') then local mapped={};for _,source in ipairs(sources) do if (not f.knownOnly or source.location.mapID) and (f.category~='gear' and f.category~='upgrades' or self:AtlasSourceAccessible(source)) then mapped[#mapped+1]=source end end;sources=mapped end;local current=self:Safe(C_Map and C_Map.GetBestMapForUnit,'player')
   for _,source in ipairs(sources) do source.group=(source.location.kind=='entrance' and 'Подземелье: ' or '')..source.location.name end
   table.sort(sources,function(a,b)
    local aMap,bMap=a.location.mapID~=nil,b.location.mapID~=nil;if aMap~=bMap then return aMap end
@@ -637,9 +653,9 @@ function A:RefreshAtlasSources()
   end)
   f.sourceCache=sources;f.sourceCacheKey=key
  end
- local sources=f.sourceCache;local groups={};for _,source in ipairs(sources) do groups[source.group]=true end
+ local sources=f.sourceCache;local groups={};for _,source in ipairs(sources) do if source.location.mapID then groups[source.location.mapID]=true end end
  local n=0;for _ in pairs(groups) do n=n+1 end
- f.sourceMeta:SetText('Источников: '..#sources..' · локаций: '..n)
+ f.sourceMeta:SetText('Источников: '..#sources..' · зон на карте: '..n)
  local pages=math.max(1,math.ceil(#sources/3));f.sourcePage=math.max(1,math.min(f.sourcePage or 1,pages));local previous
  for i,row in ipairs(f.sourceRows) do
   local source=sources[(f.sourcePage-1)*3+i];row.value=source;row:SetShown(source~=nil)
@@ -654,7 +670,7 @@ function A:RefreshAtlasSources()
  f.sourcePrev:Show();f.sourceNext:Show();if f.sourcePage>1 then f.sourcePrev:Enable() else f.sourcePrev:Disable() end;if f.sourcePage<pages then f.sourceNext:Enable() else f.sourceNext:Disable() end;f.sourcePager:SetText(f.sourcePage..' / '..pages)
  if not f.previewSource then for _,source in ipairs(sources) do if source.location.mapID then f.previewSource=source;break end end end
  self:PreviewAtlasSource(f.previewSource)
- if #sources==0 then f.sourceStatus:SetText('Нет источников с координатами по этим фильтрам.') end
+ if #sources==0 then f.sourceStatus:SetText(f.knownOnly and 'Нет точек по этим фильтрам.' or 'Нет источников по этим фильтрам.') end
 end
 
 function A:CreateAtlas()
@@ -668,7 +684,7 @@ function A:CreateAtlas()
  local function search()
   local query=self:SearchText(f.search:GetText())
   if query:match('^%d+$') or query:match('item:%d+') then
-   f.category='all';f.gearType=nil;f.scope='all';f.myLevel=false;f.knownOnly=false
+   f.category='all';f.gearType=nil;f.gearSlot=nil;f.scope='all';f.myLevel=false;f.knownOnly=false
   end
   f.selectedItem=nil
   f.previewSource=nil
@@ -689,7 +705,7 @@ function A:CreateAtlas()
   local mode=choice[1];button(f.languageMenu,choice[2],6,-6-(i-1)*29,138,function() f.languageMenu:Hide();self:SetLanguage(mode) end)
  end
  f.languageMenu:Hide()
- f.languageButton=button(f,'',225,-10,68,function() self.specMenu:Hide();f.gearMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:SetShown(not f.languageMenu:IsShown()) end)
+ f.languageButton=button(f,'',225,-10,68,function() self.specMenu:Hide();f.slotMenu:Hide();f.gearMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:SetShown(not f.languageMenu:IsShown()) end)
  f.languageButton:SetText(self.db.language=='ruRU' and 'RU v' or self.db.language=='enUS' and 'EN v' or 'Auto v')
  f.languageButton:SetScript('OnEnter',function(b) GameTooltip:SetOwner(b,'ANCHOR_RIGHT');self:AddTooltipLine(GameTooltip,'Язык интерфейса');self:AddTooltipLine(GameTooltip,'Авто: по языку WoW. Другие языки используют English.');GameTooltip:Show() end)
  f.languageButton:SetScript('OnLeave',function() GameTooltip:Hide() end)
@@ -702,7 +718,7 @@ function A:CreateAtlas()
  end)
  f.myLevelCheck:SetScript('OnLeave',function() GameTooltip:Hide() end)
  f.knownCheck=check(f,'Есть место на карте',205,-76,220,function(v) f.knownOnly=v;search() end)
- local categories={{'all','Все предметы'},{'useful','Полезное мне сейчас'},{'gear','Для меня'},{'catalog','Вся экипировка'},{'bags','Сумки'},{'materials','Материалы профессий'},{'recipes','Рецепты'},{'consumables','Расходники'},{'pets','Питомцы'},{'rare','Редкие вещи'},{'epic','Эпические вещи'}}
+ local categories={{'all','Все предметы'},{'useful','Полезное мне сейчас'},{'gear','Для меня'},{'upgrades','Только улучшения'},{'catalog','Вся экипировка'},{'bags','Сумки'},{'materials','Материалы профессий'},{'recipes','Рецепты'},{'consumables','Расходники'},{'pets','Питомцы'},{'rare','Редкие вещи'},{'epic','Эпические вещи'}}
  f.categoryNames={};for _,v in ipairs(categories) do f.categoryNames[v[1]]=v[2] end
  f.categoryMenu=panel(nil,f,245,12+#categories*28);f.categoryMenu:SetPoint('TOPLEFT',16,-134);f.categoryMenu:SetFrameLevel(f:GetFrameLevel()+40);f.categoryMenu:EnableMouse(true)
  local gearTypes={{nil,'Все типы'},{'cloth','Ткань'},{'leather','Кожа'},{'mail','Кольчуга'},{'plate','Латы'},{'shield','Щиты'},{'accessory','Плащи и аксессуары'},{'weapon','Оружие'}}
@@ -718,6 +734,7 @@ function A:CreateAtlas()
   button(f.gearMenu,name,6,-6-i*28,233,function()
    f.category=f.gearMenuCategory
    f.gearType=kind
+   f.gearSlot=nil
    f.gearMenu:Hide()
    search()
   end)
@@ -725,7 +742,7 @@ function A:CreateAtlas()
  f.gearMenu:Hide()
  for i,choice in ipairs(categories) do
   local id,name=choice[1],choice[2]
-  local hasTypes=id=='catalog' or id=='gear'
+  local hasTypes=id=='catalog' or id=='gear' or id=='upgrades'
   button(f.categoryMenu,name..(hasTypes and '  ›' or ''),6,-6-(i-1)*28,233,function()
    f.categoryMenu:Hide()
    if hasTypes then
@@ -734,6 +751,7 @@ function A:CreateAtlas()
    else
     f.category=id
     f.gearType=nil
+    f.gearSlot=nil
     search()
    end
   end)
@@ -743,15 +761,15 @@ function A:CreateAtlas()
  for i,v in ipairs({{'all','Все источники'},{'world','Открытый мир'},{'dungeons','Данжи и рейды'},{'recent','Недавно выбраны'}}) do local id=v[1];button(f.scopeMenu,v[2],6,-6-(i-1)*28,189,function() f.scope=id;f.scopeMenu:Hide();f.results=nil;f.page=1;f.sourcePage=1;f.sourceCache=nil;f.previewSource=nil;self:RefreshAtlas() end) end
  f.scopeMenu:Hide()
  f.categoryButton=button(f,'',16,-104,158,function()
-  local open=f.categoryMenu:IsShown() or f.gearMenu:IsShown()
+  local open=f.categoryMenu:IsShown() or f.gearMenu:IsShown();f.slotMenu:Hide()
   f.gearMenu:Hide();self.specMenu:Hide();f.scopeMenu:Hide();f.categoryMenu:SetShown(not open)
  end)
  f.scopeButton=button(f,'',180,-104,112,function()
-  self.specMenu:Hide();f.gearMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:SetShown(not f.scopeMenu:IsShown())
+  self.specMenu:Hide();f.slotMenu:Hide();f.gearMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:SetShown(not f.scopeMenu:IsShown())
  end)
  f.specButton=button(f,'',298,-104,126,function()
   local menu=self.specMenu;local open=menu:IsShown() and menu:GetParent()==f
-  f.gearMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:Hide();GameTooltip:Hide()
+  f.gearMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:Hide();f.slotMenu:Hide();GameTooltip:Hide()
   menu:Hide();menu:SetParent(f);menu:ClearAllPoints();menu:SetPoint('TOPRIGHT',f.specButton,'BOTTOMRIGHT',0,-3);menu:SetFrameLevel(f:GetFrameLevel()+50);menu:SetShown(not open)
  end)
  self:SetClassIcon(f.specButton)
@@ -762,8 +780,25 @@ function A:CreateAtlas()
   self:AddTooltipLine(GameTooltip,'Подбор по классу, оружию и известным характеристикам.',.7,.75,.7);GameTooltip:Show()
  end)
  f.specButton:SetScript('OnLeave',function() GameTooltip:Hide() end)
- f.heading=label(f,'',17,-143,330,12,{1,.86,.56});f.heading:SetWordWrap(false)
- f.allItems=button(f,'Сброс',350,-137,74,function() f.category='all';f.gearType=nil;f.scope='all';f.myLevel=false;f.knownOnly=false;f.selectedItem=nil;f.sourceCache=nil;f.results=nil;f.page=1;self:RefreshAtlas() end)
+ f.heading=label(f,'',17,-143,178,12,{1,.86,.56});f.heading:SetWordWrap(false)
+ local slots={{false,'Все слоты'},{'head','Голова'},{'neck','Шея'},{'shoulder','Плечи'},{'cloak','Спина'},{'chest','Грудь'},{'wrist','Запястья'},{'hand','Кисти'},{'waist','Пояс'},{'legs','Ноги'},{'feet','Ступни'},{'finger','Кольца'},{'trinket','Аксессуары'},{'weapon','Оружие'},{'offhand','Левая рука'},{'wand','Жезлы'},{'ranged','Дальний бой'}}
+ f.gearSlotNames={}
+ f.slotMenu=panel(nil,f,296,12+math.ceil(#slots/2)*28)
+ f.slotMenu:SetPoint('TOPLEFT',128,-166);f.slotMenu:SetFrameLevel(f:GetFrameLevel()+44);f.slotMenu:EnableMouse(true)
+ for i,choice in ipairs(slots) do
+  local slot,name=choice[1],choice[2]
+  if slot then f.gearSlotNames[slot]=name end
+  button(f.slotMenu,name,6+((i-1)%2)*143,-6-math.floor((i-1)/2)*28,141,function()
+   f.gearSlot=slot or nil;f.slotMenu:Hide();search()
+  end)
+ end
+ f.slotMenu:Hide()
+ f.slotButton=button(f,'Все слоты  v',197,-137,145,function()
+  f.categoryMenu:Hide();f.gearMenu:Hide();f.languageMenu:Hide();f.scopeMenu:Hide();self.specMenu:Hide()
+  f.slotMenu:SetShown(not f.slotMenu:IsShown())
+ end)
+
+ f.allItems=button(f,'Сброс',350,-137,74,function() f.slotMenu:Hide();f.category='all';f.gearType=nil;f.gearSlot=nil;f.scope='all';f.myLevel=false;f.knownOnly=false;f.selectedItem=nil;f.sourceCache=nil;f.results=nil;f.page=1;self:RefreshAtlas() end)
  f.rows={}
  for i=1,8 do
   local r=CreateFrame('Button',nil,f,'BackdropTemplate');r:SetSize(408,48);r:SetPoint('TOPLEFT',16,-166-(i-1)*51)
@@ -789,6 +824,10 @@ function A:CreateAtlas()
   f.rows[i]=r
  end
  self:CreateAtlasSourcePane(f)
+ f.gearMode=button(f,'Улучшения',178,-631,117,function()
+  f.category=f.category=='gear' and 'upgrades' or 'gear'
+  search()
+ end)
  f.moreCandidates=button(f,'Проверить ещё',300,-631,124,function() local scan=f.recommendScan;if scan then scan.limit=math.min(#scan.list,scan.limit+128);self:RefreshAtlas() end end);f.moreCandidates:Hide()
  f.prev=button(f,'‹',16,-599,35,function() f.page=f.page-1;self:RefreshAtlas() end)
  f.next=button(f,'›',389,-599,35,function() f.page=f.page+1;self:RefreshAtlas() end)
@@ -797,7 +836,7 @@ function A:CreateAtlas()
  button(f,'Настройки',261,-599,118,function() f:Hide();self.settings:Show();self:RefreshSettings() end)
  f.status=label(f,'',17,-638,407,10,{.67,.72,.68})
  f:EnableMouseWheel(true);f:SetScript('OnMouseWheel',function(_,d) f.page=f.page-d;self:RefreshAtlas() end)
- f:SetScript('OnHide',function() GameTooltip:Hide();f.search:ClearFocus();f.gearMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:Hide();self.specMenu:Hide() end)
+ f:SetScript('OnHide',function() GameTooltip:Hide();f.search:ClearFocus();f.gearMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:Hide();f.slotMenu:Hide();self.specMenu:Hide() end)
  f:Hide()
 end
 function A:OpenAtlas(query)
@@ -805,7 +844,7 @@ function A:OpenAtlas(query)
  if not self.atlas then self:CreateAtlas() end
  self.settings:Hide();if self.tip then self.tip:Hide() end;if self.prep then self.prep:Hide() end
  local f=self.atlas
- if query then f.category='all';f.gearType=nil;f.scope='all';f.myLevel=false;f.knownOnly=false;f.search:SetText(query);f.selectedItem=nil;f.results=nil;f.page=1 end
+ if query then f.category='all';f.gearType=nil;f.gearSlot=nil;f.scope='all';f.myLevel=false;f.knownOnly=false;f.search:SetText(query);f.selectedItem=nil;f.results=nil;f.page=1 end
  self:RefreshAtlas();f:Show()
 end
 function A:RefreshAtlas()
@@ -813,13 +852,19 @@ function A:RefreshAtlas()
  f.specButton:SetText(not self.db.specOnly and 'Спек: откл.  v' or not self.db.gearSpec and (self.gearProfileSource=='class' and 'По классу  v' or self.gearProfile and 'Спек: авто  v' or 'Спек: ?  v') or self.gearProfile and (self.gearProfile[1]..'  v') or 'Спек: ?  v')
  f.allItems:Show();f.clearFocus:SetShown(self.focus~=nil);f.myLevelCheck:Show();f.knownCheck:Show();f.myLevelCheck:SetChecked(f.myLevel);f.knownCheck:SetChecked(f.knownOnly)
  f.showingRecent=f.scope=='recent';f.recentResults=f.showingRecent
- local function results() return self:FindItems(f.search:GetText(),f.category,f.scope,nil,{level=f.myLevel,known=f.knownOnly,recent=f.showingRecent,gearType=f.gearType}) end
+ local function results() return self:FindItems(f.search:GetText(),f.category,f.scope,nil,{level=f.myLevel,known=f.knownOnly,recent=f.showingRecent,gearType=f.gearType,slot=f.gearSlot}) end
  if not f.results then f.results=results() end
- local values=f.category=='gear' and self:PersonalRecommendations(f.results) or f.results;if f.category~='gear' then f.moreCandidates:Hide() end;local pages=math.max(1,math.ceil(#values/8));f.page=math.max(1,math.min(pages,f.page))
+ local values=f.category=='upgrades' and self:PersonalRecommendations(f.results) or f.results;if f.category~='upgrades' then f.moreCandidates:Hide() end;local pages=math.max(1,math.ceil(#values/8));f.page=math.max(1,math.min(pages,f.page))
  local changed=false
  for i=1,8 do local iid=values[(f.page-1)*8+i];if iid and self:HydrateAtlasItem(iid) then changed=true end end
- if changed then f.results=results();values=f.category=='gear' and self:PersonalRecommendations(f.results) or f.results;pages=math.max(1,math.ceil(#values/8));f.page=math.max(1,math.min(pages,f.page)) end
+ if changed then f.results=results();values=f.category=='upgrades' and self:PersonalRecommendations(f.results) or f.results;pages=math.max(1,math.ceil(#values/8));f.page=math.max(1,math.min(pages,f.page)) end
  f.heading:SetText((f.showingRecent and 'Недавно выбраны: ' or 'Найдено: ')..#values)
+ local personal=f.category=='gear' or f.category=='upgrades'
+ f.gearMode:SetShown(personal)
+ f.gearMode:SetText(f.category=='upgrades' and 'Для меня' or 'Улучшения')
+ local equipment=personal or f.category=='catalog'
+ f.slotButton:SetShown(equipment)
+ f.slotButton:SetText((f.gearSlotNames[f.gearSlot] or 'Все слоты')..'  v')
  f.categoryButton:SetText((f.gearTypeNames[f.gearType] or f.categoryNames[f.category] or 'Все предметы')..'  v')
  f.scopeButton:SetText((({all='Источники',world='Мир',dungeons='Данжи',recent='Недавние'})[f.scope] or 'Источники')..'  v')
  f.hint:SetText('');f.pager:SetText(f.page..' / '..pages)
@@ -831,15 +876,22 @@ function A:RefreshAtlas()
    r.title:SetText(name);r.title:SetTextColor(c[1],c[2],c[3])
    local _,special=self:SpecialRank(iid);local comparison=self:CompareItem(iid);r.detail:SetText(comparison and comparison.text or '')
    local better=comparison and (comparison.state=='better' or comparison.state=='empty');r.detail:SetTextColor(better and .35 or .72,better and .95 or .73,.62)
-   r.meta:SetText((special or qualities[item.quality] or 'Качество неизвестно')..(item.level and item.level>0 and (' · с '..item.level..' ур.') or '')..' · источников: '..(#self.itemSources[iid]+#((self.otherSources or {})[iid] or {})))
+   local slot=equipment and f.gearSlotNames[self:GearSlot(item)]
+   r.meta:SetText((slot and slot..' · ' or '')..(special or qualities[item.quality] or 'Качество неизвестно')..(item.level and item.level>0 and (' · с '..item.level..' ур.') or ''))
    r:SetBackdropColor(.42,.34,.24,iid==f.selectedItem and .35 or .12)
   end
  end
- if f.category=='gear' then
-  local scan=f.recommendScan;local pending=(f.recommendPending or 0)+(scan and math.max(0,scan.limit-scan.cursor+1) or 0)
-  f.status:SetWidth(f.moreCandidates:IsShown() and 278 or 407)
-  f.status:SetText(f.recommendNeedsProfile and 'Спек не определён. Выбери ветку в меню сверху.' or pending>0 and ('Проверяем кандидатов: '..pending) or #values==0 and 'Подтверждённых улучшений нет. Можно открыть каталог.' or 'Подтверждённые по оценке улучшения и пустые слоты.')
- else f.status:SetWidth(407);f.status:SetText(#values==0 and 'Ничего не найдено. Попробуй другой раздел или фильтр.' or 'Выбери вещь: источники появятся справа') end
+ if f.category=='upgrades' then
+  local scan=f.recommendScan
+  local checked=scan.cursor-1-(f.recommendPending or 0)
+  f.status:SetWidth(152)
+  if #scan.list==0 then f.status:SetText('Нет кандидатов') else
+   f.status:SetText('Проверено: '..checked..' / '..#scan.list..((f.recommendUnknown or 0)>0 and (' · без оценки: '..f.recommendUnknown) or ''))
+  end
+ else
+  f.status:SetWidth(personal and 152 or 407)
+  f.status:SetText(#values==0 and 'Ничего не найдено.' or personal and 'Доступные варианты' or 'Выбери вещь: источники появятся справа')
+ end
  self:RefreshAtlasSources()
 end
 

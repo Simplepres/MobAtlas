@@ -55,7 +55,7 @@
     "kb-items.json": "7b67435a9bfbbd393cc7cb9f8024720fd1969f0b311ebaae0f35817e9673fd72",
     "kb-meta.json": "2699b0a622efbbb20a31825eaf05b63875ecb8e43a8cb0dbcc60dd5ce45ffd94",
     "kb-quests.json": "c29988a03fa31e20e626a497a55ecc24e5a5f6475e86d7eaa66c1dc9a6554947",
-    "npc-overrides.json": "43549541f895c6b9fbb1568a4e70e7ef0ef63434ad686df9d1d2b2c5be417926"
+    "npc-overrides.json": "1ea49734cd38649bef4a2fff4701e586f4c95ebb80dea4f14714c7eca30be533"
   },
   "limits": "KB drop rates are Classic reference, not current Forever measurements. AHledger only item metadata; no invented spawn coordinates. Local testing build, third-party notices retained."
 }

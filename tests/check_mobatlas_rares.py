@@ -130,13 +130,36 @@ mob.loot={{262889,7,-1},{999703,1,50},{999702,7,-1},{999704,1,15},
  {999705,1,2},{999706,1,1},{999701,7,-1},{999707,1,-1,true}}
 A.db.sharedLoot=true;A.db.specialFirst=false;A.db.sort='chance'
 local list=A:FocusedLoot(999714)
-local expected={999704,999706,999705,999702,999701}
+local expected={999704,999707,999706,999705,999702,999701}
 assert(#list==#expected)
 for i,id in ipairs(expected) do assert(list[i][1]==id,'map card sorts by quality, known ascending chance, then unknown') end
 A.focus={itemID=262889,ids={[999714]=true}}
 A.itemSources[262889]={{npcID=999714,entries={mob.loot[1]}}}
 assert(A:FocusedLoot(999714)[1][1]==262889,'explicit item navigation remains available')
-A.focus=nil;A.db.specialMobsOnly=false
+A.focus=nil
+A.db.sharedLoot=true
+local mastiff=1258;local young=923
+assert(A.mobs[young].name=='Young Black Ravager' and A.mobs[mastiff].name=='Black Ravager Mastiff')
+A.db.sharedLoot=false
+local ravagerLoot=A:FocusedLoot(628)
+local sharedBlue,reported=false,false
+for _,e in ipairs(ravagerLoot) do
+ assert(A:SpecialRank(e[1])>0,'rare card shows blue or better and pets')
+ if e[4] and A.items[e[1]].quality>=3 then sharedBlue=true end
+ if e[1]==12992 then reported=true end
+end
+assert(sharedBlue and reported,'Black Ravager card includes the sword and shared blues with the shared-loot switch off')
+A.db.sharedLoot=true
+local full=A:FocusedLoot(mastiff,true)
+assert(#full>#A:FocusedLoot(mastiff),'map card can browse the same full loot as the unit tooltip')
+local hover=A:Loot(mastiff,A.skills,true,true)
+for i,e in ipairs(full) do assert(e[1]==hover[i][1],'full map order matches unit hover') end
+local card=CreateFrame('Button',nil,WorldMapFrame);card.cell={ids={mastiff}};card.selected=true;card.page=1
+A:ShowTooltip(card,true);assert(A.tip.lootMode:IsShown() and A.tip.lootMode:GetText()=='Вся добыча')
+A.tip.lootMode.scripts.OnClick();assert(card.fullLoot and card.pages>1)
+A.tip.lootMode.scripts.OnClick();assert(not card.fullLoot)
+A.tip:Hide()
+A.db.specialMobsOnly=false
 assert(#A:FocusedLoot(999714)==#mob.loot,'normal card restores the full list')
 A.db.sharedLoot=false;A.db.specialFirst=true
 -- Two visible spawns of one NPC must retain their own coordinates and frames.

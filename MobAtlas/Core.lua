@@ -1,6 +1,6 @@
 local _,A=...
 _G.MobAtlas=A
-A.version='0.7.13';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
+A.version='0.7.15';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
 A.profNames={[129]='Первая помощь',[164]='Кузнечное дело',[165]='Кожевничество',[171]='Алхимия',[185]='Кулинария',[197]='Портняжное дело',[202]='Инженерное дело',[333]='Наложение чар'}
 A.methods={[1]='Добыча',[2]='Снятие шкур',[3]='Карманная кража',[4]='Forever · способ не разделён',[5]='Продажа · справочник QuestieDB',[6]='Продажа · личное наблюдение',[7]='Добыча · справочник Forever',[8]='Личная находка · способ не определён',[9]='Classic · vMaNGOS через KB',[10]='Награда за задание',[11]='Изготовление',[12]='Сундук / объект · Classic',[13]='Содержимое предмета',[14]='Forever · сообщение игрока'}
 function A:Safe(fn,...)
@@ -23,13 +23,13 @@ end
 A.gearSpecs={
  ROGUE={{'Ликвидация','agility',true},{'Бой','agility'},{'Скрытность','agility',true}},
  WARRIOR={{'Оружие','strength'},{'Неистовство','strength'},{'Защита','strength'}},
- PALADIN={{'Свет','intellect'},{'Защита','strength'},{'Воздаяние','strength'}},
+ PALADIN={{'Свет','intellect',role='heal'},{'Защита','strength'},{'Воздаяние','strength'}},
  HUNTER={{'Повелитель зверей','agility'},{'Стрельба','agility'},{'Выживание','agility'}},
- PRIEST={{'Послушание','intellect'},{'Свет','intellect'},{'Тьма','intellect'}},
- SHAMAN={{'Стихии','intellect'},{'Совершенствование','agility'},{'Исцеление','intellect'}},
+ PRIEST={{'Послушание','intellect'},{'Свет','intellect',role='heal'},{'Тьма','intellect',role='spell'}},
+ SHAMAN={{'Стихии','intellect',role='spell'},{'Совершенствование','agility'},{'Исцеление','intellect',role='heal'}},
  MAGE={{'Тайная магия','intellect'},{'Огонь','intellect'},{'Лёд','intellect'}},
  WARLOCK={{'Колдовство','intellect'},{'Демонология','intellect'},{'Разрушение','intellect'}},
- DRUID={{'Баланс','intellect'},{'Сила зверя','agility'},{'Исцеление','intellect'}},
+ DRUID={{'Баланс','intellect',role='spell'},{'Сила зверя','agility'},{'Исцеление','intellect',role='heal'}},
  DEATHKNIGHT={{'Кровь','strength'},{'Лёд','strength'},{'Нечестивость','strength'}}}
 local specIDs={ [259]=1,[260]=2,[261]=3,[71]=1,[72]=2,[73]=3,[65]=1,[66]=2,[70]=3,[253]=1,[254]=2,[255]=3,[256]=1,[257]=2,[258]=3,[262]=1,[263]=2,[264]=3,[62]=1,[63]=2,[64]=3,[265]=1,[266]=2,[267]=3,[102]=1,[103]=2,[104]=2,[105]=3,[250]=1,[251]=2,[252]=3 }
 function A:RefreshGearProfile()
@@ -120,7 +120,7 @@ function A:ComparisonInfo(key)
  self.comparisonInfo=self.comparisonInfo or {};if self.comparisonInfo[key] then return self.comparisonInfo[key] end
  local fn=C_Item and C_Item.GetItemInfo or GetItemInfo;if not fn then return end
  local v={pcall(fn,key)};if not v[1] or not v[2] then return end
- local result={link=v[3] or key,level=v[6] or 0,loc=v[10],classID=v[13],subclass=v[14],quality=v[4]};self.comparisonInfo[key]=result;return result
+ local result={name=v[2],link=v[3] or key,level=v[6] or 0,loc=v[10],classID=v[13],subclass=v[14],quality=v[4]};self.comparisonInfo[key]=result;return result
 end
 -- Load only visible item metadata. No item-ID sweep or startup server scan.
 function A:HydrateAtlasItem(iid)
@@ -160,57 +160,89 @@ function A:ComparisonStats(link)
  end
  if next(stats) then self.comparisonStats[link]=stats;return stats end
 end
+local classPriorities={PRIEST='INTELLECT',MAGE='INTELLECT',WARLOCK='INTELLECT',ROGUE='AGILITY',HUNTER='AGILITY',WARRIOR='STRENGTH',DEATHKNIGHT='STRENGTH'}
+function A:ComparisonPriority()
+ if self.db.specOnly then
+  if not self.gearProfileResolved then self:RefreshGearProfile() end
+  local p=self.gearProfile
+  return p and p[2]:upper(),p and p.role
+ end
+ local _,class=UnitClass('player')
+ return classPriorities[class]
+end
+
 function A:CompareItem(iid)
  local item=self.items[iid];if not item or item.classID~=2 and item.classID~=4 then return end
  local info=self:ComparisonInfo(iid);if not info then return {state='unknown',text=self.atlasLoadFailures and self.atlasLoadFailures[iid] and 'Клиент не вернул описание предмета' or 'Характеристики ещё загружаются'} end
  if info.level>UnitLevel('player') then return {state='later',text='Позже: с '..info.level..' ур.'} end
  if not self:ClassFits(item,iid,true) then return {state='wrong',text='Не подходит выбранному классу / спеку'} end
+ local requirement=self:UnmetAtlasRequirement(iid)
+ if requirement then return {state='restricted',text=requirement} end
  local slots=equipSlots[info.loc];if not slots then return {state='unknown',text='Слот пока неизвестен'} end
- local candidate=self:ComparisonStats(info.link)
- if not self.gearProfileResolved then self:RefreshGearProfile() end
- local profile=self.gearProfile
- if not profile then return {state='unknown',text='Выбери спек для сравнения'} end
- local primary=({agility='AGILITY',strength='STRENGTH',intellect='INTELLECT'})[profile[2]]
- local val=itemStat
+ local equipment={};local empty,variant
+ local itemPayload=type(info.link)=='string' and info.link:match('item:[%d:%-]+')
+ for _,slot in ipairs(slots) do
+  local link=self:Safe(GetInventoryItemLink,'player',slot)
+  local equippedID=self:Safe(GetInventoryItemID,'player',slot) or type(link)=='string' and tonumber(link:match('item:(%d+)'))
+  if link and (link==info.link or itemPayload and type(link)=='string' and link:match('item:[%d:%-]+')==itemPayload) then return {state='same',text='Уже надето',slot=slot} end
+  if equippedID==iid then variant=slot end
+  if link then equipment[slot]=link elseif not equippedID then empty=empty or slot end
+ end
+ if variant then return {state='unknown',text='Уже надет вариант этого предмета',slot=variant} end
+ -- Ranged gear has an independent slot. Only changes that affect the main/off hand need a set comparison.
+ local location=slots[1]
+ if location==16 or location==17 then
+  local main=self:Safe(GetInventoryItemLink,'player',16);local worn=main and self:ComparisonInfo(main)
+  if (location==17 and main and (not worn or worn.loc=='INVTYPE_2HWEAPON'))
+   or (location==16 and self:Safe(GetInventoryItemLink,'player',17) and (info.loc=='INVTYPE_WEAPON' or info.loc=='INVTYPE_2HWEAPON')) then
+   return {state='unknown',text='Нужно сравнение комплекта оружия'}
+  end
+ end
+ if empty then return {state='empty',text='Заполнит пустой слот',slot=empty} end
+ local primary,role=self:ComparisonPriority()
+ if not primary then return {state='unknown',text='Выбери роль для сравнения'} end
+ local needsDps=item.classID==2 and (location==18 or primary~='INTELLECT')
  local function score(stats)
-  if not stats then return end
-  local value=val(stats,primary)+val(stats,'STAMINA')*.15+val(stats,'CRIT_RATING')*.35+val(stats,'HIT_RATING')*.35
+  if not stats or needsDps and itemStat(stats,'DAMAGE_PER_SECOND')<=0 then return end
+  local value=itemStat(stats,primary)+itemStat(stats,'STAMINA')*.15+itemStat(stats,'CRIT_RATING')*.35+itemStat(stats,'HIT_RATING')*.35
   if primary=='INTELLECT' then
    local damage,healing=casterStats(stats)
-   value=value+math.max(damage*.7,healing*.5)+val(stats,'SPIRIT')*.15
-  else
-   value=value+val(stats,'ATTACK_POWER')*.4
-  end
-  if item.classID==2 then local dps=val(stats,'DAMAGE_PER_SECOND');if dps<=0 then return end;value=value+dps*3 end
-  return value>0 and value or nil
+   local caster=math.max(damage*.7,healing*.5)
+   if role=='heal' then caster=math.max(healing*.7,damage*.35) elseif role=='spell' then caster=damage*.8 end
+   value=value+caster+itemStat(stats,'SPIRIT')*.15
+  else value=value+itemStat(stats,'ATTACK_POWER')*.4 end
+  return value+(needsDps and itemStat(stats,'DAMAGE_PER_SECOND')*3 or 0)
  end
- -- Never compare a two-hander against half of a dual-wield setup, or vice versa.
- if item.classID==2 then
-  local main=self:Safe(GetInventoryItemLink,'player',16);local worn=main and self:ComparisonInfo(main)
-  if info.loc=='INVTYPE_WEAPON' and self:Safe(GetInventoryItemLink,'player',17) or info.loc=='INVTYPE_2HWEAPON' and self:Safe(GetInventoryItemLink,'player',17) or worn and worn.loc=='INVTYPE_2HWEAPON' and info.loc~='INVTYPE_2HWEAPON' then return {state='unknown',text='Нужно сравнение комплекта оружия'} end
- end
- local candidateScore=score(candidate);local weakest,baseline,chosen
+ local candidate=self:ComparisonStats(info.link);local candidateScore=score(candidate)
+ local weakest,baseline,chosen
  for _,slot in ipairs(slots) do
-  local link=self:Safe(GetInventoryItemLink,'player',slot);local equippedID=self:Safe(GetInventoryItemID,'player',slot)
-  if not link and equippedID then return {state='unknown',text='Нужна ссылка надетого предмета'} end
-  if not link then return {state='empty',text='Заполнит пустой слот',slot=slot} end
-  if link==info.link then return {state='same',text='Уже надето'} end
+  local link=equipment[slot]
+  if not link then return {state='unknown',text='Нужна ссылка надетого предмета'} end
   local stats=self:ComparisonStats(link);local power=score(stats)
-  if not power or not candidateScore then return {state='unknown',text=item.classID==2 and 'Нет данных об уроне оружия' or 'Недостаточно характеристик'} end
-  if not weakest or power<weakest then weakest=power;baseline=stats;chosen=slot end
+  if power==nil or candidateScore==nil then return {state='unknown',text=needsDps and 'Нет данных об уроне оружия' or 'Недостаточно характеристик'} end
+  if weakest==nil or power<weakest then weakest=power;baseline=stats;chosen=slot end
  end
- if not baseline or not candidateScore then return {state='unknown',text='Недостаточно характеристик'} end
  local delta=candidateScore-weakest;local changes={}
- for _,key in ipairs({primary,'STAMINA',primary=='INTELLECT' and 'SPELL_POWER' or 'ATTACK_POWER'}) do
-  local n=val(candidate,key)-val(baseline,key)
-  if n~=0 then changes[#changes+1]=(n>0 and '+' or '')..n..' '..(({AGILITY='ловк.',STRENGTH='силы',INTELLECT='интел.',STAMINA='выносл.',SPELL_POWER='силы закл.',ATTACK_POWER='силы атаки'})[key] or key) end
- end
- return {state=delta>.1 and 'better' or delta<-.1 and 'worse' or 'same',delta=delta,slot=chosen,text=(delta>.1 and 'Возможное улучшение' or delta<-.1 and 'Надетое лучше по оценке' or 'Примерно равно')..(#changes>0 and ' · '..table.concat(changes,', ') or ''),changes=changes}
+ local function change(diff,label) if diff~=0 then changes[#changes+1]=string.format('%+.3g %s',diff,label) end end
+ if needsDps then change(itemStat(candidate,'DAMAGE_PER_SECOND')-itemStat(baseline,'DAMAGE_PER_SECOND'),'DPS') end
+ if primary=='INTELLECT' then
+  local damage,healing=casterStats(candidate);local wornDamage,wornHealing=casterStats(baseline)
+  if role=='heal' then change(healing-wornHealing,'лечения');change(damage-wornDamage,'силы закл.')
+  else change(damage-wornDamage,'силы закл.');change(healing-wornHealing,'лечения') end
+  change(itemStat(candidate,'SPIRIT')-itemStat(baseline,'SPIRIT'),'духа')
+ else change(itemStat(candidate,'ATTACK_POWER')-itemStat(baseline,'ATTACK_POWER'),'силы атаки') end
+ change(itemStat(candidate,primary)-itemStat(baseline,primary),({AGILITY='ловк.',STRENGTH='силы',INTELLECT='интел.'})[primary])
+ change(itemStat(candidate,'STAMINA')-itemStat(baseline,'STAMINA'),'выносл.')
+ change(itemStat(candidate,'CRIT_RATING')-itemStat(baseline,'CRIT_RATING'),'крита')
+ change(itemStat(candidate,'HIT_RATING')-itemStat(baseline,'HIT_RATING'),'меткости')
+ local text=delta>.1 and 'Возможное улучшение' or delta<-.1 and 'Надетое лучше по оценке' or 'Примерно равно'
+ return {state=delta>.1 and 'better' or delta<-.1 and 'worse' or 'same',delta=delta,slot=chosen,text=text..(#changes>0 and ' · '..table.concat(changes,', ',1,math.min(3,#changes)) or ''),changes=changes}
 end
 function A:AddComparisonTooltip(t,iid)
  local result=self:CompareItem(iid);if not result then return end
  self:AddTooltipLine(t,'Сравнение с надетым',1,.85,.55);self:AddTooltipLine(t,result.text,.8,.85,.8)
  if result.slot then local worn=self:Safe(GetInventoryItemLink,'player',result.slot);if worn then self:AddTooltipLine(t,'Сравниваем с: '..worn,.75,.78,.72) end end
+ if result.changes and #result.changes>3 then self:AddTooltipLine(t,table.concat(result.changes,', ',4),.8,.85,.8) end
  self:AddTooltipLine(t,'Оценка по статам, не BiS. Эффекты, комплекты и проки не учтены.',.65,.7,.65)
 end
 function A:Matches(entry,skills,includeRareFinds)
@@ -238,7 +270,8 @@ end
 function A:Loot(id,skills,forceSpecial,includeRareFinds,rareOnly)
  local mob=self.mobs[id];local list=mob and (mob.vendor and mob.stock or mob.loot) or {}
  local unique={};local out={}
- for _,entry in ipairs(list or {}) do if (not rareOnly or not mob or mob.vendor or self:IsSpecialMapDrop(entry)) and self:Matches(entry,skills or self.skills or {},includeRareFinds) then
+ rareOnly=rareOnly and mob and not mob.vendor
+ for _,entry in ipairs(list or {}) do if rareOnly and self:SpecialRank(entry[1])>0 or not rareOnly and self:Matches(entry,skills or self.skills or {},includeRareFinds) then
   local previous=unique[entry[1]]
   local priority=entry[2]==8 and 5 or entry[2]==6 and 4 or entry[2]==4 and 3 or entry[2]==14 and 2 or entry[4] and 0 or 1
   if not previous then
@@ -251,8 +284,10 @@ function A:Loot(id,skills,forceSpecial,includeRareFinds,rareOnly)
  for _,entry in pairs(unique) do out[#out+1]=entry end
  table.sort(out,function(a,b)
   local aq,bq=self.items[a[1]].quality,self.items[b[1]].quality
-  if rareOnly and mob and not mob.vendor then
+  if rareOnly then
    if aq~=bq then return aq>bq end
+   local ae,be=self:SourceEvidenceTier(a),self:SourceEvidenceTier(b)
+   if ae~=be then return ae>be end
    local knownA,knownB=a[3]>=0,b[3]>=0
    if knownA~=knownB then return knownA end
    if a[3]~=b[3] then return a[3]<b[3] end
@@ -364,11 +399,14 @@ A.events=CreateFrame('Frame')
 A.events:SetScript('OnEvent',function(_,event,arg,success)
  if (event=='GET_ITEM_INFO_RECEIVED' or event=='ITEM_DATA_LOAD_RESULT') and A.db then A.atlasLoadFailures=A.atlasLoadFailures or {};A.atlasLoadFailures[arg]=success==false or nil;if A.gearStatCache then A.gearStatCache[arg]=nil end;if A.atlasRequirementCache then A.atlasRequirementCache[arg]=nil end;A.atlasReadyItems=A.atlasReadyItems or {};A.atlasReadyItems[arg]=success~=false or nil
  for _,cache in ipairs({A.comparisonInfo or {},A.comparisonStats or {}}) do for key in pairs(cache) do if key==arg or type(key)=='string' and tonumber(key:match('item:(%d+)'))==arg then cache[key]=nil end end end
- A:RefreshObservedLootItem(arg);if A.db.specOnly then A.dirty=true;if A.atlas and A.atlas.category~='gear' then A.atlas.results=nil end end;if A.atlas and A.atlas:IsShown() and not A.comparisonRefreshPending then A.comparisonRefreshPending=true;C_Timer.After(.1,function() A.comparisonRefreshPending=nil;if A.atlas and A.atlas:IsShown() then A:RefreshAtlas() end end) end
+ A:RefreshObservedLootItem(arg);A:RefreshRecommendationItem(arg);if A.db.specOnly then A.dirty=true;if A.atlas and A.atlas.category~='upgrades' then A.atlas.results=nil end end;if A.atlas and A.atlas:IsShown() and not A.comparisonRefreshPending then A.comparisonRefreshPending=true;C_Timer.After(.1,function() A.comparisonRefreshPending=nil;if A.atlas and A.atlas:IsShown() then A:RefreshAtlas() end end) end
+ elseif event=='UPDATE_FACTION' and A.db then
+  A.atlasRequirementCache=nil
+  if A.atlas then A.atlas.recommendScan=nil;if A.atlas:IsShown() then A:RefreshAtlas() end end
  elseif (event=='PLAYER_TALENT_UPDATE' or event=='ACTIVE_TALENT_GROUP_CHANGED') and A.db then A:RefreshGearProfile();if A.db.specOnly then A:RefreshSettings();A:Invalidate() end
  elseif event=='PLAYER_LOGIN' then A:Init() elseif A.db and (event=='QUEST_LOG_UPDATE' or event=='QUEST_ACCEPTED' or event=='QUEST_TURNED_IN') then A:QuestLogChanged(event) elseif A.db and (event=='LOOT_OPENED' or event=='LOOT_READY' or event=='LOOT_SLOT_CHANGED') then A:CaptureLoot() elseif A.db and (event=='MERCHANT_SHOW' or event=='MERCHANT_UPDATE') then A:CaptureMerchant() elseif A.db then A:Invalidate();if event=='PLAYER_EQUIPMENT_CHANGED' and A.atlas and A.atlas:IsShown() then A:RefreshAtlas() end end
 end)
-for _,event in ipairs({'PLAYER_EQUIPMENT_CHANGED','PLAYER_TALENT_UPDATE','ACTIVE_TALENT_GROUP_CHANGED','PLAYER_LOGIN','SKILL_LINES_CHANGED','PLAYER_LEVEL_UP','PLAYER_ENTERING_WORLD','MERCHANT_SHOW','MERCHANT_UPDATE','LOOT_OPENED','LOOT_READY','LOOT_SLOT_CHANGED','GET_ITEM_INFO_RECEIVED','ITEM_DATA_LOAD_RESULT','QUEST_LOG_UPDATE','QUEST_TURNED_IN','QUEST_ACCEPTED'}) do A.events:RegisterEvent(event) end
+for _,event in ipairs({'PLAYER_EQUIPMENT_CHANGED','PLAYER_TALENT_UPDATE','ACTIVE_TALENT_GROUP_CHANGED','PLAYER_LOGIN','SKILL_LINES_CHANGED','PLAYER_LEVEL_UP','PLAYER_ENTERING_WORLD','MERCHANT_SHOW','MERCHANT_UPDATE','LOOT_OPENED','LOOT_READY','LOOT_SLOT_CHANGED','GET_ITEM_INFO_RECEIVED','ITEM_DATA_LOAD_RESULT','QUEST_LOG_UPDATE','UPDATE_FACTION','QUEST_TURNED_IN','QUEST_ACCEPTED'}) do A.events:RegisterEvent(event) end
 
 -- Observations stay separate from Classic methods: this feed does not identify the method.
 function A:MergeForever()

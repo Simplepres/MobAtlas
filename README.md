@@ -2,35 +2,31 @@
 
 # MobAtlas · Следопыт
 
-Атлас добычи, экипировки и заданий для **WoW Forever**. **Бета 0.7.13.**
+Атлас добычи, экипировки и заданий для **WoW Forever**. **Бета 0.7.15.**
 
-A loot atlas, gear finder and dungeon quest guide for **WoW Forever**. **Beta 0.7.13.**
+A loot atlas, gear finder and dungeon quest guide for **WoW Forever**. **Beta 0.7.15.**
 
 [**Скачать / Download**](https://github.com/Simplepres/MobAtlas/releases/latest) · [Скриншоты / Gallery](#скриншоты--gallery) · [Сообщить о баге / Report an issue](https://github.com/Simplepres/MobAtlas/issues)
 
-## Что нового в 0.7.13
+## Что нового в 0.7.15
 
-- **Атлас в виде книги.** Восемь предметов слева, источники и мини-карта справа. «Карта» сразу ставит метку на карте мира.
-- **Подбор экипировки.** Сравнение с надетыми вещами, фильтры по уровню, классу и спеку, отдельный выбор ткани, кожи, кольчуги, лат и оружия.
-- **Редкие мобы.** Клик по уведомлению берёт обнаруженного моба в цель вне боя, если он ещё доступен, или показывает известное место на карте. Галочка «Мобы с редкой добычей» показывает на карте и в карточках синие вещи и выше, а также питомцев. Запечатанные ремесленные задания остаются в обычной добыче.
-- **Обновлённая база.** 432 новые связи «моб → предмет» из Everloot и находка «Огненный Клинок» у Чёрного опустошителя.
+- **Экипировка для себя.** Выбери слот, переключись на «Улучшения» и сравни предмет с тем, что надето. Подбор показывает, сколько кандидатов уже проверено.
+- **Где взять.** На правой странице видны источники, превью карты и продавцы известных выкроек.
+- **Редкая добыча.** В карточке моба видны синие вещи и выше, включая общие пулы. Прямые находки и справочные источники подписаны отдельно.
 
-**Уже в аддоне:** поиск по названию и ID, добыча при наведении, торговцы с известными ценами, питомцы, входы в подземелья и задания с цепочками. Источники, мобы и точки начала квестов можно закреплять. База поставляется вместе с аддоном.
+## What’s new in 0.7.15
 
-## What’s new in 0.7.13
+- **Gear for your character.** Pick a slot, switch to Upgrades, and compare items with what you have equipped. The atlas shows how many candidates it has checked.
+- **Find an item.** The right page shows sources, map previews, and pattern vendors where known.
+- **Rare loot.** Mob cards include blue items and better from shared pools. Direct findings and reference sources carry distinct labels.
 
-- **Two-page atlas.** Eight items on the left, a source list and map preview on the right. **Map** opens the world map with the selected source pinned.
-- **Gear finder.** Compare with equipped gear, filter by level, class and spec, or browse cloth, leather, mail, plate and weapons.
-- **Rare tracking.** Click an alert to target a detected rare out of combat, or open its known location on the map. The rare-loot checkbox limits the map and its loot cards to blue-quality items or better and pets. Sealed crafting writs remain in the regular loot lists.
-- **Loot data refresh.** 432 new NPC–item pairs from Everloot and a player report of Searing Blade from Black Ravager.
-
-Also includes item search, loot on hover, vendors with known prices, pet sources, dungeon entrances, quests and prerequisites. The reference database is bundled.
+[Как работает подбор экипировки / Gear discovery and comparison](docs/DEVELOPMENT-NOTES.ru.md#как-атлас-помогает-выбрать-экипировку)
 
 ## Установка / Install
 
-Распакуй **MobAtlas-0.7.13.zip** в `Interface/AddOns/` клиента Forever и полностью перезапусти WoW. Открой атлас через книжку у миникарты или `/mobatlas`. ПКМ по книжке открывает настройки отслеживания.
+Распакуй **MobAtlas-0.7.15.zip** в `Interface/AddOns/` клиента Forever и полностью перезапусти WoW. Открой атлас через книжку у миникарты или `/mobatlas`. ПКМ по книжке открывает настройки отслеживания.
 
-Extract **MobAtlas-0.7.13.zip** into the Forever client’s `Interface/AddOns/` folder and restart WoW. Click the minimap book or type `/mobatlas`. Right-click the book for tracking settings.
+Extract **MobAtlas-0.7.15.zip** into the Forever client’s `Interface/AddOns/` folder and restart WoW. Click the minimap book or type `/mobatlas`. Right-click the book for tracking settings.
 
 ## Скриншоты / Gallery
 
