@@ -9,6 +9,8 @@ a=l.table();load=l.eval('function(s,a) assert(loadstring(s))("MobAtlas",a) end')
 for n in (r/'MobAtlas/MobAtlas.toc').read_text().splitlines():
  if n.endswith('.lua'):load((r/'MobAtlas'/n).read_text(),a)
 l.execute('''MobAtlas:Init();local A=MobAtlas
+assert(not A.itemSourceLinks and not A.searchTerms,'login keeps the atlas index cold')
+MOCK.buildAtlasIndex=A.BuildAtlasIndex
 A.BuildAtlasIndex=function() error('full atlas rebuild during loot') end
 function GetNumLootItems() return 1 end
 function GetLootSlotLink() return 'item:'..MOCK.newItem end
@@ -16,6 +18,8 @@ function GetLootSourceInfo() return 'Creature-0-1-2-3-43-00001',1 end
 local canvas=CreateFrame('Frame');canvas:SetSize(1000,700);MOCK.canvas=canvas
 MOCK.cells={};for i=1,80 do MOCK.cells[i]={x=5+(i%10)*9,y=5+math.floor(i/10)*11} end
 ''')
+assert a.extraItems is None and a.extraMobs is None and a.vendorItems is None, 'merge inputs do not remain in memory'
+settled=l.eval('function() collectgarbage("collect");return collectgarbage("count")/1024 end')()
 start=time.perf_counter()
 for i in range(100):l.globals().MOCK.newItem=990100+i;a.CaptureLoot(a)
 loot=(time.perf_counter()-start)*1000/100
@@ -28,4 +32,23 @@ contour=(time.perf_counter()-start)*1000/20
 count=len(a.habitatAreas)
 a.RenderHabitatArea(a,l.globals().MOCK.cells,l.globals().MOCK.canvas,1,20,'HIGH')
 assert len(a.habitatAreas)==count and count<=80
-print(json.dumps({'lootMsPerNewItem':round(loot,3),'coldAreaMs80Patches':round(cold,3),'repeatAreaMs80Patches':round(contour,3),'pooledPatches':count,'fullIndexRebuilds':0,'environment':'Lua mocks; not WoW FPS'}))
+l.execute("""
+local A=MobAtlas
+assert(not A.itemSourceLinks,'navigating and looting did not build the atlas')
+for id=999300,999400 do A.events.scripts.OnEvent(A.events,'ITEM_DATA_LOAD_RESULT',id,true) end
+assert(not A.atlasReadyItems,'unrelated item load events allocate no atlas cache')
+A.BuildAtlasIndex=MOCK.buildAtlasIndex
+assert(A:FindItems('ЖЕСТОКАЯ КОЛЮЧКА','all','dungeons')[1]==5191,'cold localized search works')
+assert(A:ItemSources(990100)[1].npcID==43,'cold loot becomes available on first use')
+A:OpenAtlas('5191')
+A.atlas:Hide()
+local oldClose=MOCK.timers[#MOCK.timers]
+A:OpenAtlas('5191');oldClose()
+assert(A.itemSourceLinks,'rapid reopen retains its index')
+A.atlas:Hide();MOCK.timers[#MOCK.timers]()
+assert(not A.itemSourceLinks and not A.searchTerms and not A.comparisonInfo,'closing releases atlas caches')
+A.focus={itemID=990100}
+assert(A:FocusedLoot(43)[1][1]==990100 and not A.itemSourceLinks,'focused map card can remain open without a search index')
+assert(A:ItemSources(990100)[1].npcID==43,'index can be recreated with personal findings')
+""")
+print(json.dumps({'settledLuaMiB':round(settled,2),'lootMsPerNewItem':round(loot,3),'coldAreaMs80Patches':round(cold,3),'repeatAreaMs80Patches':round(contour,3),'pooledPatches':count,'fullIndexRebuilds':0,'environment':'Lua mocks; not WoW FPS'}))

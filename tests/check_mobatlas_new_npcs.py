@@ -54,7 +54,8 @@ assert(A.pendingLootItems[990500] and A.db.lootFinds[277645].items[990500],'unca
 C_Item.GetItemInfo=function() return 'Test cached loot','item:990500',2,22,20,'Armor','Leather',1,'INVTYPE_CHEST',123,1,4,2 end
 A.events.scripts.OnEvent(nil,'GET_ITEM_INFO_RECEIVED',990500)
 assert(A.items[990500].quality==2 and A.items[990500].classID==4 and not A.pendingLootItems[990500],'delayed item metadata resolved incrementally')
-assert(A:FindItems('Test cached loot','all','all')[1]==990500,'resolved item searchable')
+assert(not A.itemSourceLinks,'observing NPCs and loot leaves the cold index untouched')
 A.BuildAtlasIndex=build
+assert(A:FindItems('Test cached loot','all','all')[1]==990500,'resolved item searchable')
 print('PASS new NPCs: Gray Fox map/loot, reported Sharp Canine, neutral/service distinction, new metadata, client traits/restore, unknown-loot visibility, source geometry, observed loot priority and tooltip count')
 ''')

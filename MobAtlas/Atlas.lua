@@ -2,9 +2,11 @@ local _,A=...
 -- A searchable reverse index. Entries retain their source; unknown is never a measured 0%.
 local upper={'А','Б','В','Г','Д','Е','Ё','Ж','З','И','Й','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Щ','Ъ','Ы','Ь','Э','Ю','Я'}
 local lower={'а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я'}
+local foldRussian={['ё']='е'}
+for i,c in ipairs(upper) do foldRussian[c]=c=='Ё' and 'е' or lower[i] end
 function A:SearchText(text)
- text=(text or ''):gsub('[A-Z]',function(c)return string.char(c:byte()+32) end);for i,c in ipairs(upper) do text=text:gsub(c,lower[i]) end
- return text:gsub('ё','е'):gsub('^[ \t\r\n]+',''):gsub('[ \t\r\n]+$','')
+ text=(text or ''):gsub('[A-Z]',string.lower):gsub('[\208\209][\128-\191]',foldRussian)
+ return text:gsub('^[ \t\r\n]+',''):gsub('[ \t\r\n]+$','')
 end
 -- Shared crafting writs remain in the full catalog.
 local craftingWrits={[22568]=true,[248206]=true,[262887]=true,[262888]=true,[262889]=true,[262890]=true}
@@ -19,17 +21,33 @@ function A:SpecialRank(id)
  if item.quality==3 then return 20,'Редкое' end
  return 0
 end
-function A:BuildAtlasIndex()
- self.itemSources={};self.searchTerms={};self.entranceIndex={};self.mappableItems={}
+local emptyLinks={}
+local function addSourceLink(index,npcID,entry)
+ local iid=entry[1]
+ local links=index[iid]
+ if not links then links={};index[iid]=links end
+ links[#links+1]=npcID
+ links[#links+1]=entry
+end
+
+function A:ItemSources(iid)
+ local grouped,result={},{}
+ local links=self:AtlasSourceLinks()[iid] or emptyLinks
+ for i=1,#links,2 do
+  local npc=links[i]
+  local source=grouped[npc]
+  if not source then
+   source={npcID=npc,entries={}}
+   grouped[npc]=source;result[#result+1]=source
+  end
+  source.entries[#source.entries+1]=links[i+1]
+ end
+ return result
+end
+
+function A:BuildEntranceIndex()
+ self.entranceIndex={}
  for id,mob in pairs(self.mobs) do
-  local seen={}
-  for _,list in ipairs({mob.loot or {},mob.stock or {}}) do for _,e in ipairs(list) do
-   if self.items[e[1]] then
-    local entry=seen[e[1]]
-    if not entry then entry={npcID=id,entries={}};seen[e[1]]=entry;local sources=self.itemSources[e[1]] or {};self.itemSources[e[1]]=sources;sources[#sources+1]=entry end
-    entry.entries[#entry.entries+1]=e
-   end
-  end end
   for _,area in ipairs(mob.instances or {}) do
    local dungeon=(self.instances or {})[area]
    for _,p in ipairs(dungeon and dungeon.entrances or {}) do
@@ -38,8 +56,39 @@ function A:BuildAtlasIndex()
    end
   end
  end
- for iid,item in pairs(self.items) do self.itemSources[iid]=self.itemSources[iid] or {};local item=self.items[iid];self.searchTerms[iid]=self:SearchText(item.name..' '..(item.ruName or '')..' '..(item.referenceName or '')) end
 end
+
+function A:BuildAtlasIndex()
+ self.itemSourceLinks={};self.searchTerms=nil;self.mappableItems={}
+ for id,mob in pairs(self.mobs) do
+  for _,list in ipairs({mob.loot or {},mob.stock or {}}) do
+   for _,entry in ipairs(list) do if self.items[entry[1]] then addSourceLink(self.itemSourceLinks,id,entry) end end
+  end
+ end
+end
+
+function A:AtlasSourceLinks()
+ if not self.itemSourceLinks then self:BuildAtlasIndex() end
+ return self.itemSourceLinks
+end
+
+function A:BuildSearchTerms()
+ self.searchTerms={}
+ for iid,item in pairs(self.items) do self.searchTerms[iid]=self:SearchText(item.name..' '..(item.ruName or '')..' '..(item.referenceName or '')) end
+end
+
+function A:DiscardAtlasIndex()
+ self.itemSourceLinks=nil;self.searchTerms=nil;self.mappableItems=nil;self.accessibleAtlasSources=nil
+ self.comparisonInfo=nil;self.comparisonStats=nil;self.atlasRequirementCache=nil
+ self.atlasReadyItems=nil;self.atlasLoadFailures=nil;self.atlasRequested=nil
+ if self.atlasRequestPump then self.atlasRequestQueue={} end
+ local atlas=self.atlas
+ if atlas then
+  atlas.results=nil;atlas.recommendScan=nil;atlas.sourceCache=nil;atlas.previewSource=nil
+  for _,row in ipairs(atlas.sourceRows) do row.value=nil end
+ end
+end
+
 function A:SourceEvidenceTier(entry)
  local method=entry[2]
  if method==8 or method==4 or method==14 then return 2 end
@@ -94,12 +143,13 @@ function A:HasAccessibleAtlasSource(iid,scope,requireMap)
  end
  if cache[iid]~=nil then return cache[iid] end
  local accessible=false
- for _,source in ipairs(self.itemSources[iid] or {}) do
-  local mob=self.mobs[source.npcID]
+ local links=self:AtlasSourceLinks()[iid] or emptyLinks
+ for i=1,#links,2 do
+  local npcID=links[i];local mob=self.mobs[npcID]
   local hasWorld=#(mob.points or {})>0
   local hasDungeon=#(mob.instances or {})>0
   if (sourceScope=='all' and (not requireMap or hasWorld or hasDungeon) or sourceScope=='world' and hasWorld or sourceScope=='dungeons' and hasDungeon)
-   and self:AtlasSourceAccessible({npcID=source.npcID,entry=self:SourceEntry(source)}) then accessible=true;break end
+   and self:AtlasSourceAccessible({npcID=npcID,entry=links[i+1]}) then accessible=true;break end
  end
  if not accessible and (self.otherSources or {})[iid] then
   for _,row in ipairs(self:AtlasSources(iid,sourceScope)) do
@@ -173,10 +223,21 @@ function A:PersonalRecommendations(candidates)
  table.sort(result,function(a,b)
   local as,bs=scan.scores[a],scan.scores[b]
   if as.state~=bs.state then return as.state=='better' end
-  if (as.delta or 0)~=(bs.delta or 0) then return (as.delta or 0)>(bs.delta or 0) end
+  local av,bv=as.delta or as.score or -math.huge,bs.delta or bs.score or -math.huge
+  if av~=bv then return av>bv end
   if self.items[a].quality~=self.items[b].quality then return self.items[a].quality>self.items[b].quality end
   return a<b
  end)
+ local positions={}
+ scan.ranks={}
+ for _,iid in ipairs(result) do
+  local slot=self:GearSlot(self.items[iid])
+  local comparison=scan.scores[iid]
+  if slot and comparison.score~=nil then
+   local position=(positions[slot] or 0)+1
+   positions[slot]=position;scan.ranks[iid]=position
+  end
+ end
  f.recommendPending=pending
  f.recommendUnknown=unknown
  f.moreCandidates:SetShown(scan.cursor>scan.limit and scan.limit<#scan.list)
@@ -237,9 +298,13 @@ function A:FindItems(query,category,scope,relevant,options)
  options=options or {};local recent={};if options.recent then for _,id in ipairs(self.db.recentItems or {}) do recent[id]=true end end
  local personal=category=='gear' or category=='upgrades'
  query=self:SearchText(query);local exact=tonumber(query) or tonumber(query:match('item:(%d+)'));local results={}
- for iid,sources in pairs(self.itemSources or {}) do
-  local item=self.items[iid];local rank=self:SpecialRank(iid)
-  local matches=(exact and iid==exact) or (not exact and (query=='' or self.searchTerms[iid]:find(query,1,true)))
+ if query~='' and not exact and not self.searchTerms then
+  self:AtlasSourceLinks()
+  self:BuildSearchTerms()
+ end
+ for iid,item in pairs(self.items) do
+  local rank=self:SpecialRank(iid)
+  local matches=(exact and iid==exact) or (not exact and (query=='' or self.searchTerms[iid] and self.searchTerms[iid]:find(query,1,true)))
   matches=matches and (not category or category=='all' or category=='pets' and rank==50 or category=='rare' and item.quality==3 or category=='epic' and item.quality>=4 and item.quality<=5 or category=='useful' and self:UsefulItem(iid) or (personal or category=='catalog') and (item.classID==2 or item.classID==4) or category=='bags' and item.classID==1 or category=='materials' and item.classID==7 or category=='recipes' and item.classID==9 or category=='consumables' and item.classID==0)
   if matches and (category=='catalog' or personal) then matches=matchesGearType(item,options.gearType) and (not options.slot or self:GearSlot(item)==options.slot) end
   if matches and personal and not self:RecommendationStaticFits(item,iid,scope,options.known,category=='upgrades' or options.level) then matches=false end
@@ -256,8 +321,9 @@ function A:FindItems(query,category,scope,relevant,options)
   if matches and relevant then matches=matches and self:ClassFits(item,iid,true) and (item.level==nil or item.level<=UnitLevel('player')) end
   if matches and not personal and scope and scope~='all' and scope~='recent' then
    matches=false
-   for _,source in ipairs(sources) do
-    local mob=self.mobs[source.npcID]
+   local links=self:AtlasSourceLinks()[iid] or emptyLinks
+   for i=1,#links,2 do
+    local mob=self.mobs[links[i]]
     if scope=='dungeons' and #(mob.instances or {})>0 or scope=='world' and #(mob.points or {})>0 then matches=true;break end
    end
    if not matches and (scope=='world' or scope=='dungeons') then
@@ -289,7 +355,7 @@ end
 function A:AtlasSources(iid,scope)
  if scope=='recent' then scope='all' end
  local rows={}
- for _,source in ipairs(self.itemSources[iid] or {}) do
+ for _,source in ipairs(self:ItemSources(iid)) do
   for _,loc in ipairs(self:SourceLocations(source.npcID)) do
    if not scope or scope=='all' or scope=='dungeons' and loc.kind=='entrance' or scope=='world' and loc.kind=='spawn' then
     rows[#rows+1]={npcID=source.npcID,entry=self:SourceEntry(source),location=loc}
@@ -302,7 +368,7 @@ function A:AtlasSources(iid,scope)
   elseif kind=='object' then points=source.points or {} end
   local byMap={};for _,p in ipairs(points) do byMap[p[1]]=byMap[p[1]] or {};table.insert(byMap[p[1]],p) end
   if kind=='crafted' and source.recipeID then
-   for _,recipeSource in ipairs(self.itemSources[source.recipeID] or {}) do
+   for _,recipeSource in ipairs(self:ItemSources(source.recipeID)) do
     local entry=self:SourceEntry(recipeSource)
     if entry[2]==5 or entry[2]==6 then
      for _,loc in ipairs(self:SourceLocations(recipeSource.npcID)) do
@@ -342,7 +408,7 @@ end
 function A:FocusSource(iid,npcID,mapID,location)
  if not mapID then return false,'Источник известен, но координат пока нет.' end
  local ids={}
- for _,source in ipairs(self.itemSources[iid] or {}) do if not npcID or source.npcID==npcID then ids[source.npcID]=true end end
+ for _,source in ipairs(self:ItemSources(iid)) do if not npcID or source.npcID==npcID then ids[source.npcID]=true end end
  if not next(ids) then return false,'Источник не найден.' end
  local opened,reason=self:OpenMapAt(mapID);if not opened then return false,reason end
  self:ClearFocus(false,true)
@@ -379,16 +445,23 @@ end
 -- Filters apply to browsing. A deliberate item/source selection is visible even if filters exclude it.
 function A:FocusedLoot(id,fullLoot)
  if not fullLoot and self.focus and self.focus.itemID then
-  for _,source in ipairs(self.itemSources[self.focus.itemID] or {}) do if source.npcID==id then
-   local e=self:SourceEntry(source);local copy={};for i=1,8 do copy[i]=e[i] end;copy.alternatives=source.entries;return {copy}
-  end end
+  local mob=self.mobs[id];if not mob then return {} end
+  local entries={}
+  for _,list in ipairs({mob.loot or emptyLinks,mob.stock or emptyLinks}) do
+   for _,entry in ipairs(list) do if entry[1]==self.focus.itemID then entries[#entries+1]=entry end end
+  end
+  if #entries>0 then
+   local best=self:SourceEntry({entries=entries})
+   local copy={};for i=1,8 do copy[i]=best[i] end;copy.alternatives=entries
+   return {copy}
+  end
  end
  return self:Loot(id,self.skills,true,true,self.db.specialMobsOnly and not fullLoot)
 end
 
 function A:RememberItem(iid)
  self.db.recentItems=type(self.db.recentItems)=='table' and self.db.recentItems or {}
- local recent={iid};for _,id in ipairs(self.db.recentItems) do if id~=iid and self.itemSources[id] and #recent<12 then recent[#recent+1]=id end end
+ local recent={iid};for _,id in ipairs(self.db.recentItems) do if id~=iid and self.items[id] and #recent<12 then recent[#recent+1]=id end end
  self.db.recentItems=recent
 end
 function A:ShowItemOnMap(iid)
@@ -443,7 +516,7 @@ function A:OpenMapAt(mapID)
  return true
 end
 function A:HasKnownSource(iid)
- return #((self.itemSources or {})[iid] or {})+#((self.otherSources or {})[iid] or {})>0
+ return #((self.otherSources or {})[iid] or {})>0 or self:AtlasSourceLinks()[iid]~=nil
 end
 function A:AtlasLevelFits(item)
  if (item.level or 0)>UnitLevel('player') then return false end
@@ -457,7 +530,8 @@ function A:HasMappableSource(iid)
  self.mappableItems=self.mappableItems or {}
  if self.mappableItems[iid]~=nil then return self.mappableItems[iid] end
  local result=false
- for _,s in ipairs(self.itemSources[iid] or {}) do local m=self.mobs[s.npcID];if #(m.points or {})>0 then result=true;break end
+ local links=self:AtlasSourceLinks()[iid] or emptyLinks
+ for i=1,#links,2 do local m=self.mobs[links[i]];if #(m.points or {})>0 then result=true;break end
   for _,area in ipairs(m.instances or {}) do if #((self.instances[area] or {}).entrances or {})>0 then result=true;break end end
  end
  if not result then for _,s in ipairs((self.otherSources or {})[iid] or {}) do
@@ -471,25 +545,35 @@ function A:HasMappableSource(iid)
  self.mappableItems[iid]=result;return result
 end
 
--- Point updates are used by gameplay events; the full index is built only at login.
+-- Gameplay events update an open index. A cold index will read the current loot when it is requested.
 function A:IndexLootEntry(npcID,entry)
+ if self.searchTerms then
+  local iid=entry[1];local item=self.items[iid]
+  self.searchTerms[iid]=self:SearchText(item.name..' '..(item.ruName or '')..' '..(item.referenceName or ''))
+ end
+ if not self.itemSourceLinks then return end
  for _,cache in pairs(self.accessibleAtlasSources or {}) do cache[entry[1]]=nil end
- local iid=entry[1];self.itemSources=self.itemSources or {};local sources=self.itemSources[iid] or {};self.itemSources[iid]=sources
- local source
- for _,s in ipairs(sources) do if s.npcID==npcID then source=s;break end end
- if not source then source={npcID=npcID,entries={}};sources[#sources+1]=source end
- for _,e in ipairs(source.entries) do if e==entry then return end end
- source.entries[#source.entries+1]=entry
- local item=self.items[iid];self.searchTerms[iid]=self:SearchText(item.name..' '..(item.ruName or '')..' '..(item.referenceName or ''))
+ local iid=entry[1]
+ local links=self:AtlasSourceLinks()[iid] or emptyLinks
+ for i=1,#links,2 do if links[i]==npcID and links[i+1]==entry then return end end
+ addSourceLink(self.itemSourceLinks,npcID,entry)
  self.mappableItems[iid]=nil
 end
 
 function A:RefreshNpcIndex(npcID,oldIDs)
+ if not self.itemSourceLinks and not self.searchTerms then return end
  for iid in pairs(oldIDs or {}) do
   for _,cache in pairs(self.accessibleAtlasSources or {}) do cache[iid]=nil end
-  local sources=self.itemSources[iid] or {}
-  for i=#sources,1,-1 do if sources[i].npcID==npcID then table.remove(sources,i) end end
-  self.mappableItems[iid]=nil
+  local links=self.itemSourceLinks and self.itemSourceLinks[iid]
+  if links then
+   local target=1
+   for i=1,#links,2 do
+    if links[i]~=npcID then links[target]=links[i];links[target+1]=links[i+1];target=target+2 end
+   end
+   for i=target,#links do links[i]=nil end
+   if target==1 then self.itemSourceLinks[iid]=nil end
+  end
+  if self.mappableItems then self.mappableItems[iid]=nil end
  end
  local mob=self.mobs[npcID]
  for _,entries in ipairs({mob.loot or {},mob.stock or {}}) do for _,e in ipairs(entries) do self:IndexLootEntry(npcID,e) end end

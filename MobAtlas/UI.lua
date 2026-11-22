@@ -601,7 +601,17 @@ function A:CreateAtlasSourcePane(f)
  f.sourceTitle=label(f,'Где взять предмет',456,-20,330,15,{1,.85,.6})
  f.sourceMeta=label(f,'Выбери вещь слева',456,-49,360,11,{.8,.8,.72})
  f.sourceCompare=label(f,'',456,-75,390,10,{.7,.8,.7});f.sourceCompare:SetWordWrap(true)
- f.sourceBaseline=label(f,'',456,-102,402,10,{.75,.72,.65});f.sourceBaseline:SetWordWrap(false)
+ f.sourceBaseline=label(f,'',456,-102,245,10,{.75,.72,.65});f.sourceBaseline:SetWordWrap(false)
+ local function showRatings(control)
+  if not f.selectedItem then return end
+  GameTooltip:SetOwner(control or f.gearRatings,'ANCHOR_RIGHT')
+  self:AddGearRatingsTooltip(GameTooltip,f.selectedItem)
+  GameTooltip:Show()
+ end
+ f.gearRatings=button(f,'Оценки по спекам',711,-82,151,showRatings)
+ f.gearRatings:SetScript('OnEnter',showRatings)
+ f.gearRatings:SetScript('OnLeave',function() GameTooltip:Hide() end)
+ f.gearRatings:Hide()
  f.sourceReset=button(f,'Снять выбор',756,-48,105,function() f.selectedItem=nil;f.sourceCache=nil;self:RefreshAtlas() end);f.sourceReset:Hide()
  f.sourceHeading=label(f,'Источники по локациям',456,-119,290,12,{1,.84,.56})
  self:CreateAtlasPreview(f)
@@ -629,12 +639,13 @@ end
 function A:RefreshAtlasSources()
  local f=self.atlas;local iid=f.selectedItem;local selected=iid and self.items[iid]
  f.sourceReset:SetShown(selected~=nil)
+ f.gearRatings:SetShown(selected~=nil and (selected.classID==2 or selected.classID==4))
  if not selected then
   f.sourceTitle:SetText('Сравнение и источники');f.sourceMeta:SetText('Выбери предмет слева');f.sourceCompare:SetText('Здесь появятся сравнение с экипировкой и способы получения.');f.sourceBaseline:SetText('');f.sourceStatus:SetText('');f.sourcePager:SetText('')
   self:PreviewAtlasSource(nil);for _,row in ipairs(f.sourceRows) do row:Hide() end;f.sourcePrev:Hide();f.sourceNext:Hide();return
  end
  f.sourceTitle:SetText(self:ItemDisplay(iid));f.sourceTitle:SetWordWrap(false)
- local comparison=self:CompareItem(iid);f.sourceCompare:SetText(comparison and comparison.text or '')
+ local comparison=self:CompareItem(iid);f.sourceCompare:SetText(comparison and ((comparison.score and string.format('%.1f',comparison.score)..' балл. · ' or '')..comparison.text) or '')
  local worn=comparison and comparison.slot and self:Safe(GetInventoryItemLink,'player',comparison.slot)
  local baseline=worn and self:ComparisonInfo(worn)
  f.sourceBaseline:SetText(baseline and comparison.delta~=nil and ('Надето: '..baseline.name) or '')
@@ -676,7 +687,7 @@ end
 function A:CreateAtlas()
  local f=panel('MobAtlasAtlas',UIParent,880,660);self.atlas=f;f:SetPoint('CENTER');f:SetFrameStrata('DIALOG');f:EnableMouse(true)
  f:SetScale(.85*math.min(1.1875,(UIParent:GetHeight()-30)/660,(UIParent:GetWidth()-30)/880));f:SetBackdrop({bgFile=skin..'AtlasBook.tga'});f:SetBackdropColor(1,1,1,1);if f.skinHeaderRule then f.skinHeaderRule:Hide() end;for _,x in ipairs({16,456}) do local line=f:CreateTexture(nil,'ARTWORK');line:SetColorTexture(.65,.5,.3,.22);line:SetPoint('TOPLEFT',x,-40);line:SetSize(408,1) end;f:SetMovable(true);f:RegisterForDrag('LeftButton');f:SetScript('OnDragStart',function() f:StartMoving() end);f:SetScript('OnDragStop',function() f:StopMovingOrSizing() end)
- tinsert(UISpecialFrames,'MobAtlasAtlas');f.category='gear';f.scope='all';f.page=1;f.myLevel=true;f.knownOnly=true
+ tinsert(UISpecialFrames,'MobAtlasAtlas');f.category='upgrades';f.scope='all';f.page=1;f.myLevel=true;f.knownOnly=true
  label(f,'Следопыт · атлас добычи',16,-15,205,15,{1,.79,.32})
  local close=CreateFrame('Button',nil,f,'UIPanelCloseButton');close:SetPoint('TOPRIGHT',-4,-4);close:SetScript('OnClick',function() f:Hide() end)
  f.search=CreateFrame('EditBox',nil,f,'InputBoxTemplate');f.search:SetSize(393,28);f.search:SetPoint('TOPLEFT',22,-49);f.search:SetFont(self.font,12,'');f.search:SetAutoFocus(false);f.search:SetMaxLetters(160)
@@ -718,7 +729,7 @@ function A:CreateAtlas()
  end)
  f.myLevelCheck:SetScript('OnLeave',function() GameTooltip:Hide() end)
  f.knownCheck=check(f,'Есть место на карте',205,-76,220,function(v) f.knownOnly=v;search() end)
- local categories={{'all','Все предметы'},{'useful','Полезное мне сейчас'},{'gear','Для меня'},{'upgrades','Только улучшения'},{'catalog','Вся экипировка'},{'bags','Сумки'},{'materials','Материалы профессий'},{'recipes','Рецепты'},{'consumables','Расходники'},{'pets','Питомцы'},{'rare','Редкие вещи'},{'epic','Эпические вещи'}}
+ local categories={{'all','Все предметы'},{'useful','Полезное мне сейчас'},{'upgrades','Для меня'},{'gear','По классу'},{'catalog','Вся экипировка'},{'bags','Сумки'},{'materials','Материалы профессий'},{'recipes','Рецепты'},{'consumables','Расходники'},{'pets','Питомцы'},{'rare','Редкие вещи'},{'epic','Эпические вещи'}}
  f.categoryNames={};for _,v in ipairs(categories) do f.categoryNames[v[1]]=v[2] end
  f.categoryMenu=panel(nil,f,245,12+#categories*28);f.categoryMenu:SetPoint('TOPLEFT',16,-134);f.categoryMenu:SetFrameLevel(f:GetFrameLevel()+40);f.categoryMenu:EnableMouse(true)
  local gearTypes={{nil,'Все типы'},{'cloth','Ткань'},{'leather','Кожа'},{'mail','Кольчуга'},{'plate','Латы'},{'shield','Щиты'},{'accessory','Плащи и аксессуары'},{'weapon','Оружие'}}
@@ -824,8 +835,8 @@ function A:CreateAtlas()
   f.rows[i]=r
  end
  self:CreateAtlasSourcePane(f)
- f.gearMode=button(f,'Улучшения',178,-631,117,function()
-  f.category=f.category=='gear' and 'upgrades' or 'gear'
+ f.gearMode=button(f,'Весь каталог',178,-631,117,function()
+  f.category=f.category=='upgrades' and 'catalog' or 'upgrades'
   search()
  end)
  f.moreCandidates=button(f,'Проверить ещё',300,-631,124,function() local scan=f.recommendScan;if scan then scan.limit=math.min(#scan.list,scan.limit+128);self:RefreshAtlas() end end);f.moreCandidates:Hide()
@@ -836,7 +847,15 @@ function A:CreateAtlas()
  button(f,'Настройки',261,-599,118,function() f:Hide();self.settings:Show();self:RefreshSettings() end)
  f.status=label(f,'',17,-638,407,10,{.67,.72,.68})
  f:EnableMouseWheel(true);f:SetScript('OnMouseWheel',function(_,d) f.page=f.page-d;self:RefreshAtlas() end)
- f:SetScript('OnHide',function() GameTooltip:Hide();f.search:ClearFocus();f.gearMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:Hide();f.slotMenu:Hide();self.specMenu:Hide() end)
+ f:SetScript('OnHide',function()
+  GameTooltip:Hide();f.search:ClearFocus();f.gearMenu:Hide();f.categoryMenu:Hide();f.scopeMenu:Hide();f.languageMenu:Hide();f.slotMenu:Hide();self.specMenu:Hide()
+  if not self.itemSourceLinks and not self.searchTerms then return end
+  f.closeSerial=(f.closeSerial or 0)+1
+  local serial=f.closeSerial
+  C_Timer.After(20,function()
+   if self.atlas==f and not f:IsShown() and f.closeSerial==serial then self:DiscardAtlasIndex() end
+  end)
+ end)
  f:Hide()
 end
 function A:OpenAtlas(query)
@@ -860,8 +879,8 @@ function A:RefreshAtlas()
  if changed then f.results=results();values=f.category=='upgrades' and self:PersonalRecommendations(f.results) or f.results;pages=math.max(1,math.ceil(#values/8));f.page=math.max(1,math.min(pages,f.page)) end
  f.heading:SetText((f.showingRecent and 'Недавно выбраны: ' or 'Найдено: ')..#values)
  local personal=f.category=='gear' or f.category=='upgrades'
- f.gearMode:SetShown(personal)
- f.gearMode:SetText(f.category=='upgrades' and 'Для меня' or 'Улучшения')
+ f.gearMode:SetShown(personal or f.category=='catalog')
+ f.gearMode:SetText(f.category=='upgrades' and 'Весь каталог' or 'Для меня')
  local equipment=personal or f.category=='catalog'
  f.slotButton:SetShown(equipment)
  f.slotButton:SetText((f.gearSlotNames[f.gearSlot] or 'Все слоты')..'  v')
@@ -874,7 +893,12 @@ function A:RefreshAtlas()
    local item=self.items[iid];local name,icon=self:ItemDisplay(iid);local c=colors[item.quality] or {.65,.65,.65}
    r.action:Hide();r.mapButton:Show();r.mapButton:Enable();r.title:SetWidth(282);r.meta:SetWidth(282);r.icon:SetTexture(icon);r.border:Show();self:StyleRarityBorder(r.border,c,item.quality)
    r.title:SetText(name);r.title:SetTextColor(c[1],c[2],c[3])
-   local _,special=self:SpecialRank(iid);local comparison=self:CompareItem(iid);r.detail:SetText(comparison and comparison.text or '')
+   local _,special=self:SpecialRank(iid)
+   local scan=f.category=='upgrades' and f.recommendScan
+   local comparison=scan and scan.scores[iid] or self:CompareItem(iid)
+   local rank=scan and scan.ranks[iid]
+   local points=comparison and comparison.delta and (string.format('%+.1f',comparison.delta)..' балл. · ') or ''
+   r.detail:SetText(comparison and (rank and ('№'..rank..' · ') or '')..points..comparison.text or '')
    local better=comparison and (comparison.state=='better' or comparison.state=='empty');r.detail:SetTextColor(better and .35 or .72,better and .95 or .73,.62)
    local slot=equipment and f.gearSlotNames[self:GearSlot(item)]
    r.meta:SetText((slot and slot..' · ' or '')..(special or qualities[item.quality] or 'Качество неизвестно')..(item.level and item.level>0 and (' · с '..item.level..' ур.') or ''))
@@ -889,7 +913,7 @@ function A:RefreshAtlas()
    f.status:SetText('Проверено: '..checked..' / '..#scan.list..((f.recommendUnknown or 0)>0 and (' · без оценки: '..f.recommendUnknown) or ''))
   end
  else
-  f.status:SetWidth(personal and 152 or 407)
+  f.status:SetWidth((personal or f.category=='catalog') and 152 or 407)
   f.status:SetText(#values==0 and 'Ничего не найдено.' or personal and 'Доступные варианты' or 'Выбери вещь: источники появятся справа')
  end
  self:RefreshAtlasSources()

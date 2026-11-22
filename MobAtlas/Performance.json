@@ -13,5 +13,12 @@
       "newItems": 8,
       "fullIndexRebuilds": 0
     }
+  },
+  "settledHeapMiB": {
+    "method": "Lua 5.1 collectgarbage count after collection, same shipped catalog and mock environment; not client addon attribution",
+    "0.7.15": 317.67,
+    "0.7.16": 160.2,
+    "0.7.17": 82.45,
+    "0.7.17 atlas open (empty search)": 105.44
   }
 }

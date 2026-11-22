@@ -134,7 +134,7 @@ local expected={999704,999707,999706,999705,999702,999701}
 assert(#list==#expected)
 for i,id in ipairs(expected) do assert(list[i][1]==id,'map card sorts by quality, known ascending chance, then unknown') end
 A.focus={itemID=262889,ids={[999714]=true}}
-A.itemSources[262889]={{npcID=999714,entries={mob.loot[1]}}}
+A:IndexLootEntry(999714,mob.loot[1])
 assert(A:FocusedLoot(999714)[1][1]==262889,'explicit item navigation remains available')
 A.focus=nil
 A.db.sharedLoot=true

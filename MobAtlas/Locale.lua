@@ -453,6 +453,14 @@ en['лечения']='healing'
 en['духа']='spirit'
 en['крита']='crit'
 en['меткости']='hit'
+en['Оценки по спекам']='Spec ratings'
+en['Оценка вещи по спекам']='Item rating by specialization'
+en[' балл.']=' pts'
+en['без оценки']='unscored'
+en[' к надетому']=' vs. equipped'
+en['Баллы сравниваются в одном слоте и спеке.']='Compare points within the same slot and specialization.'
+en['Весь каталог']='Full catalog'
+en[' в слоте среди проверенных']=' in slot among checked items'
 local keys={};for key in pairs(en) do keys[#keys+1]=key end
 table.sort(keys,function(a,b) return #a>#b end)
 function A:GetLanguage()

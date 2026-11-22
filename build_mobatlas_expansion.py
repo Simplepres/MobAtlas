@@ -163,7 +163,51 @@ for iid,rows in other.items():
  for s in rows:
   if s['kind']=='quest':rewards.setdefault(s['id'],[]).append(iid)
 for id,q in questdata.items():q['rewards']=sorted(set(rewards.get(id,[])))
-(out:=R/'MobAtlas'/'Expansion.lua').write_text('-- Local catalog expansion. Provenance: Expansion-BUILD.json / SOURCES.md\nlocal _,A=...\nA.extraItems='+lua(itemmeta)+'\nA.extraMobs='+lua(extra_mobs)+'\nA.otherSources='+lua(other)+'\nA.dungeonQuests='+lua(questdata)+'\nfor id,v in pairs('+lua({int(k):instances[int(k)] for k in curated['instances']})+') do A.instances[id]=v end\n')
-report={'schemaVersion':1,'kb':meta,'itemCatalog':len(itemmeta),'skippedHiddenOrJunk':rejected,'npcSourceLinks':links,'otherSourceLinks':sum(map(len,other.values())),'ahledgerMetadataRows':ahcount,'dungeonQuestRecords':len(questdata),'dungeonQuests':len(members),'questDungeons':len({d for ds in members.values() for d in ds}),'inputs':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(cache.glob('*.json'))},'limits':'KB drop rates are Classic reference, not current Forever measurements. AHledger only item metadata; no invented spawn coordinates. Local testing build, third-party notices retained.'}
+# Share immutable source records and point lists across items and quests.
+def intern(pool, encoded):
+ if encoded not in pool:pool[encoded]=len(pool)+1
+ return pool[encoded]
+
+def reference(symbol,index):return f'{symbol}[{index}]'
+
+def sequence(encoded):return '{'+','.join(encoded)+'}'
+
+def indexed(records):return '{'+','.join(f'[{key}]={value}' for key,value in sorted(records.items()))+'}'
+
+locations={};givers={};giver_lists={};source_rows={};source_lists={}
+
+def encode_record(record):
+ fields=[]
+ for key,value in sorted(record.items()):
+  if key=='points':
+   encoded=reference('locations',intern(locations,lua(value)))
+  elif key=='givers':
+   refs=(reference('givers',intern(givers,encode_record(item))) for item in value)
+   encoded=reference('giverLists',intern(giver_lists,sequence(refs)))
+  else:encoded=lua(value)
+  fields.append(f'[{lua(key)}]={encoded}')
+ return sequence(fields)
+
+packed_items={}
+for iid,rows in sorted(other.items()):
+ refs=(reference('sourceRows',intern(source_rows,encode_record(row))) for row in rows)
+ packed_items[iid]=reference('sourceLists',intern(source_lists,sequence(refs)))
+packed_quests={id:encode_record(q) for id,q in questdata.items()}
+lines=[
+ '-- Local catalog expansion. Provenance: Expansion-BUILD.json / SOURCES.md',
+ 'local _,A=...',
+ 'A.extraItems='+lua(itemmeta),
+ 'A.extraMobs='+lua(extra_mobs),
+ 'local locations='+sequence(locations),
+ 'local givers='+sequence(givers),
+ 'local giverLists='+sequence(giver_lists),
+ 'local sourceRows='+sequence(source_rows),
+ 'local sourceLists='+sequence(source_lists),
+ 'A.otherSources='+indexed(packed_items),
+ 'A.dungeonQuests='+indexed(packed_quests),
+ 'for id,v in pairs('+lua({int(k):instances[int(k)] for k in curated['instances']})+') do A.instances[id]=v end',
+]
+(out:=R/'MobAtlas'/'Expansion.lua').write_text('\n'.join(lines)+'\n')
+report={'schemaVersion':2,'uniqueSourceRecords':len(source_rows),'uniquePointLists':len(locations),'kb':meta,'itemCatalog':len(itemmeta),'skippedHiddenOrJunk':rejected,'npcSourceLinks':links,'otherSourceLinks':sum(map(len,other.values())),'ahledgerMetadataRows':ahcount,'dungeonQuestRecords':len(questdata),'dungeonQuests':len(members),'questDungeons':len({d for ds in members.values() for d in ds}),'inputs':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(cache.glob('*.json'))},'limits':'KB drop rates are Classic reference, not current Forever measurements. AHledger only item metadata; no invented spawn coordinates. Local testing build, third-party notices retained.'}
 (R/'MobAtlas/Expansion-BUILD.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 print(json.dumps({k:v for k,v in report.items() if k not in ('kb','inputs')},ensure_ascii=False))

@@ -38,7 +38,7 @@ A.focusButton.scripts.OnClick();assert(not A.focus and not A.focusButton:IsShown
 MOCK.combat=true;local ok=A:FocusSource(5191,639,1436);assert(ok and A.focus,'source focus works on open combat map');A:ClearFocus();MOCK.combat=false
 local ok=A:FocusSource(5191,639,nil);assert(not ok and not A.focus)
 -- Deliberate outdoor focus shows every real source position, despite conflicting map filters.
-local source=A.itemSources[8499][1];local loc=A:SourceLocations(source.npcID)[1]
+local source=A:ItemSources(8499)[1];local loc=A:SourceLocations(source.npcID)[1]
 assert(loc.kind=='spawn');assert(A:FocusSource(8499,source.npcID,loc.mapID))
 local cells,total=A:BuildMap(loc.mapID);assert(total==1 and #cells>0)
 for _,c in ipairs(cells) do assert(not c.dungeon and #c.ids==1 and c.ids[1]==source.npcID) end
@@ -51,7 +51,7 @@ function GetLootSourceInfo(slot) if slot==1 then return 'Creature-0-1-2-3-43-000
 local fullBuild=A.BuildAtlasIndex;local allMetadata=A.ApplyForeverItems;local replay=A.RestoreLoot
 A.BuildAtlasIndex=function() error('Full search rebuild during loot') end;A.ApplyForeverItems=function() error('Full metadata pass during loot') end;A.RestoreLoot=function() error('Full saved history replay during loot') end
 A:CaptureLoot();A.BuildAtlasIndex=fullBuild;A.ApplyForeverItems=allMetadata;A.RestoreLoot=replay;assert(A.db.lootFinds[43].items[990001]);assert(not A.items[990002],'object loot cannot be assigned to a mob')
-assert(A.itemSources[990001] and A:SourceEntry(A.itemSources[990001][1])[2]==8)
+assert(A:HasKnownSource(990001) and A:SourceEntry(A:ItemSources(990001)[1])[2]==8)
 local n=#A.mobs[43].loot;A:CaptureLoot();assert(#A.mobs[43].loot==n,'reopened loot window does not duplicate links')
 assert(A:Chance({990001,8,-1}):find('неизвестен',1,true),'one personal find never produces a drop rate')
 function GetLootSourceInfo() error('source inaccessible') end
@@ -78,7 +78,7 @@ function ShowUIPanel(f) f:Show() end
 assert(A:ShowQuestOnMap(167) and WorldMapFrame:IsShown(),'UI panel fallback opens a hidden map')
 A:UnpinQuest();ShowUIPanel=nil;WorldMapFrame:Hide();assert(not A:ShowQuestOnMap(167),'failed open must not report success')
 function OpenWorldMap() WorldMapFrame:Show() end
-A:ClearFocus(false);A.atlas=nil;A:OpenAtlas();assert(A.atlas.category=='gear' and A.atlas.myLevel and A.atlas.knownOnly)
+A:ClearFocus(false);A.atlas=nil;A:OpenAtlas();assert(A.atlas.category=='upgrades' and A.atlas.myLevel and A.atlas.knownOnly)
 for _,iid in ipairs(A.atlas.results) do local item=A.items[iid];assert((item.classID==2 or item.classID==4) and (item.level or 0)<=UnitLevel('player') and A:HasKnownSource(iid)) end
 A.atlas.categoryButton.scripts.OnClick();assert(A.atlas.categoryMenu:IsShown(),'explicit category chooser')
 A.atlas.scopeButton.scripts.OnClick();assert(A.atlas.scopeMenu:IsShown() and not A.atlas.categoryMenu:IsShown())
@@ -94,7 +94,7 @@ local card=A:FocusedLoot(628);assert(card[1][1]==12992 and card[1][2]==14 and ca
 local sources=A:AtlasSources(12992,'all')
 assert(sources[1].npcID==628 and sources[1].location.mapID==1431 and sources[1].entry[2]==14)
 local shared
-for _,source in ipairs(A.itemSources[12992]) do
+for _,source in ipairs(A:ItemSources(12992)) do
  if source.npcID==628 then for _,entry in ipairs(source.entries) do if entry[2]==1 and entry[4] then shared=entry end end end
 end
 assert(shared and A:Chance(shared):find('Classic',1,true) and shared[3]==-1)

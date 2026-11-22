@@ -1,5 +1,7 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
+  "uniqueSourceRecords": 4851,
+  "uniquePointLists": 1142,
   "kb": {
     "game": "World of Warcraft: Forever",
     "client_build": "1.60.1.70959",

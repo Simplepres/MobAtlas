@@ -21,7 +21,7 @@ assert(A:HasAccessibleAtlasSource(253981,'all',false) and not A:HasAccessibleAtl
 local gear=A:FindItems('','gear','all',nil,{level=true});local slots={}
 for i=1,8 do local slot=A:GearSlot(A.items[gear[i]]) or 'other';assert(not slots[slot],'first page is spread across slots');slots[slot]=true end
 MOCK.class='ROGUE';MOCK.playerLevel=25;A.db.specOnly=true;A:RefreshGearProfile()
-A.itemSources={};A.searchTerms={};A.mappableItems={};A.accessibleAtlasSources={}
+A.items={};A.otherSources={};A.itemSourceLinks={};A.searchTerms={};A.mappableItems={};A.accessibleAtlasSources={}
 A.mobs[999800]={name='Test mob',min=24,max=25,points={{1429,30,40}},loot={}}
 A.mobs[999801]={name='Enemy vendor',vendor=true,friendly='H',points={{1429,40,40}},stock={}}
 local function add(id,agi,quality,level,cls,sub,loc,npc,method)
@@ -32,18 +32,22 @@ end
 add(999901,9,2,25);add(999902,1,2,25);add(999903,50,0,25);add(999904,50,2,30);add(999905,7,2,25);MOCK.items[999905]=nil;A.atlasLoadFailures={[999905]=true}
 add(999906,0,2,25);MOCK.items[999906].stats={ITEM_MOD_INTELLECT_SHORT=15}
 add(999907,10,2,25,2,19,'INVTYPE_RANGEDRIGHT');add(999908,10,2,25,4,2,'INVTYPE_CHEST',999801,5)
-add(999909,0,2,25);MOCK.items[999909].stats={}
+add(999910,12,2,25);add(999909,0,2,25);MOCK.items[999909].stats={}
 MOCK.items[999900]={name='Worn',class=4,subclass=2,loc='INVTYPE_CHEST',quality=2,level=20,stats={ITEM_MOD_AGILITY_SHORT=5}}
 MOCK.equipped[5]=999900;function GetInventoryItemLink(_,slot) local id=MOCK.equipped[slot];return id and 'item:'..id end
 C_Item.GetItemInfo=function(id) if type(id)=='string' then id=tonumber(id:match('item:(%d+)')) end;local d=MOCK.items[id];if not d then return end;return d.name,'item:'..id,d.quality,30,d.level,'Armor','Leather',1,d.loc,134400,1,d.class,d.subclass end
 A:OpenAtlas()
-assert(A.atlas.category=='gear' and #A.atlas.results>0,'class catalog defaults on')
+assert(A.atlas.category=='upgrades' and #A.atlas.results>0,'strict improvements default on')
 local f=A.atlas
 f.category='upgrades';f.results=nil
 for i=1,4 do A:RefreshAtlas() end
 assert(#A.atlas.rows==8,'eight item rows')
 local visible={};for _,row in ipairs(A.atlas.rows) do if row:IsShown() then visible[row.itemID]=true end end
-assert(visible[999901],'confirmed upgrade visible')
+assert(visible[999901] and visible[999910],'confirmed upgrades visible')
+assert(f.recommendScan.ranks[999910]==1 and f.recommendScan.ranks[999901]==2 and not f.recommendScan.ranks[999902],'ranks order improvements within slot and exclude worse items')
+assert(f.rows[1].detail:GetText():find('№1',1,true),'rank is rendered')
+f.gearMode.scripts.OnClick();assert(f.category=='catalog','full gear remains available')
+f.gearMode.scripts.OnClick();assert(f.category=='upgrades','return to strict upgrades')
 for _,id in ipairs({999902,999903,999904,999905,999906,999907,999908,999909}) do assert(not visible[id],'exclude bad candidate '..id) end
 A.events.scripts.OnEvent(A.events,'ITEM_DATA_LOAD_RESULT',999901,true);A:RefreshAtlas();local retained=false;for _,row in ipairs(A.atlas.rows) do if row:IsShown() and row.itemID==999901 then retained=true end end;assert(retained,'loading another item never clears confirmed recommendations')
 C_TooltipInfo={GetHyperlink=function() return {lines={{leftText='Requires Test Faction - Exalted',leftColor={r=1,g=0,b=0}}}} end};A.events.scripts.OnEvent(A.events,'UPDATE_FACTION');A:RefreshAtlas();local blocked=true;for _,row in ipairs(A.atlas.rows) do if row:IsShown() and row.itemID==999901 then blocked=false end end;assert(blocked,'red client reputation requirement blocks recommendation');C_TooltipInfo=nil;A.atlasRequirementCache=nil
@@ -72,5 +76,12 @@ A.db.gearSpec=3;A:RefreshGearProfile()
 assert(A:CompareItem(999901).state~='better','shadow priest does not receive a damage upgrade from healing-only stats')
 A.db.specOnly=false
 assert(A:CompareItem(999901).state=='better','disabling spec uses general priest priorities')
+local holy=A:CompareItem(999901,A.gearSpecs.PRIEST[2])
+local shadow=A:CompareItem(999901,A.gearSpecs.PRIEST[3])
+assert(holy.score>shadow.score and holy.delta>0 and shadow.delta<0,'same item gets distinct scores and comparisons per spec')
+assert(not A.db.specOnly and A.db.gearSpec==3,'rating preview does not change configuration')
+A:OpenAtlas('999901');A:SelectAtlasItem(999901)
+assert(A.atlas.gearRatings:IsShown(),'the item has a spec rating in the full catalog')
+A.atlas.gearRatings.scripts.OnEnter(A.atlas.gearRatings)
 print('PASS personal recommendations: client-confirmed upgrade, weaker/grey/future/unavailable/caster/wand/enemy-vendor rejection, eight rows, bounded work, actual buy price and drop rate')
 ''')

@@ -2,31 +2,31 @@
 
 # MobAtlas · Следопыт
 
-Атлас добычи, экипировки и заданий для **WoW Forever**. **Бета 0.7.15.**
+Атлас добычи, экипировки и заданий для **WoW Forever**. **Бета 0.7.17.**
 
-A loot atlas, gear finder and dungeon quest guide for **WoW Forever**. **Beta 0.7.15.**
+A loot atlas, gear finder and dungeon quest guide for **WoW Forever**. **Beta 0.7.17.**
 
 [**Скачать / Download**](https://github.com/Simplepres/MobAtlas/releases/latest) · [Скриншоты / Gallery](#скриншоты--gallery) · [Сообщить о баге / Report an issue](https://github.com/Simplepres/MobAtlas/issues)
 
-## Что нового в 0.7.15
+## Что нового в 0.7.17
 
-- **Экипировка для себя.** Выбери слот, переключись на «Улучшения» и сравни предмет с тем, что надето. Подбор показывает, сколько кандидатов уже проверено.
-- **Где взять.** На правой странице видны источники, превью карты и продавцы известных выкроек.
-- **Редкая добыча.** В карточке моба видны синие вещи и выше, включая общие пулы. Прямые находки и справочные источники подписаны отдельно.
+- **Меньше памяти.** Одинаковые записи базы хранятся один раз. Поисковый индекс строится по необходимости и освобождается после закрытия атласа.
+- **Улучшения по слотам.** «Для меня» показывает улучшения и вещи для пустых слотов. У проверенных вещей есть место в рейтинге слота.
+- **Сравнение по спекам.** Открой предмет и наведи на «Оценки по спекам», чтобы увидеть баллы и разницу с надетым для веток своего класса.
 
-## What’s new in 0.7.15
+## What’s new in 0.7.17
 
-- **Gear for your character.** Pick a slot, switch to Upgrades, and compare items with what you have equipped. The atlas shows how many candidates it has checked.
-- **Find an item.** The right page shows sources, map previews, and pattern vendors where known.
-- **Rare loot.** Mob cards include blue items and better from shared pools. Direct findings and reference sources carry distinct labels.
+- **Lower memory use.** Identical database records are shared. The search index is built on demand and released after the atlas closes.
+- **Slot rankings.** Gear for me shows upgrades and gear for empty slots. Checked items are ranked within their slot.
+- **Spec ratings.** Select an item and hover over Spec ratings to see its score and how it compares with your equipped gear for each specialization in your class.
 
 [Как работает подбор экипировки / Gear discovery and comparison](docs/DEVELOPMENT-NOTES.ru.md#как-атлас-помогает-выбрать-экипировку)
 
 ## Установка / Install
 
-Распакуй **MobAtlas-0.7.15.zip** в `Interface/AddOns/` клиента Forever и полностью перезапусти WoW. Открой атлас через книжку у миникарты или `/mobatlas`. ПКМ по книжке открывает настройки отслеживания.
+Распакуй **MobAtlas-0.7.17.zip** в `Interface/AddOns/` клиента Forever и полностью перезапусти WoW. Открой атлас через книжку у миникарты или `/mobatlas`. ПКМ по книжке открывает настройки отслеживания.
 
-Extract **MobAtlas-0.7.15.zip** into the Forever client’s `Interface/AddOns/` folder and restart WoW. Click the minimap book or type `/mobatlas`. Right-click the book for tracking settings.
+Extract **MobAtlas-0.7.17.zip** into the Forever client’s `Interface/AddOns/` folder and restart WoW. Click the minimap book or type `/mobatlas`. Right-click the book for tracking settings.
 
 ## Скриншоты / Gallery
 

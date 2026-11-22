@@ -28,7 +28,7 @@ function A:ApplyExpansion()
 end
 function A:UsefulItem(iid)
  local item=self.items[iid];if not item then return false end
- if #((self.itemSources or {})[iid] or {})==0 and #((self.otherSources or {})[iid] or {})==0 then return false end
+ if not self:HasKnownSource(iid) then return false end
  return self:VendorRelevant(item,iid,self:Professions())
 end
 function A:QuestName(id)
