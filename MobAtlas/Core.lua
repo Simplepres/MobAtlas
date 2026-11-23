@@ -1,6 +1,6 @@
 local _,A=...
 _G.MobAtlas=A
-A.version='0.7.20';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
+A.version='0.7.21';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
 A.profNames={[129]='Первая помощь',[164]='Кузнечное дело',[165]='Кожевничество',[171]='Алхимия',[185]='Кулинария',[197]='Портняжное дело',[202]='Инженерное дело',[333]='Наложение чар'}
 A.methods={[1]='Добыча',[2]='Снятие шкур',[3]='Карманная кража',[4]='Forever · способ не разделён',[5]='Продажа · справочник QuestieDB',[6]='Продажа · личное наблюдение',[7]='Добыча · справочник Forever',[8]='Личная находка · способ не определён',[9]='Classic · vMaNGOS через KB',[10]='Награда за задание',[11]='Изготовление',[12]='Сундук / объект · Classic',[13]='Содержимое предмета',[14]='Forever · сообщение игрока'}
 function A:Safe(fn,...)
@@ -159,11 +159,17 @@ function A:ClassFits(item,id,force,cacheOnly,profile)
 end
 -- Original transparent comparison heuristic, independent of GearQuest's implementation/data.
 local equipSlots={INVTYPE_HEAD={1},INVTYPE_NECK={2},INVTYPE_SHOULDER={3},INVTYPE_BODY={4},INVTYPE_CHEST={5},INVTYPE_ROBE={5},INVTYPE_WAIST={6},INVTYPE_LEGS={7},INVTYPE_FEET={8},INVTYPE_WRIST={9},INVTYPE_HAND={10},INVTYPE_FINGER={11,12},INVTYPE_TRINKET={13,14},INVTYPE_CLOAK={15},INVTYPE_WEAPON={16},INVTYPE_WEAPONMAINHAND={16},INVTYPE_WEAPONOFFHAND={17},INVTYPE_SHIELD={17},INVTYPE_HOLDABLE={17},INVTYPE_2HWEAPON={16},INVTYPE_RANGED={18},INVTYPE_RANGEDRIGHT={18},INVTYPE_THROWN={18},INVTYPE_RELIC={18}}
-function A:ComparisonInfo(key)
- self.comparisonInfo=self.comparisonInfo or {};if self.comparisonInfo[key] then return self.comparisonInfo[key] end
+function A:ComparisonInfo(key,uncached)
+ local cached=self.comparisonInfo and self.comparisonInfo[key]
+ if cached then return cached end
  local fn=C_Item and C_Item.GetItemInfo or GetItemInfo;if not fn then return end
  local v={pcall(fn,key)};if not v[1] or not v[2] then return end
- local result={name=v[2],link=v[3] or key,level=v[6] or 0,loc=v[10],classID=v[13],subclass=v[14],quality=v[4]};self.comparisonInfo[key]=result;return result
+ local result={name=v[2],link=v[3] or key,level=v[6] or 0,loc=v[10],classID=v[13],subclass=v[14],quality=v[4]}
+ if not uncached then
+  self.comparisonInfo=self.comparisonInfo or {}
+  self.comparisonInfo[key]=result
+ end
+ return result
 end
 -- Load only visible item metadata. No item-ID sweep or startup server scan.
 function A:HydrateAtlasItem(iid)
@@ -323,6 +329,10 @@ function A:CompareItem(iid,profile)
   local link=self:Safe(GetInventoryItemLink,'player',slot)
   local equippedID=self:Safe(GetInventoryItemID,'player',slot) or type(link)=='string' and tonumber(link:match('item:(%d+)'))
   if link and (link==info.link or itemPayload and type(link)=='string' and link:match('item:[%d:%-]+')==itemPayload) then return {state='same',text='Уже надето',score=candidateScore,slot=slot} end
+  if equippedID then
+   self.wornComparisonItems=self.wornComparisonItems or {}
+   self.wornComparisonItems[equippedID]=true
+  end
   if equippedID==iid then variant=slot end
   if link then equipment[slot]=link elseif not equippedID then empty=empty or slot end
  end
@@ -497,7 +507,7 @@ function A:BuildMap(mapID)
  return out,total
 end
 function A:Invalidate()
- self.accessibleAtlasSources=nil;if self.atlas then self.atlas.results=nil;self.atlas.sourceCache=nil;self.atlas.recommendScan=nil end
+ self.wornComparisonItems=nil;self.accessibleAtlasSources=nil;if self.atlas then self.atlas.results=nil;self.atlas.sourceCache=nil;self.atlas.recommendScan=nil end
  self:ClearFocus(false,true);self:Update()
 end
 function A:Init()
@@ -540,7 +550,8 @@ A.events:SetScript('OnEvent',function(_,event,arg,success)
   if issecretvalue and issecretvalue(arg) or type(arg)~='number' then return end
   local hadGearStats=A.gearStatCache and A.gearStatCache[arg]~=nil
   local scan=A.atlas and A.atlas.recommendScan
-  local relevant=hadGearStats or A.atlasRequested and A.atlasRequested[arg] or A.pendingLootItems and A.pendingLootItems[arg]
+  local equippedChanged=A.wornComparisonItems and A.wornComparisonItems[arg]
+  local relevant=equippedChanged or hadGearStats or A.atlasRequested and A.atlasRequested[arg] or A.pendingLootItems and A.pendingLootItems[arg]
    or A.comparisonInfo and A.comparisonInfo[arg] or scan and (scan.pending[arg] or scan.scores[arg])
    or A.atlas and A.atlas.selectedItem==arg
   if not relevant then return end
@@ -551,7 +562,8 @@ A.events:SetScript('OnEvent',function(_,event,arg,success)
   for _,cache in ipairs({A.comparisonInfo or {},A.comparisonStats or {},A.gearTooltipStats or {}}) do
    for key in pairs(cache) do if key==arg or type(key)=='string' and tonumber(key:match('item:(%d+)'))==arg then cache[key]=nil end end
   end
-  A:RefreshObservedLootItem(arg);A:RefreshRecommendationItem(arg)
+  A:RefreshObservedLootItem(arg)
+  if equippedChanged and A.atlas then A.atlas.recommendScan=nil else A:RefreshRecommendationItem(arg) end
   if hadGearStats and A.db.specOnly then A.dirty=true;if A.atlas and A.atlas.category~='upgrades' then A.atlas.results=nil end end
   if A.atlas and A.atlas:IsShown() and not A.comparisonRefreshPending then
    A.comparisonRefreshPending=true
@@ -563,8 +575,20 @@ A.events:SetScript('OnEvent',function(_,event,arg,success)
  elseif event=='UPDATE_FACTION' and A.db then
   A.atlasRequirementCache=nil
   if A.atlas then A.atlas.recommendScan=nil;if A.atlas:IsShown() then A:RefreshAtlas() end end
- elseif (event=='PLAYER_TALENT_UPDATE' or event=='ACTIVE_TALENT_GROUP_CHANGED') and A.db then A:RefreshGearProfile();if A.db.specOnly then A:RefreshSettings();A:Invalidate() end
- elseif event=='PLAYER_LOGIN' then A:Init() elseif A.db and (event=='QUEST_LOG_UPDATE' or event=='QUEST_ACCEPTED' or event=='QUEST_TURNED_IN') then A:QuestLogChanged(event) elseif A.db and (event=='LOOT_OPENED' or event=='LOOT_READY' or event=='LOOT_SLOT_CHANGED') then A:CaptureLoot() elseif A.db and (event=='MERCHANT_SHOW' or event=='MERCHANT_UPDATE') then A:CaptureMerchant() elseif A.db then A:Invalidate();if event=='PLAYER_EQUIPMENT_CHANGED' and A.atlas and A.atlas:IsShown() then A:RefreshAtlas() end end
+ elseif (event=='PLAYER_TALENT_UPDATE' or event=='ACTIVE_TALENT_GROUP_CHANGED') and A.db then
+  A:RefreshGearProfile()
+  if A.db.specOnly then
+   A:RefreshSettings();A:Invalidate()
+   if A.atlas and A.atlas:IsShown() then A:RefreshAtlas() end
+  end
+ elseif event=='PLAYER_LOGIN' then A:Init()
+ elseif A.db and (event=='QUEST_LOG_UPDATE' or event=='QUEST_ACCEPTED' or event=='QUEST_TURNED_IN') then A:QuestLogChanged(event)
+ elseif A.db and (event=='LOOT_OPENED' or event=='LOOT_READY' or event=='LOOT_SLOT_CHANGED') then A:CaptureLoot()
+ elseif A.db and (event=='MERCHANT_SHOW' or event=='MERCHANT_UPDATE') then A:CaptureMerchant()
+ elseif A.db then
+  A:Invalidate()
+  if A.atlas and A.atlas:IsShown() then A:RefreshAtlas() end
+ end
 end)
 for _,event in ipairs({'PLAYER_EQUIPMENT_CHANGED','PLAYER_TALENT_UPDATE','ACTIVE_TALENT_GROUP_CHANGED','PLAYER_LOGIN','SKILL_LINES_CHANGED','PLAYER_LEVEL_UP','PLAYER_ENTERING_WORLD','MERCHANT_SHOW','MERCHANT_UPDATE','LOOT_OPENED','LOOT_READY','LOOT_SLOT_CHANGED','GET_ITEM_INFO_RECEIVED','ITEM_DATA_LOAD_RESULT','QUEST_LOG_UPDATE','UPDATE_FACTION','QUEST_TURNED_IN','QUEST_ACCEPTED'}) do A.events:RegisterEvent(event) end
 
@@ -650,7 +674,12 @@ end
 function A:RestoreMerchants()
  self.db.merchants=type(self.db.merchants)=='table' and self.db.merchants or {}
  for id,m in pairs(self.db.merchants) do
-  for iid,item in pairs(m.items or {}) do self.items[iid]=item end
+  for iid,item in pairs(m.items or {}) do
+   local catalog=self.items[iid]
+   if catalog then
+    for key,value in pairs(item) do catalog[key]=value end
+   else self.items[iid]=item end
+  end
   local npc=self.mobs[id] or {points={},min=0,max=0,loot={}}
   npc.vendor=true;npc.name=m.name;npc.stock=m.stock;self.mobs[id]=npc
  end
@@ -668,10 +697,16 @@ function A:CaptureMerchant()
     local name,texture,price,quantity,stock,usable,extended=self:Safe(GetMerchantItemInfo,i)
     info={name=name,texture=texture,price=price,stackCount=quantity,numAvailable=stock,hasExtendedCost=extended}
    end
-   local item=self.items[iid] or {name=info.name or ('Предмет #'..iid),quality=-1,classID=-1,subclass=-1,prof={}}
-   local fn=C_Item and C_Item.GetItemInfo or GetItemInfo
-   if fn then local v={pcall(fn,iid)};if v[1] and v[2] then item={name=v[2],quality=v[4] or -1,level=v[6] or 0,classID=v[13] or -1,subclass=v[14] or -1,prof=item.prof or {},observed=true} end end
-   m.items[iid]=item;self.items[iid]=item
+   local item={name=info.name or ('Предмет #'..iid),quality=-1,classID=-1,subclass=-1,prof={}}
+   for key,value in pairs(self.items[iid] or {}) do item[key]=value end
+   local client=self:ComparisonInfo(iid,true)
+   if client then
+    item.name=client.name;item.quality=client.quality or item.quality;item.level=client.level
+    item.classID=client.classID or item.classID;item.subclass=client.subclass or item.subclass
+    item.slot=client.loc and client.loc~='' and client.loc or item.slot
+    item.observed=true
+   end
+   m.items[iid]=item
    m.stock[#m.stock+1]={iid,6,-1,false,info.price or -1,info.stackCount or info.quantity or 1,info.numAvailable,info.hasExtendedCost}
   else incomplete=true end
  end
@@ -679,8 +714,13 @@ function A:CaptureMerchant()
  if incomplete or #m.stock==0 then return end
  local oldIDs={};local npc=self.mobs[id] or {points={},min=0,max=0,loot={}}
  for _,list in ipairs({npc.loot or {},npc.stock or {}}) do for _,e in ipairs(list) do oldIDs[e[1]]=true end end
+ for iid,item in pairs(m.items) do self.items[iid]=item end
  self.db.merchants[id]=m;npc.vendor=true;npc.name=m.name;npc.stock=m.stock;self.mobs[id]=npc
- self:RefreshNpcIndex(id,oldIDs);self.dirty=true;if self.atlas then self.atlas.results=nil end
+ self:RefreshNpcIndex(id,oldIDs);self.dirty=true
+ if self.atlas then
+  self.atlas.results=nil;self.atlas.recommendScan=nil;self.atlas.sourceCache=nil
+  if self.atlas:IsShown() then self:RefreshAtlas() end
+ end
 end
 
 -- Relevance, not a BiS score: level band, class proficiency, preferred armour, own trades.

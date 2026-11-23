@@ -29,7 +29,7 @@ assert(broad>direct);print('Defias Smuggler: '..direct..' main unique items / '.
 local seen={};for _,e in ipairs(A:Loot(95)) do assert(not seen[e[1]]);seen[e[1]]=true end
 A.db.sharedLoot=false
 -- Prefer an observation without adding two chances or mutating source rows.
-A.items[999]={name='Test',quality=2,classID=4,subclass=2,level=1,prof={}}
+A.items[999]={name='Test',ruName='Тест',referenceName='Reference',slot='INVTYPE_CHEST',quality=2,classID=4,subclass=2,level=1,prof={}}
 A.mobs[999]={name='Test NPC',min=1,max=1,points={},loot={{999,1,80,false},{999,4,20,false,2,10,3}}}
 local result=A:Loot(999);assert(#result==1 and result[1][3]==20 and #result[1].alternatives==2)
 assert(#A.mobs[999].loot[1]==4)
@@ -37,8 +37,11 @@ assert(#A.mobs[999].loot[1]==4)
 function UnitGUID(unit) if unit=='npc' then return 'Creature-0-1-2-3-999-0001' end end
 function GetMerchantNumItems() return 1 end
 function GetMerchantItemLink() return 'item:999' end
+MOCK.items[999]={name='Test live',loc='INVTYPE_CHEST',quality=2,class=4,subclass=2,level=1}
 C_MerchantFrame={GetItemInfo=function() return {name='Test',price=1200,stackCount=2,numAvailable=4,hasExtendedCost=false} end}
 local full=A.BuildAtlasIndex;A.BuildAtlasIndex=function() error('full rebuild in merchant event') end;A:CaptureMerchant();A.BuildAtlasIndex=full;assert(A.db.merchants[999] and A.mobs[999].vendor)
+assert(not (A.comparisonInfo or {})[999],'visiting a merchant does not fill the gear metadata cache')
+assert(A:GearSlot(A.items[999])=='chest' and A.items[999].ruName=='Тест' and A.items[999].referenceName=='Reference','merchant update preserves slot and search names')
 result=A:Loot(999);assert(#result==1 and result[1][2]==6 and result[1][5]==1200 and result[1][6]==2)
 assert(not A:Chance(result[1]):find('%%') and #A.mobs[999].points==0)
 function GetMerchantItemLink() return nil end
@@ -47,6 +50,9 @@ function GetMerchantItemLink() return 'item:999' end
 C_MerchantFrame.GetItemInfo=function() return {price=0,stackCount=1,numAvailable=1,hasExtendedCost=true} end
 A:CaptureMerchant();assert(A:Loot(999)[1][8]);assert(A:Chance(A:Loot(999)[1]):find('Особая',1,true))
 A.items[999].level=60;assert(#A:Loot(999)==0);A.db.vendorLevel=false;assert(#A:Loot(999)==1)
+A.db.merchants[999].items[999]={name='Old cached name',classID=4,subclass=2,quality=2}
+A:RestoreMerchants();assert(A:GearSlot(A.items[999])=='chest' and A.items[999].ruName=='Тест','old merchant caches merge without erasing catalog fields')
+
 local cells={{x=20,y=30,ids={6}},{x=20.1,y=30.1,ids={36}}}
 local grouped=A:CompactPoints(cells,1000,800);assert(#grouped==1 and #grouped[1].ids==2 and grouped[1].x==20,'group preserves NPC IDs and a real point')
 -- Separate camps stay separate even when connected by a long chain of spawn points.

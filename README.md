@@ -2,31 +2,31 @@
 
 # MobAtlas · Следопыт
 
-Атлас добычи, экипировки и заданий для **WoW Forever**. **Бета 0.7.20.**
+Атлас добычи, экипировки и заданий для **WoW Forever**. **Бета 0.7.21.**
 
-A loot atlas, gear finder and dungeon quest guide for **WoW Forever**. **Beta 0.7.20.**
+A loot atlas, gear finder and dungeon quest guide for **WoW Forever**. **Beta 0.7.21.**
 
 [**Скачать / Download**](https://github.com/Simplepres/MobAtlas/releases/latest) · [Скриншоты / Gallery](#скриншоты--gallery) · [Сообщить о баге / Report an issue](https://github.com/Simplepres/MobAtlas/issues)
 
-## Что нового в 0.7.20
+## Что нового в 0.7.21
 
-- **Добыча моба.** В карточке и подсказке видны предметы конкретного моба. Справочные записи, общие для многих мобов, доступны по кнопке «Общий дроп».
-- **Редкие мобы.** Уведомление показывает портрет, а стрелка и метка на миникарте помогают найти моба. Клик по уведомлению оставляет его открытым.
-- **Сравнение экипировки.** Разница с надетым видна в процентах, когда хватает данных для расчёта. В «Оценках по спекам» можно сравнить ветки своего класса.
+- **Поиск.** Точные названия идут первыми. Игровая ссылка и ID ведут к нужному предмету.
+- **Источники.** «Для меня» учитывает отдельные записи о добыче и доступные источники. Для метки подземелья нужны координаты входа.
+- **Рекомендации.** Список обновляется при смене экипировки и талантов, а также когда клиент догружает характеристики надетой вещи.
 
-## What’s new in 0.7.20
+## What’s new in 0.7.21
 
-- **Creature loot.** The map card and tooltip show creature-specific drops. Use Shared drops on the card to browse the reference pool.
-- **Rare tracking.** Alerts show the creature’s portrait, with a direction arrow and a minimap marker. Clicking an alert keeps it open.
-- **Gear comparison.** See the percentage change from your equipped item when enough stats are available, and compare your class specializations under Spec ratings.
+- **Search.** Exact names come first. Item links and IDs open the matching item.
+- **Sources.** Gear for me uses creature-specific drops and available sources. Dungeon markers require entrance coordinates.
+- **Recommendations.** Results refresh when equipment or talents change, and when the client loads more data about equipped items.
 
 [Как работает подбор экипировки / Gear discovery and comparison](docs/DEVELOPMENT-NOTES.ru.md#как-атлас-помогает-выбрать-экипировку)
 
 ## Установка / Install
 
-Распакуй **MobAtlas-0.7.20.zip** в `Interface/AddOns/` клиента Forever и полностью перезапусти WoW. Открой атлас через книжку у миникарты или `/mobatlas`. ПКМ по книжке открывает настройки отслеживания.
+Распакуй **MobAtlas-0.7.21.zip** в `Interface/AddOns/` клиента Forever и полностью перезапусти WoW. Открой атлас через книжку у миникарты или `/mobatlas`. ПКМ по книжке открывает настройки отслеживания.
 
-Extract **MobAtlas-0.7.20.zip** into the Forever client’s `Interface/AddOns/` folder and restart WoW. Click the minimap book or type `/mobatlas`. Right-click the book for tracking settings.
+Extract **MobAtlas-0.7.21.zip** into the Forever client’s `Interface/AddOns/` folder and restart WoW. Click the minimap book or type `/mobatlas`. Right-click the book for tracking settings.
 
 ## Скриншоты / Gallery
 

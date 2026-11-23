@@ -79,7 +79,7 @@ end
 
 function A:DiscardAtlasIndex()
  self.itemSourceLinks=nil;self.searchTerms=nil;self.mappableItems=nil;self.accessibleAtlasSources=nil
- self.comparisonInfo=nil;self.comparisonStats=nil;self.gearTooltipStats=nil;self.atlasRequirementCache=nil
+ self.comparisonInfo=nil;self.comparisonStats=nil;self.gearTooltipStats=nil;self.atlasRequirementCache=nil;self.wornComparisonItems=nil
  self.atlasReadyItems=nil;self.atlasLoadFailures=nil;self.atlasRequested=nil
  if self.atlasRequestPump then self.atlasRequestQueue={} end
  local atlas=self.atlas
@@ -120,6 +120,7 @@ function A:SourceLocations(id)
 end
 -- Reference browsing and personal recommendations intentionally use different rules.
 function A:AtlasSourceAccessible(row)
+ if row.entry and row.entry[4] then return false end
  local method=row.entry and row.entry[2]
  if method==5 or method==6 then
   local mob=self.mobs[row.npcID];local friendly=mob and mob.friendly or '';local faction=UnitFactionGroup('player')=='Alliance' and 'A' or 'H'
@@ -127,8 +128,12 @@ function A:AtlasSourceAccessible(row)
   if method==6 and row.entry[7]==0 then return false end
  end
  if row.source and row.source.kind=='quest' then
-  local q=(self.dungeonQuests or {})[row.source.id]
-  if q then local state=self:QuestState(row.source.id);if state=='restricted' or state=='level' or state=='done' then return false end end
+  local questID=row.source.id
+  local q=(self.dungeonQuests or {})[questID]
+  if q then
+   local state=self:QuestState(questID)
+   if state=='restricted' or state=='level' or state=='done' then return false end
+  elseif self:Safe(C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted or IsQuestFlaggedCompleted,questID) then return false end
  end
  return true
 end
@@ -146,10 +151,19 @@ function A:HasAccessibleAtlasSource(iid,scope,requireMap)
  local links=self:AtlasSourceLinks()[iid] or emptyLinks
  for i=1,#links,2 do
   local npcID=links[i];local mob=self.mobs[npcID]
-  local hasWorld=#(mob.points or {})>0
-  local hasDungeon=#(mob.instances or {})>0
-  if (sourceScope=='all' and (not requireMap or hasWorld or hasDungeon) or sourceScope=='world' and hasWorld or sourceScope=='dungeons' and hasDungeon)
-   and self:AtlasSourceAccessible({npcID=npcID,entry=links[i+1]}) then accessible=true;break end
+  local entry=links[i+1]
+  if not entry[4] then
+   local hasWorld=#(mob.points or {})>0
+   local hasEntrance=false
+   if sourceScope=='dungeons' or sourceScope=='all' and requireMap and not hasWorld then
+    for _,area in ipairs(mob.instances or {}) do
+     local instance=(self.instances or {})[area]
+     if instance and #(instance.entrances or {})>0 then hasEntrance=true;break end
+    end
+   end
+   if (sourceScope=='all' and (not requireMap or hasWorld or hasEntrance) or sourceScope=='world' and hasWorld or sourceScope=='dungeons' and hasEntrance)
+    and self:AtlasSourceAccessible({npcID=npcID,entry=entry}) then accessible=true;break end
+  end
  end
  if not accessible and (self.otherSources or {})[iid] then
   for _,row in ipairs(self:AtlasSources(iid,sourceScope)) do
@@ -256,7 +270,7 @@ end
 
 function A:RefreshRecommendationItem(iid)
  local scan=self.atlas and self.atlas.recommendScan
- if scan and scan.scores[iid] and scan.scores[iid].state=='unknown' then
+ if scan and scan.scores[iid] then
   scan.scores[iid]=nil
   scan.pending[iid]=true
  end
@@ -300,12 +314,15 @@ end
 function A:FindItems(query,category,scope,relevant,options)
  options=options or {};local recent={};if options.recent then for _,id in ipairs(self.db.recentItems or {}) do recent[id]=true end end
  local personal=category=='gear' or category=='upgrades'
- query=self:SearchText(query);local exact=tonumber(query) or tonumber(query:match('item:(%d+)'));local results={}
+ query=self:SearchText(query)
+ local exact=tonumber(query:match('^%d+$') or query:match('item:(%d+)'))
+ local results,relevance={},{}
+ local playerLevel=UnitLevel('player')
  if query~='' and not exact and not self.searchTerms then
   self:AtlasSourceLinks()
   self:BuildSearchTerms()
  end
- for iid,item in pairs(self.items) do
+ for iid,item in pairs(exact and {[exact]=self.items[exact]} or self.items) do
   local rank=self:SpecialRank(iid)
   local matches=(exact and iid==exact) or (not exact and (query=='' or self.searchTerms[iid] and self.searchTerms[iid]:find(query,1,true)))
   matches=matches and (not category or category=='all' or category=='pets' and rank==50 or category=='rare' and item.quality==3 or category=='epic' and item.quality>=4 and item.quality<=5 or category=='useful' and self:UsefulItem(iid) or (personal or category=='catalog') and (item.classID==2 or item.classID==4) or category=='bags' and item.classID==1 or category=='materials' and item.classID==7 or category=='recipes' and item.classID==9 or category=='consumables' and item.classID==0)
@@ -314,14 +331,14 @@ function A:FindItems(query,category,scope,relevant,options)
   if matches and category~='catalog' and not (category=='all' and query~='') and (self.db.classOnly or self.db.specOnly) and not self:ClassFits(item,iid,false,true) then matches=false end
   if matches and options.known and not personal and not self:HasMappableSource(iid) then matches=false end
   if matches and options.recent and not recent[iid] then matches=false end
-  if matches and options.level and not (category=='all' and exact) then
+  if matches and options.level then
    if category=='catalog' or personal or category=='all' and query~='' then
-    matches=(item.level or 0)<=UnitLevel('player')
+    matches=(item.level or 0)<=playerLevel
    else
     matches=self:AtlasLevelFits(item)
    end
   end
-  if matches and relevant then matches=matches and self:ClassFits(item,iid,true) and (item.level==nil or item.level<=UnitLevel('player')) end
+  if matches and relevant then matches=matches and self:ClassFits(item,iid,true) and (item.level==nil or item.level<=playerLevel) end
   if matches and not personal and scope and scope~='all' and scope~='recent' then
    matches=false
    local links=self:AtlasSourceLinks()[iid] or emptyLinks
@@ -341,14 +358,26 @@ function A:FindItems(query,category,scope,relevant,options)
     end
    end
   end
-  if matches then results[#results+1]=iid end
+  if matches then
+   results[#results+1]=iid
+   if query~='' and not exact then
+    local score=0
+    for _,name in ipairs({item.name,item.ruName or '',item.referenceName or ''}) do
+     local normalized=self:SearchText(name)
+     if normalized==query then score=2;break end
+     if normalized:sub(1,#query)==query then score=1 end
+    end
+    relevance[iid]=score
+   end
+  end
  end
  table.sort(results,function(a,b)
+  if relevance[a]~=relevance[b] then return relevance[a]>relevance[b] end
   local ai,bi=self.items[a],self.items[b]
   local ak,bk=self:HasKnownSource(a),self:HasKnownSource(b);if ak~=bk then return ak end
   if category=='all' or personal or category=='catalog' or category=='useful' then
    local ag,bg=(ai.classID==2 or ai.classID==4),(bi.classID==2 or bi.classID==4);if ag~=bg then return ag end
-   local ad,bd=math.abs((ai.level or 0)-UnitLevel('player')),math.abs((bi.level or 0)-UnitLevel('player'));if ad~=bd then return ad<bd end
+   local ad,bd=math.abs((ai.level or 0)-playerLevel),math.abs((bi.level or 0)-playerLevel);if ad~=bd then return ad<bd end
   end;if (personal or category=='catalog' or category=='useful' or category=='rare' or category=='epic') and ai.quality~=bi.quality then return ai.quality>bi.quality end
   if ai.name~=bi.name then return ai.name<bi.name end;return a<b
  end)

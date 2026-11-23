@@ -676,6 +676,16 @@ function A:RefreshAtlasSources()
    if a.entry[3]~=b.entry[3] then return a.entry[3]>b.entry[3] end
    return (a.npcID or a.source and a.source.id or 0)<(b.npcID or b.source and b.source.id or 0)
   end)
+  local preview=f.previewSource
+  f.previewSource=nil
+  if preview and f.sourceCacheKey==key then
+   for _,source in ipairs(sources) do
+    if source.npcID==preview.npcID and source.source==preview.source and source.recipeID==preview.recipeID
+     and source.location.kind==preview.location.kind and source.location.mapID==preview.location.mapID and source.location.area==preview.location.area then
+     f.previewSource=source;break
+    end
+   end
+  end
   f.sourceCache=sources;f.sourceCacheKey=key
  end
  local sources=f.sourceCache;local groups={};for _,source in ipairs(sources) do if source.location.mapID then groups[source.location.mapID]=true end end
@@ -706,9 +716,9 @@ function A:CreateAtlas()
  local close=CreateFrame('Button',nil,f,'UIPanelCloseButton');close:SetPoint('TOPRIGHT',-4,-4);close:SetScript('OnClick',function() f:Hide() end)
  f.search=CreateFrame('EditBox',nil,f,'InputBoxTemplate');f.search:SetSize(393,28);f.search:SetPoint('TOPLEFT',22,-49);f.search:SetFont(self.font,12,'');f.search:SetAutoFocus(false);f.search:SetMaxLetters(160)
  f.search:SetScript('OnEscapePressed',function(b) b:ClearFocus() end)
- local function search()
+ local function search(resetExact)
   local query=self:SearchText(f.search:GetText())
-  if query:match('^%d+$') or query:match('item:%d+') then
+  if resetExact and (query:match('^%d+$') or query:match('item:%d+')) then
    f.category='all';f.gearType=nil;f.gearSlot=nil;f.scope='all';f.myLevel=false;f.knownOnly=false
   end
   f.selectedItem=nil
@@ -718,11 +728,11 @@ function A:CreateAtlas()
   f.recommendScan=nil
   self:RefreshAtlas()
  end
- f.search:SetScript('OnEnterPressed',function(b) b:ClearFocus();search() end)
+ f.search:SetScript('OnEnterPressed',function(b) b:ClearFocus();f.searchSerial=(f.searchSerial or 0)+1;search(true) end)
  f.search:SetScript('OnTextChanged',function(_,user)
   if not user then return end
   f.searchSerial=(f.searchSerial or 0)+1;local serial=f.searchSerial
-  C_Timer.After(.2,function() if f.searchSerial==serial then search() end end)
+  C_Timer.After(.2,function() if f.searchSerial==serial then search(true) end end)
  end)
  f.hint=label(f,'Название / ID · Shift-клик по вещи при вводе',20,-81,405,10,{.65,.69,.65});f.hint:SetWordWrap(false)
  f.languageMenu=panel(nil,f,150,100);f.languageMenu:SetPoint('TOPLEFT',225,-41);f.languageMenu:SetFrameLevel(f:GetFrameLevel()+45);f.languageMenu:EnableMouse(true)
@@ -823,7 +833,7 @@ function A:CreateAtlas()
   f.slotMenu:SetShown(not f.slotMenu:IsShown())
  end)
 
- f.allItems=button(f,'Сброс',350,-137,74,function() f.slotMenu:Hide();f.category='all';f.gearType=nil;f.gearSlot=nil;f.scope='all';f.myLevel=false;f.knownOnly=false;f.selectedItem=nil;f.sourceCache=nil;f.results=nil;f.page=1;self:RefreshAtlas() end)
+ f.allItems=button(f,'Сброс',350,-137,74,function() f.slotMenu:Hide();f.search:SetText('');f.searchSerial=(f.searchSerial or 0)+1;f.category='all';f.gearType=nil;f.gearSlot=nil;f.scope='all';f.myLevel=false;f.knownOnly=false;f.selectedItem=nil;f.sourceCache=nil;f.results=nil;f.page=1;self:RefreshAtlas() end)
  f.rows={}
  for i=1,8 do
   local r=CreateFrame('Button',nil,f,'BackdropTemplate');r:SetSize(408,48);r:SetPoint('TOPLEFT',16,-166-(i-1)*51)
@@ -877,7 +887,7 @@ function A:OpenAtlas(query)
  if not self.atlas then self:CreateAtlas() end
  self.settings:Hide();if self.tip then self.tip:Hide() end;if self.prep then self.prep:Hide() end
  local f=self.atlas
- if query then f.category='all';f.gearType=nil;f.gearSlot=nil;f.scope='all';f.myLevel=false;f.knownOnly=false;f.search:SetText(query);f.selectedItem=nil;f.results=nil;f.page=1 end
+ if query then f.searchSerial=(f.searchSerial or 0)+1;f.category='all';f.gearType=nil;f.gearSlot=nil;f.scope='all';f.myLevel=false;f.knownOnly=false;f.search:SetText(query);f.selectedItem=nil;f.results=nil;f.page=1 end
  self:RefreshAtlas();f:Show()
 end
 function A:RefreshAtlas()
