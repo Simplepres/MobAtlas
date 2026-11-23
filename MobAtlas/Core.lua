@@ -1,6 +1,6 @@
 local _,A=...
 _G.MobAtlas=A
-A.version='0.7.17';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
+A.version='0.7.20';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
 A.profNames={[129]='Первая помощь',[164]='Кузнечное дело',[165]='Кожевничество',[171]='Алхимия',[185]='Кулинария',[197]='Портняжное дело',[202]='Инженерное дело',[333]='Наложение чар'}
 A.methods={[1]='Добыча',[2]='Снятие шкур',[3]='Карманная кража',[4]='Forever · способ не разделён',[5]='Продажа · справочник QuestieDB',[6]='Продажа · личное наблюдение',[7]='Добыча · справочник Forever',[8]='Личная находка · способ не определён',[9]='Classic · vMaNGOS через KB',[10]='Награда за задание',[11]='Изготовление',[12]='Сундук / объект · Classic',[13]='Содержимое предмета',[14]='Forever · сообщение игрока'}
 function A:Safe(fn,...)
@@ -19,19 +19,59 @@ function A:Professions()
  end
  return result
 end
--- Conservative spec filtering: unknown stats remain visible; this is not a BiS score.
+-- Independent Forever leveling weights, expressed per point of each item stat.
+-- Blizzard class deep dives and WoWSims Forever inform role and weapon usage.
+local function gearProfile(name,primary,weights,weapon,school,daggers)
+ return {name,primary,daggers,weights=weights,weapon=weapon,school=school}
+end
 A.gearSpecs={
- ROGUE={{'Ликвидация','agility',true},{'Бой','agility'},{'Скрытность','agility',true}},
- WARRIOR={{'Оружие','strength'},{'Неистовство','strength'},{'Защита','strength'}},
- PALADIN={{'Свет','intellect',role='heal'},{'Защита','strength'},{'Воздаяние','strength'}},
- HUNTER={{'Повелитель зверей','agility'},{'Стрельба','agility'},{'Выживание','agility'}},
- PRIEST={{'Послушание','intellect'},{'Свет','intellect',role='heal'},{'Тьма','intellect',role='spell'}},
- SHAMAN={{'Стихии','intellect',role='spell'},{'Совершенствование','agility'},{'Исцеление','intellect',role='heal'}},
- MAGE={{'Тайная магия','intellect'},{'Огонь','intellect'},{'Лёд','intellect'}},
- WARLOCK={{'Колдовство','intellect'},{'Демонология','intellect'},{'Разрушение','intellect'}},
- DRUID={{'Баланс','intellect',role='spell'},{'Сила зверя','agility'},{'Исцеление','intellect',role='heal'}},
- DEATHKNIGHT={{'Кровь','strength'},{'Лёд','strength'},{'Нечестивость','strength'}}}
-local specIDs={ [259]=1,[260]=2,[261]=3,[71]=1,[72]=2,[73]=3,[65]=1,[66]=2,[70]=3,[253]=1,[254]=2,[255]=3,[256]=1,[257]=2,[258]=3,[262]=1,[263]=2,[264]=3,[62]=1,[63]=2,[64]=3,[265]=1,[266]=2,[267]=3,[102]=1,[103]=2,[104]=2,[105]=3,[250]=1,[251]=2,[252]=3 }
+ WARRIOR={
+  gearProfile('Оружие','strength',{STRENGTH=1,AGILITY=.44,ATTACK_POWER=.50,MELEE_HIT=1.45,MELEE_CRIT=.90,STAMINA=.15},'melee'),
+  gearProfile('Неистовство','strength',{STRENGTH=1,AGILITY=.58,ATTACK_POWER=.50,MELEE_HIT=1.75,MELEE_CRIT=1.15,HASTE=.65,STAMINA=.15},'melee'),
+  gearProfile('Защита','strength',{STRENGTH=.42,AGILITY=.50,STAMINA=1,ARMOR=.07,DEFENSE=1.15,DODGE=1.1,PARRY=1.1,BLOCK=.7,BLOCK_VALUE=.4,MELEE_HIT=.45,ATTACK_POWER=.2},'tank')},
+ PALADIN={
+  gearProfile('Свет','intellect',{HEALING=1,INTELLECT=.65,MP5=1.8,SPELL_CRIT=.95,SPIRIT=.12,STAMINA=.18}),
+  gearProfile('Защита','strength',{STAMINA=1,ARMOR=.07,DEFENSE=1.1,DODGE=1,PARRY=.9,BLOCK=.88,BLOCK_VALUE=.4,SPELL_DAMAGE=.57,INTELLECT=.48,MP5=.76,STRENGTH=.38},'tank','HOLY'),
+  gearProfile('Воздаяние','strength',{STRENGTH=1,ATTACK_POWER=.5,AGILITY=.48,MELEE_HIT=1.3,MELEE_CRIT=.92,SPELL_DAMAGE=.36,INTELLECT=.20,STAMINA=.15},'melee','HOLY')},
+ HUNTER={
+  gearProfile('Повелитель зверей','agility',{AGILITY=1,RANGED_AP=.54,RANGED_HIT=1.15,RANGED_CRIT=.65,INTELLECT=.22,MP5=.45,STAMINA=.17},'ranged'),
+  gearProfile('Стрельба','agility',{AGILITY=1,RANGED_AP=.58,RANGED_HIT=1.5,RANGED_CRIT=1.05,INTELLECT=.20,MP5=.38,STAMINA=.14},'ranged'),
+  gearProfile('Выживание','agility',{AGILITY=1,STRENGTH=.65,ATTACK_POWER=.50,MELEE_HIT=1.35,MELEE_CRIT=.95,INTELLECT=.22,STAMINA=.23},'melee')},
+ ROGUE={
+  gearProfile('Ликвидация','agility',{AGILITY=1,ATTACK_POWER=.48,STRENGTH=.48,MELEE_HIT=1.35,MELEE_CRIT=.78,STAMINA=.14},'melee',nil,true),
+  gearProfile('Бой','agility',{AGILITY=1,ATTACK_POWER=.51,STRENGTH=.51,MELEE_HIT=1.65,MELEE_CRIT=.90,HASTE=.72,STAMINA=.15},'melee'),
+  gearProfile('Скрытность','agility',{AGILITY=1,ATTACK_POWER=.58,STRENGTH=.53,MELEE_HIT=1.2,MELEE_CRIT=1.02,STAMINA=.23},'melee',nil,true)},
+ PRIEST={
+  gearProfile('Послушание','intellect',{HEALING=.68,SPELL_DAMAGE=.45,INTELLECT=.68,SPIRIT=.53,MP5=1.6,SPELL_HIT=.24,SPELL_CRIT=.45,STAMINA=.18},'wand'),
+  gearProfile('Свет','intellect',{HEALING=1,INTELLECT=.6,SPIRIT=.8,MP5=1.42,SPELL_CRIT=.58,STAMINA=.2},'wand'),
+  gearProfile('Тьма','intellect',{SPELL_DAMAGE=1,INTELLECT=.38,SPIRIT=.3,MP5=.47,SPELL_HIT=1.5,SPELL_CRIT=.65,STAMINA=.19},'wand','SHADOW')},
+ SHAMAN={
+  gearProfile('Стихии','intellect',{SPELL_DAMAGE=1,INTELLECT=.51,MP5=.67,SPELL_HIT=1.45,SPELL_CRIT=1.06,STAMINA=.17},nil,'NATURE'),
+  gearProfile('Совершенствование','agility',{AGILITY=.76,STRENGTH=1,ATTACK_POWER=.50,MELEE_HIT=1.35,MELEE_CRIT=.87,SPELL_DAMAGE=.32,INTELLECT=.31,STAMINA=.17},'melee'),
+  gearProfile('Исцеление','intellect',{HEALING=1,INTELLECT=.65,SPIRIT=.18,MP5=1.85,SPELL_CRIT=.63,STAMINA=.19})},
+ MAGE={
+  gearProfile('Тайная магия','intellect',{SPELL_DAMAGE=1,INTELLECT=.75,MP5=.86,SPIRIT=.38,SPELL_HIT=1.45,SPELL_CRIT=.68,STAMINA=.15},'wand','ARCANE'),
+  gearProfile('Огонь','intellect',{SPELL_DAMAGE=1,INTELLECT=.43,MP5=.3,SPIRIT=.17,SPELL_HIT=1.5,SPELL_CRIT=1.12,STAMINA=.15},'wand','FIRE'),
+  gearProfile('Лёд','intellect',{SPELL_DAMAGE=1,INTELLECT=.51,MP5=.41,SPIRIT=.23,SPELL_HIT=1.4,SPELL_CRIT=.79,STAMINA=.21},'wand','FROST')},
+ WARLOCK={
+  gearProfile('Колдовство','intellect',{SPELL_DAMAGE=1,INTELLECT=.34,STAMINA=.35,SPIRIT=.2,MP5=.15,SPELL_HIT=1.35,SPELL_CRIT=.49},'wand','SHADOW'),
+  gearProfile('Демонология','intellect',{SPELL_DAMAGE=1,INTELLECT=.45,STAMINA=.53,MP5=.17,SPELL_HIT=1.31,SPELL_CRIT=.72},'wand'),
+  gearProfile('Разрушение','intellect',{SPELL_DAMAGE=1,INTELLECT=.42,STAMINA=.24,MP5=.18,SPELL_HIT=1.52,SPELL_CRIT=1.07},'wand')},
+ DRUID={
+  gearProfile('Баланс','intellect',{SPELL_DAMAGE=1,INTELLECT=.55,SPIRIT=.37,MP5=.7,SPELL_HIT=1.31,SPELL_CRIT=.83,STAMINA=.18},nil,'NATURE_ARCANE'),
+  gearProfile('Сила зверя · кошка','agility',{AGILITY=1,STRENGTH=.82,ATTACK_POWER=.43,FERAL_ATTACK_POWER=.43,MELEE_HIT=1.32,MELEE_CRIT=.99,STAMINA=.2}),
+  gearProfile('Исцеление','intellect',{HEALING=1,INTELLECT=.56,SPIRIT=.8,MP5=1.46,SPELL_CRIT=.24,STAMINA=.18}),
+  gearProfile('Сила зверя · медведь','agility',{STAMINA=1,ARMOR=.105,AGILITY=.83,DEFENSE=.95,DODGE=1.18,STRENGTH=.38,ATTACK_POWER=.2,FERAL_ATTACK_POWER=.2,MELEE_HIT=.62})}
+}
+local classDefaults={
+ PRIEST=gearProfile('Подбор по классу','intellect',{INTELLECT=.62,HEALING=.63,SPELL_DAMAGE=.7,SPIRIT=.43,MP5=1.1,STAMINA=.2,SPELL_HIT=.6},'wand'),
+ MAGE=gearProfile('Подбор по классу','intellect',{INTELLECT=.55,SPELL_DAMAGE=1,MP5=.54,SPIRIT=.24,SPELL_HIT=1.4,SPELL_CRIT=.8,STAMINA=.17},'wand'),
+ WARLOCK=gearProfile('Подбор по классу','intellect',{INTELLECT=.4,SPELL_DAMAGE=1,STAMINA=.37,SPELL_HIT=1.4,SPELL_CRIT=.72},'wand'),
+ ROGUE=gearProfile('Подбор по классу','agility',{AGILITY=1,STRENGTH=.5,ATTACK_POWER=.5,MELEE_HIT=1.4,MELEE_CRIT=.9,STAMINA=.17},'melee',nil,true),
+ HUNTER=gearProfile('Подбор по классу','agility',{AGILITY=1,RANGED_AP=.55,RANGED_HIT=1.3,RANGED_CRIT=.87,INTELLECT=.21,STAMINA=.17},'ranged'),
+ WARRIOR=gearProfile('Подбор по классу','strength',{STRENGTH=1,ATTACK_POWER=.5,AGILITY=.5,MELEE_HIT=1.55,MELEE_CRIT=.95,STAMINA=.20},'melee'),
+}
+local specIDs={ [259]=1,[260]=2,[261]=3,[71]=1,[72]=2,[73]=3,[65]=1,[66]=2,[70]=3,[253]=1,[254]=2,[255]=3,[256]=1,[257]=2,[258]=3,[262]=1,[263]=2,[264]=3,[62]=1,[63]=2,[64]=3,[265]=1,[266]=2,[267]=3,[102]=1,[103]=2,[104]=4,[105]=3 }
 function A:RefreshGearProfile()
  local _,class=UnitClass('player');local choices=self.gearSpecs[class] or {};local index=self.db.gearSpec
  if not choices[index] then
@@ -62,9 +102,8 @@ function A:RefreshGearProfile()
   end
  end
  self.gearProfile=choices[index];self.gearProfileSource=index and (self.db.gearSpec and 'manual' or 'talents') or nil
- if not self.gearProfile then
-  local role=({ROGUE='agility',HUNTER='agility',WARRIOR='strength',DEATHKNIGHT='strength',MAGE='intellect',WARLOCK='intellect',PRIEST='intellect'})[class]
-  if role then self.classFallbackProfiles=self.classFallbackProfiles or {};self.classFallbackProfiles[class]=self.classFallbackProfiles[class] or {'Подбор по классу',role,class=='ROGUE'};self.gearProfile=self.classFallbackProfiles[class];self.gearProfileSource='class' end
+ if not self.gearProfile and classDefaults[class] then
+  self.gearProfile=classDefaults[class];self.gearProfileSource='class'
  end
  self.gearProfileClass=class;self.gearProfileResolved=true;self.db.lastGearProfile={class=class,source=self.gearProfileSource,index=index,label=self.gearProfile and self.gearProfile[1]}
 end
@@ -74,7 +113,7 @@ end
 
 local function casterStats(stats)
  local damage=math.max(itemStat(stats,'SPELL_POWER'),itemStat(stats,'SPELL_DAMAGE_DONE'))
- local healing=math.max(itemStat(stats,'HEALING_DONE'),itemStat(stats,'SPELL_HEALING_DONE'))
+ local healing=math.max(itemStat(stats,'SPELL_POWER'),itemStat(stats,'HEALING_DONE'),itemStat(stats,'SPELL_HEALING_DONE'))
  return damage,healing
 end
 
@@ -94,6 +133,9 @@ function A:SpecFits(item,id,cacheOnly,profile)
  local agi,str,int=stat('AGILITY'),stat('STRENGTH'),stat('INTELLECT')
  local damage,healing=casterStats(stats)
  local caster=int+stat('SPIRIT')+math.max(damage,healing)
+ if p.weights.ARMOR and (stat('ARMOR')>0 or stat('DEFENSE_SKILL_RATING')>0 or stat('DODGE_RATING')>0 or stat('BLOCK_RATING')>0) then return true end
+ if p.weights.SPELL_DAMAGE and p[2]~='intellect' and damage>0 then return true end
+ if p.weights.STRENGTH and p[2]=='agility' and str>0 then return true end
  if p[2]=='intellect' then return caster>0 or agi+str==0 end
  if p[2]=='agility' then return agi>0 or str+caster==0 end
  return str>0 or agi+caster==0
@@ -109,7 +151,7 @@ function A:ClassFits(item,id,force,cacheOnly,profile)
  if frill then
   if class=='ROGUE' or class=='WARRIOR' or class=='HUNTER' or class=='DEATHKNIGHT' then return false end
   local p=profile or self.db.specOnly and self.gearProfile
-  if p and p[2]~='intellect' then return false end
+  if p and not p.weights.SPELL_DAMAGE and not p.weights.HEALING then return false end
  end
  if item.classID==4 and (item.subclass==0 or item.slot=='Back' or item.slot=='Cloak') then return self:SpecFits(item,id,cacheOnly,profile) end
  for _,g in ipairs(data and data.gear or {}) do if g[1]==item.classID and g[2]==item.subclass and g[3]<=UnitLevel('player') then return self:SpecFits(item,id,cacheOnly,profile) end end
@@ -161,16 +203,106 @@ function A:ComparisonStats(link)
  end
  if next(stats) then self.comparisonStats[link]=stats;return stats end
 end
-local classPriorities={PRIEST='INTELLECT',MAGE='INTELLECT',WARLOCK='INTELLECT',ROGUE='AGILITY',HUNTER='AGILITY',WARRIOR='STRENGTH',DEATHKNIGHT='STRENGTH'}
-function A:ComparisonPriority(profile)
- if profile then return profile[2]:upper(),profile.role end
+local statAliases={
+ ARMOR={'RESISTANCE0_NAME','ARMOR'},
+ MP5={'MANA_REGENERATION','POWER_REGEN0','MANA_REGEN','MANA_REGENERATION_INTERRUPTED'},
+ MELEE_HIT={'HIT_MELEE_RATING','MELEE_HIT_RATING','HIT_RATING'},
+ RANGED_HIT={'HIT_RANGED_RATING','RANGED_HIT_RATING','HIT_RATING'},
+ SPELL_HIT={'HIT_SPELL_RATING','SPELL_HIT_RATING','HIT_RATING'},
+ MELEE_CRIT={'CRIT_MELEE_RATING','MELEE_CRIT_RATING','CRIT_RATING'},
+ RANGED_CRIT={'CRIT_RANGED_RATING','RANGED_CRIT_RATING','CRIT_RATING'},
+ SPELL_CRIT={'CRIT_SPELL_RATING','SPELL_CRIT_RATING','CRIT_RATING'},
+ RANGED_AP={'RANGED_ATTACK_POWER','ATTACK_POWER'},
+ DEFENSE={'DEFENSE_SKILL_RATING','DEFENSE_RATING'},
+ DODGE={'DODGE_RATING'},PARRY={'PARRY_RATING'},BLOCK={'BLOCK_RATING'},
+ HASTE={'HASTE_MELEE_RATING','HASTE_RATING'}
+}
+
+local function weightedStat(stats,key)
+ local aliases=statAliases[key]
+ if not aliases then return itemStat(stats,key) end
+ local value=0
+ for _,alias in ipairs(aliases) do value=math.max(value,itemStat(stats,alias),tonumber(stats[alias]) or 0) end
+ return value
+end
+
+function A:ActiveComparisonProfile()
  if self.db.specOnly then
   if not self.gearProfileResolved then self:RefreshGearProfile() end
-  local p=self.gearProfile
-  return p and p[2]:upper(),p and p.role
+  return self.gearProfile
  end
  local _,class=UnitClass('player')
- return classPriorities[class]
+ return classDefaults[class]
+end
+
+local function gearDpsWeight(profile,itemClass,slot,level)
+ if itemClass~=2 then return 0 end
+ if profile.weapon=='wand' and slot==18 then return 2.5-1.85*math.max(0,math.min(35,level-25))/35 end
+ if profile.weapon=='ranged' and slot==18 then return 3.5 end
+ if slot==16 or slot==17 then
+  if profile.weapon=='melee' then return 3 end
+  if profile.weapon=='tank' then return .6 end
+ end
+ return 0
+end
+
+-- Read only explicitly displayed, passive mana regeneration and weapon DPS missing from the API.
+function A:GearComparisonStats(link,profile,itemClass,slot,level)
+ local stats=self:ComparisonStats(link)
+ if not profile then return stats end
+ local needDps=gearDpsWeight(profile,itemClass,slot,level)>0 and (not stats or itemStat(stats,'DAMAGE_PER_SECOND')==0)
+ local needMp5=profile.weights.MP5 and (not stats or weightedStat(stats,'MP5')==0)
+ if not needDps and not needMp5 then return stats end
+ self.gearTooltipStats=self.gearTooltipStats or {}
+ local fallback=self.gearTooltipStats[link]
+ if not fallback then
+  local payload=type(link)=='number' and ('item:'..link) or link:match('|H(item:[^|]+)|h') or link
+  local info=self:Safe(C_TooltipInfo and C_TooltipInfo.GetHyperlink,payload)
+  if type(info)~='table' or type(info.lines)~='table' then return stats end
+  fallback={}
+  for _,line in ipairs(info.lines) do
+   local text=line.leftText
+   if not (issecretvalue and issecretvalue(text)) and type(text)=='string' then
+    text=self:SearchText(text:gsub('|c%x%x%x%x%x%x%x%x',''):gsub('|r',''))
+    local dps=text:match('^%(([%d.,]+) damage per second%)$') or text:match('^%(([%d.,]+) ед%. урона в секунду%)$')
+    if dps then fallback.dps=tonumber((dps:gsub(',','.'))) end
+    local mp5=text:match('^equip: restores (%d+) mana per 5 sec') or text:match('^equip: restores (%d+) mana every 5 sec')
+     or text:match('^если на персонаже: восстанавливает (%d+) ед%. маны раз в 5 сек')
+    if mp5 then fallback.mp5=tonumber(mp5) end
+   end
+  end
+  self.gearTooltipStats[link]=fallback
+ end
+ if not (needDps and fallback.dps or needMp5 and fallback.mp5) then return stats end
+ local complete={}
+ for key,value in pairs(stats or {}) do complete[key]=value end
+ if needDps then complete.ITEM_MOD_DAMAGE_PER_SECOND_SHORT=fallback.dps end
+ if needMp5 then complete.ITEM_MOD_MANA_REGENERATION_SHORT=fallback.mp5 end
+ return complete
+end
+
+function A:ScoreGear(stats,profile,itemClass,slot,level)
+ if not stats or not profile then return end
+ local dpsWeight=gearDpsWeight(profile,itemClass,slot,level)
+ local dps=itemStat(stats,'DAMAGE_PER_SECOND')
+ if dpsWeight>0 and dps<=0 then return end
+ local damage,healing=casterStats(stats)
+ if profile.school=='NATURE_ARCANE' then
+  damage=damage+(itemStat(stats,'NATURE_DAMAGE_DONE')+itemStat(stats,'ARCANE_DAMAGE_DONE'))*.5
+ elseif profile.school then
+  damage=damage+itemStat(stats,profile.school..'_DAMAGE_DONE')
+ end
+ local total=dps*dpsWeight
+ for key,weight in pairs(profile.weights) do
+  local value=key=='SPELL_DAMAGE' and damage or key=='HEALING' and healing or weightedStat(stats,key)
+  total=total+value*weight
+ end
+ return total
+end
+
+local function formatGearPercent(value)
+ if math.abs(value)<.05 then return '≈ 0%' end
+ return math.abs(value)<10 and string.format('%+.1f%%',value) or string.format('%+.0f%%',value)
 end
 
 function A:CompareItem(iid,profile)
@@ -179,20 +311,9 @@ function A:CompareItem(iid,profile)
  if not self:ClassFits(item,iid,true,nil,profile) then return {state='wrong',text='Не подходит выбранному классу / спеку'} end
  local slots=equipSlots[info.loc];if not slots then return {state='unknown',text='Слот пока неизвестен'} end
  local location=slots[1]
- local primary,role=self:ComparisonPriority(profile)
- local needsDps=item.classID==2 and (location==18 or primary~='INTELLECT')
- local function score(stats)
-  if not primary or not stats or needsDps and itemStat(stats,'DAMAGE_PER_SECOND')<=0 then return end
-  local value=itemStat(stats,primary)+itemStat(stats,'STAMINA')*.15+itemStat(stats,'CRIT_RATING')*.35+itemStat(stats,'HIT_RATING')*.35
-  if primary=='INTELLECT' then
-   local damage,healing=casterStats(stats)
-   local caster=math.max(damage*.7,healing*.5)
-   if role=='heal' then caster=math.max(healing*.7,damage*.35) elseif role=='spell' then caster=damage*.8 end
-   value=value+caster+itemStat(stats,'SPIRIT')*.15
-  else value=value+itemStat(stats,'ATTACK_POWER')*.4 end
-  return value+(needsDps and itemStat(stats,'DAMAGE_PER_SECOND')*3 or 0)
- end
- local candidate=self:ComparisonStats(info.link);local candidateScore=score(candidate)
+ profile=profile or self:ActiveComparisonProfile()
+ local level=UnitLevel('player')
+ local candidateScore=self:ScoreGear(self:GearComparisonStats(info.link,profile,item.classID,location,level),profile,item.classID,location,level)
  if info.level>UnitLevel('player') then return {state='later',text='Позже: с '..info.level..' ур.',score=candidateScore} end
  local requirement=self:UnmetAtlasRequirement(iid)
  if requirement then return {state='restricted',text=requirement,score=candidateScore} end
@@ -214,56 +335,48 @@ function A:CompareItem(iid,profile)
    return {state='unknown',text='Нужно сравнение комплекта оружия',score=candidateScore}
   end
  end
- if empty then return {state='empty',text='Заполнит пустой слот',slot=empty,score=candidateScore} end
- if not primary then return {state='unknown',text='Выбери роль для сравнения'} end
- local weakest,baseline,chosen
+ if empty then return {state='empty',text='Пустой слот',slot=empty,score=candidateScore} end
+ if not profile then return {state='unknown',text='Выбери спек'} end
+ local weakest,chosen
  for _,slot in ipairs(slots) do
   local link=equipment[slot]
   if not link then return {state='unknown',text='Нужна ссылка надетого предмета',score=candidateScore} end
-  local stats=self:ComparisonStats(link);local power=score(stats)
-  if power==nil or candidateScore==nil then return {state='unknown',text=needsDps and 'Нет данных об уроне оружия' or 'Недостаточно характеристик',score=candidateScore} end
-  if weakest==nil or power<weakest then weakest=power;baseline=stats;chosen=slot end
+  if slot==17 then
+   local equipped=self:ComparisonInfo(link)
+   if equipped and equipped.classID~=nil and (equipped.classID==2)~=(item.classID==2) then
+    return {state='unknown',text='Нужно сравнение комплекта оружия',score=candidateScore}
+   end
+  end
+  local power=self:ScoreGear(self:GearComparisonStats(link,profile,item.classID,location,level),profile,item.classID,location,level)
+  if power==nil or candidateScore==nil then return {state='unknown',text='Недостаточно характеристик',score=candidateScore} end
+  if weakest==nil or power<weakest then weakest=power;chosen=slot end
  end
- local delta=candidateScore-weakest;local changes={}
- local function change(diff,label) if diff~=0 then changes[#changes+1]=string.format('%+.3g %s',diff,label) end end
- if needsDps then change(itemStat(candidate,'DAMAGE_PER_SECOND')-itemStat(baseline,'DAMAGE_PER_SECOND'),'DPS') end
- if primary=='INTELLECT' then
-  local damage,healing=casterStats(candidate);local wornDamage,wornHealing=casterStats(baseline)
-  if role=='heal' then change(healing-wornHealing,'лечения');change(damage-wornDamage,'силы закл.')
-  else change(damage-wornDamage,'силы закл.');change(healing-wornHealing,'лечения') end
-  change(itemStat(candidate,'SPIRIT')-itemStat(baseline,'SPIRIT'),'духа')
- else change(itemStat(candidate,'ATTACK_POWER')-itemStat(baseline,'ATTACK_POWER'),'силы атаки') end
- change(itemStat(candidate,primary)-itemStat(baseline,primary),({AGILITY='ловк.',STRENGTH='силы',INTELLECT='интел.'})[primary])
- change(itemStat(candidate,'STAMINA')-itemStat(baseline,'STAMINA'),'выносл.')
- change(itemStat(candidate,'CRIT_RATING')-itemStat(baseline,'CRIT_RATING'),'крита')
- change(itemStat(candidate,'HIT_RATING')-itemStat(baseline,'HIT_RATING'),'меткости')
- local text=delta>.1 and 'Возможное улучшение' or delta<-.1 and 'Надетое лучше по оценке' or 'Примерно равно'
- return {state=delta>.1 and 'better' or delta<-.1 and 'worse' or 'same',delta=delta,score=candidateScore,slot=chosen,text=text..(#changes>0 and ' · '..table.concat(changes,', ',1,math.min(3,#changes)) or ''),changes=changes}
+ local delta=candidateScore-weakest
+ local percent=weakest>0 and 100*delta/weakest or nil
+ local difference=percent or delta
+ local epsilon=percent and .05 or .0001
+ local state=difference>=epsilon and 'better' or difference<=-epsilon and 'worse' or 'same'
+ local text=percent and formatGearPercent(percent) or state=='better' and 'Лучше' or state=='worse' and 'Хуже' or 'Примерно равно'
+ return {state=state,delta=delta,percent=percent,score=candidateScore,slot=chosen,text=text}
 end
+
+local comparisonColors={better={.3,.95,.55},worse={1,.42,.36},empty={.3,.95,.55}}
+function A:ComparisonColor(result)
+ return unpack(comparisonColors[result and result.state] or {.78,.8,.74})
+end
+
 function A:AddGearRatingsTooltip(t,iid)
  local _,class=UnitClass('player')
- self:AddTooltipLine(t,'Оценка вещи по спекам',1,.84,.52)
+ self:AddTooltipLine(t,'Оценка слота к надетому',1,.84,.52)
  for _,profile in ipairs(self.gearSpecs[class] or {}) do
   local result=self:CompareItem(iid,profile)
-  if result then
-   local score=result.score and string.format('%.1f',result.score)..' балл.' or 'без оценки'
-   local detail=result.delta and (' · '..string.format('%+.1f',result.delta)..' к надетому') or (' · '..result.text)
-   self:AddTooltipLine(t,profile[1]..' · '..score..detail,.85,.86,.77)
-  end
+  if result then self:AddTooltipLine(t,profile[1]..'   '..result.text,self:ComparisonColor(result)) end
  end
- self:AddTooltipLine(t,'Баллы сравниваются в одном слоте и спеке.',.7,.76,.7)
 end
+
 function A:AddComparisonTooltip(t,iid)
  local result=self:CompareItem(iid);if not result then return end
- self:AddTooltipLine(t,'Сравнение с надетым',1,.85,.55);self:AddTooltipLine(t,result.text,.8,.85,.8)
- local atlas=self.atlas
- local scan=atlas and atlas.category=='upgrades' and atlas.recommendScan
- local rank=scan and scan.ranks and scan.ranks[iid]
- if rank then self:AddTooltipLine(t,'№'..rank..' в слоте среди проверенных',.9,.83,.62) end
-
- if result.slot then local worn=self:Safe(GetInventoryItemLink,'player',result.slot);if worn then self:AddTooltipLine(t,'Сравниваем с: '..worn,.75,.78,.72) end end
- if result.changes and #result.changes>3 then self:AddTooltipLine(t,table.concat(result.changes,', ',4),.8,.85,.8) end
- self:AddTooltipLine(t,'Оценка по статам, не BiS. Эффекты, комплекты и проки не учтены.',.65,.7,.65)
+ self:AddTooltipLine(t,'Следопыт · '..result.text..(result.percent and ' к оценке слота' or ''),self:ComparisonColor(result))
 end
 function A:Matches(entry,skills,includeRareFinds)
  if entry[4] and not self.db.sharedLoot then return false end
@@ -293,7 +406,7 @@ function A:Loot(id,skills,forceSpecial,includeRareFinds,rareOnly)
  rareOnly=rareOnly and mob and not mob.vendor
  for _,entry in ipairs(list or {}) do if rareOnly and self:SpecialRank(entry[1])>0 or not rareOnly and self:Matches(entry,skills or self.skills or {},includeRareFinds) then
   local previous=unique[entry[1]]
-  local priority=entry[2]==8 and 5 or entry[2]==6 and 4 or entry[2]==4 and 3 or entry[2]==14 and 2 or entry[4] and 0 or 1
+  local priority=entry[4] and 0 or entry[2]==8 and 5 or entry[2]==6 and 4 or entry[2]==4 and 3 or entry[2]==14 and 2 or 1
   if not previous then
    local copy={};for i=1,8 do copy[i]=entry[i] end;copy.alternatives={entry};copy.priority=priority;unique[entry[1]]=copy
   else
@@ -301,8 +414,13 @@ function A:Loot(id,skills,forceSpecial,includeRareFinds,rareOnly)
    if priority>previous.priority then local copy={};for i=1,8 do copy[i]=entry[i] end;copy.alternatives=alternatives;copy.priority=priority;unique[entry[1]]=copy end
   end
  end end
- for _,entry in pairs(unique) do out[#out+1]=entry end
+ local direct=0
+ for _,entry in pairs(unique) do
+  out[#out+1]=entry
+  if not entry[4] then direct=direct+1 end
+ end
  table.sort(out,function(a,b)
+  if (not a[4])~=(not b[4]) then return not a[4] end
   local aq,bq=self.items[a[1]].quality,self.items[b[1]].quality
   if rareOnly then
    if aq~=bq then return aq>bq end
@@ -319,7 +437,7 @@ function A:Loot(id,skills,forceSpecial,includeRareFinds,rareOnly)
   if aq~=bq then return aq>bq end
   return a[1]<b[1]
  end)
- return out
+ return out,direct
 end
 function A:Chance(entry)
  if entry[2]==10 then return 'Награда за задание' end
@@ -430,7 +548,7 @@ A.events:SetScript('OnEvent',function(_,event,arg,success)
   A.atlasReadyItems=A.atlasReadyItems or {};A.atlasReadyItems[arg]=success~=false or nil
   if A.gearStatCache then A.gearStatCache[arg]=nil end
   if A.atlasRequirementCache then A.atlasRequirementCache[arg]=nil end
-  for _,cache in ipairs({A.comparisonInfo or {},A.comparisonStats or {}}) do
+  for _,cache in ipairs({A.comparisonInfo or {},A.comparisonStats or {},A.gearTooltipStats or {}}) do
    for key in pairs(cache) do if key==arg or type(key)=='string' and tonumber(key:match('item:(%d+)'))==arg then cache[key]=nil end end
   end
   A:RefreshObservedLootItem(arg);A:RefreshRecommendationItem(arg)

@@ -37,7 +37,7 @@ A.db.skinning=false;assert(#A:Loot(6,{[165]=true})==0)
 A.db.prof=0;A.db.classOnly=false;A.db.skinning=true
 local cells,total=A:BuildMap(1429);assert(total==2 and #cells==3 and #cells[1].ids==1,'actual spawn coordinates are not grid-clustered')
 assert(A:Chance({1,1,.15,false}):find('0.15%%'))
-assert(A:Chance({4,1,-1,true})=='шанс неизвестен','pool probability never substituted for item probability')
+assert(A:Chance({4,1,-1,true}):find('шанс неизвестен',1,true),'pool probability never substituted for item probability')
 MOCK.canvas=CreateFrame('Frame');MOCK.canvas:SetSize(1000,800)
 function WorldMapFrame:GetCanvas() return MOCK.canvas end
 function WorldMapFrame:GetMapID() return 1429 end

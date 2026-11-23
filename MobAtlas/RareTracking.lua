@@ -39,25 +39,33 @@ function A:WatchRareUnit(unit,retry)
  self.rareSeen=self.rareSeen or {};self.rareUnits=self.rareUnits or {};self.rareAlertTimes=self.rareAlertTimes or {}
  local now=GetTime();local dead=self:Safe(UnitIsDeadOrGhost,unit);if issecretvalue and issecretvalue(dead) then return end
  if dead==nil then dead=self:Safe(UnitIsDead,unit);if issecretvalue and issecretvalue(dead) then return end end
- local record=self.rareSeen[id] or {id=id};self.rareSeen[id]=record
+ local active=self.rareAlert and self.rareAlert.sighting
+ local previous=self.rareUnits[unit] or self.rareSeen[id]
+ local record=active and active.guid==guid and active.record or previous and previous.guid==guid and previous
+ if not record then
+  for _,queued in ipairs(self.rareAlertQueue or {}) do if queued.guid==guid then record=queued;break end end
+ end
+ record=record or {id=id}
+ self.rareSeen[id]=record
  record.guid=guid;record.unit=unit;record.time=now;record.dead=not not dead
- if dead and self.rareAlert and self.rareAlert.npcID==id then self.rareAlert:Hide() end
  record.mapID=self:Safe(C_Map and C_Map.GetBestMapForUnit,'player')
  record.point=not dead and self:RareUnitPosition(unit,record.mapID) or nil
- self.rareUnits[unit]=id
+ if record.point then record.lastPoint=record.point end
+ if dead then self:RareSightingDied(guid) end
+ self.rareUnits[unit]=record
  if not self.mobs[id] then
   local name=self:Safe(UnitName,unit);self.mobs[id]={name=type(name)=='string' and name or ('Существо #'..id),min=0,max=0,points={},instances={},kind='Unknown',loot={},rareRank=4}
  end
  if not dead and (not self.rareAlertTimes[guid] or now-self.rareAlertTimes[guid]>=300) then
   self.rareAlertTimes[guid]=now
-  if self.db.rareAlerts then self:ShowRareAlert(id,record) end
+  if self.db.rareAlerts then self:QueueRareAlert(id,record) end
   if self.db.rareSound then self:PlayRareAlertSound() end
  end
  self.rareMapDirty=true
 end
-function A:RareLiveRecord(id)
- local r=self.rareSeen and self.rareSeen[id]
- if r and not r.dead and GetTime()-r.time<=10 and r.unit then local guid=self:Safe(UnitGUID,r.unit);if not (issecretvalue and issecretvalue(guid)) and guid==r.guid then return r end end
+function A:RareLiveRecord(id,sighting)
+ local r=sighting and sighting.record or self.rareSeen and self.rareSeen[id]
+ if r and r.unit and (not sighting or r.guid==sighting.guid) and not r.dead and GetTime()-r.time<=10 then local guid=self:Safe(UnitGUID,r.unit);if not (issecretvalue and issecretvalue(guid)) and guid==r.guid then return r end end
 end
 function A:ConfigureRareRange()
  if not self.db then return end
@@ -84,27 +92,40 @@ function A:ConfigureRareRange()
 end
 function A:RareMapEntries(mapID)
  local out,seen={},{}
+ local sighting=self.db.rareAlerts and self.rareAlert and self.rareAlert.sighting
+ if sighting then
+  local point,mode=self:RareGuidePoint(sighting)
+  if point and point[1]==mapID then
+   out[1]={id=sighting.id,point=point,exact=mode=='live',live=self:RareLiveRecord(sighting.id,sighting)~=nil,guideMode=mode,sighting=sighting}
+   seen[sighting.id]=true
+  end
+ end
  for _,id in ipairs((self.rareZones or {})[mapID] or {}) do
   local live=self:RareLiveRecord(id);if live and live.mapID~=mapID and (not live.point or live.point[1]~=mapID) then live=nil end;local point=live and live.point and live.point[1]==mapID and live.point
   if not point then for _,p in ipairs((self.rareCatalog[id] or {}).points or {}) do if p[1]==mapID then point=p;break end end end
-  if point then out[#out+1]={id=id,point=point,exact=not not (live and live.point and live.point[1]==mapID),live=not not live};seen[id]=true end
+  if point and not seen[id] then out[#out+1]={id=id,point=point,exact=not not (live and live.point and live.point[1]==mapID),live=not not live};seen[id]=true end
  end
  for id in pairs(self.rareSeen or {}) do
   local live=self:RareLiveRecord(id)
   if not seen[id] and live and live.point and live.point[1]==mapID then out[#out+1]={id=id,point=live.point,exact=true,live=true} end
  end
- table.sort(out,function(a,b) if a.live~=b.live then return a.live end;return a.id<b.id end)
+ table.sort(out,function(a,b) if a.sighting~=b.sighting then return a.sighting~=nil end;if a.live~=b.live then return a.live end;return a.id<b.id end)
  return out
 end
 function A:TrackRare(id,sighting)
  local mob=self.mobs[id]
  if not mob then return false,'Источник не найден.' end
- local live=self:RareLiveRecord(id)
- if sighting and live and live.guid~=sighting.guid then live=nil end
+ local live=self:RareLiveRecord(id,sighting)
  local reference=(self.rareCatalog or {})[id]
- local points=live and live.point and {live.point} or (reference and #reference.points>0 and reference.points or mob.points or {})
- local lastSeen=false
- if #points==0 and sighting and sighting.point then points={sighting.point};lastSeen=true end
+ local points,kind
+ if sighting then
+  local point,mode=self:RareGuidePoint(sighting)
+  points=point and {point} or (reference and #reference.points>0 and reference.points or mob.points or {})
+  kind=mode=='live' and 'rare' or mode=='last' and 'rareLast' or 'rareSpawn'
+ else
+  points=live and live.point and {live.point} or (reference and #reference.points>0 and reference.points or mob.points or {})
+  kind=live and live.point and 'rare' or 'rareSpawn'
+ end
  if #points==0 then return false,'Моб замечен, но его координаты недоступны.' end
 
  local mapID=points[1][1]
@@ -116,8 +137,8 @@ function A:TrackRare(id,sighting)
  if not opened then return false,reason end
 
  self:ClearFocus(false,true)
- local focus={ids={[id]=true},label=mob.name,points=points,kind=live and live.point and 'rare' or lastSeen and 'rareLast' or 'rareSpawn',explicitMap=true}
- if lastSeen then focus.label=focus.label..' · '..self:L('Последнее наблюдение') end
+ local focus={ids={[id]=true},label=mob.name,points=points,kind=kind,rareGUID=sighting and sighting.guid,explicitMap=true}
+ if kind=='rareLast' then focus.label=focus.label..' · '..self:L('Последнее наблюдение') end
  self.focus=focus
  self.habitatPinnedFocus=focus
  if self.atlas then self.atlas:Hide() end
@@ -136,12 +157,46 @@ function A:TrackRare(id,sighting)
  end
  return true
 end
-function A:MinimapRareOffset(point,mapID,position,clampEdge)
- if point[1]~=mapID or not C_Map then return end
+function A:RareOffset(point,mapID,position)
+ if not point or point[1]~=mapID then return end
  local px,py=xy(position);if not px then return end
  local width,height=self:RareMapWorldSize(mapID)
  if not number(width) or not number(height) or width<=0 or height<=0 then return end
- local dx=(point[2]/100-px)*width;local dy=(py-point[3]/100)*height
+ return (point[2]/100-px)*width,(py-point[3]/100)*height
+end
+
+function A:RareGuidePoint(sighting,position)
+ local record=sighting.record
+ local live=self:RareLiveRecord(sighting.id,sighting)
+ if live and live.point then return live.point,'live' end
+ local last=record and record.lastPoint or sighting.point
+ if last then return last,'last' end
+ if not sighting.anchor then
+  local reference=(self.rareCatalog or {})[sighting.id]
+  local mob=self.mobs[sighting.id]
+  local points=reference and #reference.points>0 and reference.points or mob and mob.points or {}
+  local zone=sighting.mapID
+  position=position or self:Safe(C_Map and C_Map.GetPlayerMapPosition,zone,'player')
+  local nearest
+  for _,point in ipairs(points) do
+   local dx,dy=self:RareOffset(point,zone,position)
+   local distance=dx and (dx*dx+dy*dy)
+   if distance and (not nearest or distance<nearest) then nearest=distance;sighting.anchor=point end
+  end
+ end
+ if sighting.anchor then return sighting.anchor,'spawn' end
+end
+
+function A:RareRelativeOffset(dx,dy)
+ local facing=self:Safe(GetPlayerFacing)
+ if not number(facing) then return end
+ local c,s=math.cos(facing),math.sin(facing)
+ return dx*c+dy*s,-dx*s+dy*c
+end
+
+function A:MinimapRareOffset(point,mapID,position,clampEdge)
+ local dx,dy=self:RareOffset(point,mapID,position)
+ if not dx then return end
  local radius=self:Safe(C_Minimap and C_Minimap.GetViewRadius)
  if not number(radius) or radius<=0 then
   local zoom=Minimap.GetZoom and Minimap:GetZoom() or 0;if not number(zoom) then return end
@@ -156,18 +211,19 @@ function A:MinimapRareOffset(point,mapID,position,clampEdge)
   local ratio=radius*.88/math.sqrt(dx*dx+dy*dy);dx,dy=dx*ratio,dy*ratio;edge=true
  end
  if tonumber(self:Safe(GetCVar,'rotateMinimap'))==1 then
-  local facing=self:Safe(GetPlayerFacing)
-  if number(facing) then local c,s=math.cos(facing),math.sin(facing);dx,dy=dx*c+dy*s,-dx*s+dy*c end
+  local rx,ry=self:RareRelativeOffset(dx,dy)
+  if rx then dx,dy=rx,ry end
  end
  local w,h=Minimap:GetWidth(),Minimap:GetHeight();if not number(w) or not number(h) then return end
  return dx/radius*w/2,dy/radius*h/2,edge
 end
 function A:RareTick()
  if not self.db.rareEnabled then self:HideRarePins();return end
- for unit,id in pairs(self.rareUnits or {}) do
-  local rec=self.rareSeen[id]
-  local guid=self:Safe(UnitGUID,unit);if rec and not (issecretvalue and issecretvalue(guid)) and guid==rec.guid then self:WatchRareUnit(unit) else self.rareUnits[unit]=nil end
+ for unit,rec in pairs(self.rareUnits or {}) do
+  local guid=self:Safe(UnitGUID,unit)
+  if not (issecretvalue and issecretvalue(guid)) and guid==rec.guid then self:WatchRareUnit(unit) else self.rareUnits[unit]=nil end
  end
+ if not self.db.rareAlerts and self.rareAlert and self.rareAlert:IsShown() then self:DismissRareAlert(false) end
  local now=GetTime()
  for id,record in pairs(self.rareSeen or {}) do if now-record.time>300 then self.rareSeen[id]=nil end end
  for guid,time in pairs(self.rareAlertTimes or {}) do if now-time>600 then self.rareAlertTimes[guid]=nil end end
@@ -181,6 +237,17 @@ function A:StartRareTracking()
  local f=CreateFrame('Frame');self.rareEvents=f
  f:SetScript('OnEvent',function(_,event,unit)
   if event=='NAME_PLATE_UNIT_ADDED' or event=='UNIT_CLASSIFICATION_CHANGED' then self:WatchRareUnit(unit)
+  elseif event=='UNIT_HEALTH' or event=='UNIT_FLAGS' then
+   local sighting=self.rareAlert and self.rareAlert.sighting
+   local record=self.rareUnits[unit] or sighting and (unit=='target' or unit=='mouseover') and sighting.record
+   local guid=record and self:Safe(UnitGUID,unit)
+   if not (issecretvalue and issecretvalue(guid)) and guid and guid==record.guid then
+    local dead=self:Safe(UnitIsDeadOrGhost or UnitIsDead,unit)
+    if not (issecretvalue and issecretvalue(dead)) and dead then
+     record.dead=true
+     self:RareSightingDied(guid)
+    end
+   end
   elseif event=='NAME_PLATE_UNIT_REMOVED' then self.rareUnits[unit]=nil
   elseif event=='PLAYER_TARGET_CHANGED' then self:WatchRareUnit('target')
   elseif event=='UPDATE_MOUSEOVER_UNIT' then self:WatchRareUnit('mouseover')
@@ -191,9 +258,9 @@ function A:StartRareTracking()
    self:SyncRareTargetButton()
    local pending=self.pendingRareMap;self.pendingRareMap=nil
    if pending then self:OpenRareAlertMap(pending) end
-  elseif event=='PLAYER_ENTERING_WORLD' then self.pendingRareMap=nil;self.rareUnits={};self.rareSeen={};self.rareWorldSizes={};C_Timer.After(.5,function() self:ScanVisibleRareUnits() end) end
+  elseif event=='PLAYER_ENTERING_WORLD' then self:DismissRareAlert(false);self.pendingRareMap=nil;self.rareUnits={};self.rareSeen={};self.rareWorldSizes={};C_Timer.After(.5,function() self:ScanVisibleRareUnits() end) end
  end)
- for _,event in ipairs({'NAME_PLATE_UNIT_ADDED','NAME_PLATE_UNIT_REMOVED','UNIT_CLASSIFICATION_CHANGED','PLAYER_TARGET_CHANGED','UPDATE_MOUSEOVER_UNIT','PLAYER_ENTERING_WORLD','PLAYER_REGEN_ENABLED','MINIMAP_UPDATE_ZOOM'}) do f:RegisterEvent(event) end
+ for _,event in ipairs({'NAME_PLATE_UNIT_ADDED','NAME_PLATE_UNIT_REMOVED','UNIT_CLASSIFICATION_CHANGED','UNIT_HEALTH','UNIT_FLAGS','PLAYER_TARGET_CHANGED','UPDATE_MOUSEOVER_UNIT','PLAYER_ENTERING_WORLD','PLAYER_REGEN_ENABLED','MINIMAP_UPDATE_ZOOM'}) do f:RegisterEvent(event) end
  self:ScanVisibleRareUnits()
  C_Timer.NewTicker(1,function() self:RareTick() end)
  C_Timer.NewTicker(.1,function() self:UpdateRareMinimap() end)

@@ -2,31 +2,31 @@
 
 # MobAtlas · Следопыт
 
-Атлас добычи, экипировки и заданий для **WoW Forever**. **Бета 0.7.17.**
+Атлас добычи, экипировки и заданий для **WoW Forever**. **Бета 0.7.20.**
 
-A loot atlas, gear finder and dungeon quest guide for **WoW Forever**. **Beta 0.7.17.**
+A loot atlas, gear finder and dungeon quest guide for **WoW Forever**. **Beta 0.7.20.**
 
 [**Скачать / Download**](https://github.com/Simplepres/MobAtlas/releases/latest) · [Скриншоты / Gallery](#скриншоты--gallery) · [Сообщить о баге / Report an issue](https://github.com/Simplepres/MobAtlas/issues)
 
-## Что нового в 0.7.17
+## Что нового в 0.7.20
 
-- **Меньше памяти.** Одинаковые записи базы хранятся один раз. Поисковый индекс строится по необходимости и освобождается после закрытия атласа.
-- **Улучшения по слотам.** «Для меня» показывает улучшения и вещи для пустых слотов. У проверенных вещей есть место в рейтинге слота.
-- **Сравнение по спекам.** Открой предмет и наведи на «Оценки по спекам», чтобы увидеть баллы и разницу с надетым для веток своего класса.
+- **Добыча моба.** В карточке и подсказке видны предметы конкретного моба. Справочные записи, общие для многих мобов, доступны по кнопке «Общий дроп».
+- **Редкие мобы.** Уведомление показывает портрет, а стрелка и метка на миникарте помогают найти моба. Клик по уведомлению оставляет его открытым.
+- **Сравнение экипировки.** Разница с надетым видна в процентах, когда хватает данных для расчёта. В «Оценках по спекам» можно сравнить ветки своего класса.
 
-## What’s new in 0.7.17
+## What’s new in 0.7.20
 
-- **Lower memory use.** Identical database records are shared. The search index is built on demand and released after the atlas closes.
-- **Slot rankings.** Gear for me shows upgrades and gear for empty slots. Checked items are ranked within their slot.
-- **Spec ratings.** Select an item and hover over Spec ratings to see its score and how it compares with your equipped gear for each specialization in your class.
+- **Creature loot.** The map card and tooltip show creature-specific drops. Use Shared drops on the card to browse the reference pool.
+- **Rare tracking.** Alerts show the creature’s portrait, with a direction arrow and a minimap marker. Clicking an alert keeps it open.
+- **Gear comparison.** See the percentage change from your equipped item when enough stats are available, and compare your class specializations under Spec ratings.
 
 [Как работает подбор экипировки / Gear discovery and comparison](docs/DEVELOPMENT-NOTES.ru.md#как-атлас-помогает-выбрать-экипировку)
 
 ## Установка / Install
 
-Распакуй **MobAtlas-0.7.17.zip** в `Interface/AddOns/` клиента Forever и полностью перезапусти WoW. Открой атлас через книжку у миникарты или `/mobatlas`. ПКМ по книжке открывает настройки отслеживания.
+Распакуй **MobAtlas-0.7.20.zip** в `Interface/AddOns/` клиента Forever и полностью перезапусти WoW. Открой атлас через книжку у миникарты или `/mobatlas`. ПКМ по книжке открывает настройки отслеживания.
 
-Extract **MobAtlas-0.7.17.zip** into the Forever client’s `Interface/AddOns/` folder and restart WoW. Click the minimap book or type `/mobatlas`. Right-click the book for tracking settings.
+Extract **MobAtlas-0.7.20.zip** into the Forever client’s `Interface/AddOns/` folder and restart WoW. Click the minimap book or type `/mobatlas`. Right-click the book for tracking settings.
 
 ## Скриншоты / Gallery
 

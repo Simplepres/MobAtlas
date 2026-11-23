@@ -79,7 +79,7 @@ end
 
 function A:DiscardAtlasIndex()
  self.itemSourceLinks=nil;self.searchTerms=nil;self.mappableItems=nil;self.accessibleAtlasSources=nil
- self.comparisonInfo=nil;self.comparisonStats=nil;self.atlasRequirementCache=nil
+ self.comparisonInfo=nil;self.comparisonStats=nil;self.gearTooltipStats=nil;self.atlasRequirementCache=nil
  self.atlasReadyItems=nil;self.atlasLoadFailures=nil;self.atlasRequested=nil
  if self.atlasRequestPump then self.atlasRequestQueue={} end
  local atlas=self.atlas
@@ -217,14 +217,17 @@ function A:PersonalRecommendations(candidates)
  local result={}
  local unknown=0
  for iid,comparison in pairs(scan.scores) do
-  if comparison.state=='better' or comparison.state=='empty' then result[#result+1]=iid end
-  if comparison.state=='unknown' then unknown=unknown+1 end
+  if comparison.state=='better' or comparison.state=='empty' and (comparison.score or 0)>0 then result[#result+1]=iid end
+  if comparison.state=='unknown' or comparison.state=='empty' and comparison.score==nil then unknown=unknown+1 end
  end
  table.sort(result,function(a,b)
   local as,bs=scan.scores[a],scan.scores[b]
   if as.state~=bs.state then return as.state=='better' end
-  local av,bv=as.delta or as.score or -math.huge,bs.delta or bs.score or -math.huge
-  if av~=bv then return av>bv end
+  if as.state=='better' then
+   local ap,bp=as.percent or -math.huge,bs.percent or -math.huge
+   if ap~=bp then return ap>bp end
+   if as.delta~=bs.delta then return as.delta>bs.delta end
+  elseif as.score~=bs.score then return as.score>bs.score end
   if self.items[a].quality~=self.items[b].quality then return self.items[a].quality>self.items[b].quality end
   return a<b
  end)
@@ -445,7 +448,7 @@ end
 -- Filters apply to browsing. A deliberate item/source selection is visible even if filters exclude it.
 function A:FocusedLoot(id,fullLoot)
  if not fullLoot and self.focus and self.focus.itemID then
-  local mob=self.mobs[id];if not mob then return {} end
+  local mob=self.mobs[id];if not mob then return {},0 end
   local entries={}
   for _,list in ipairs({mob.loot or emptyLinks,mob.stock or emptyLinks}) do
    for _,entry in ipairs(list) do if entry[1]==self.focus.itemID then entries[#entries+1]=entry end end
@@ -453,7 +456,7 @@ function A:FocusedLoot(id,fullLoot)
   if #entries>0 then
    local best=self:SourceEntry({entries=entries})
    local copy={};for i=1,8 do copy[i]=best[i] end;copy.alternatives=entries
-   return {copy}
+   return {copy},1
   end
  end
  return self:Loot(id,self.skills,true,true,self.db.specialMobsOnly and not fullLoot)

@@ -1,10 +1,14 @@
 local _,A=...
 local families={Fox='Ability_Hunter_Pet_Wolf',Wolf='Ability_Hunter_Pet_Wolf',Spider='Ability_Hunter_Pet_Spider',Boar='Ability_Hunter_Pet_Boar',Bat='Ability_Hunter_Pet_Bat',Bear='Ability_Hunter_Pet_Bear',Cat='Ability_Hunter_Pet_Cat',CarrionBird='Ability_Hunter_Pet_Vulture',Crab='Ability_Hunter_Pet_Crab',Crocolisk='Ability_Hunter_Pet_Crocolisk',Gorilla='Ability_Hunter_Pet_Gorilla',Hyena='Ability_Hunter_Pet_Hyena',Raptor='Ability_Hunter_Pet_Raptor',Scorpid='Ability_Hunter_Pet_Scorpid',Tallstrider='Ability_Hunter_Pet_TallStrider',Turtle='Ability_Hunter_Pet_Turtle',WindSerpent='Ability_Hunter_Pet_WindSerpent'}
-function A:SetNpcPortrait(texture,id)
+function A:SetNpcPortrait(texture,id,preferredUnit)
  local mob=self.mobs[id];if not mob then return end
  if self.db.portraitSchema~=2 then self.db.portraits={};self.db.portraitSchema=2 end
  texture.mobAtlasNpcID=id
  texture:SetTexture(families[mob.family] and 'Interface\\Icons\\'..families[mob.family] or self:CreatureIcon(mob))
+ if preferredUnit and SetPortraitTexture and self:NpcID(preferredUnit)==id then
+  local ok=pcall(SetPortraitTexture,texture,preferredUnit)
+  if ok then return end
+ end
  for _,unit in ipairs({'target','mouseover','npc'}) do
   if self:NpcID(unit)==id and SetPortraitTexture then local ok=pcall(SetPortraitTexture,texture,unit);if ok then return end end
  end
@@ -88,10 +92,11 @@ function A:IsInspectionTracked(pin)
  return true
 end
 
-function A:LayoutLootCard(pin,count,pages,multiple,lootMode)
+function A:LayoutLootCard(pin,count,pages,multiple,lootMode,sharedMode)
  local t=self.tip;local y=58+count*40;local paged=pages>1;local actionY=y+(paged and 43 or 13)
- t.lootMode:ClearAllPoints();t.lootMode:SetPoint('TOPLEFT',14,-actionY-32);t.lootMode:SetShown(lootMode==true)
- t:SetHeight(actionY+(lootMode and 71 or 39));t.footerLine:ClearAllPoints();t.footerLine:SetPoint('TOPLEFT',12,-y-4)
+ t.lootMode:ClearAllPoints();t.lootMode:SetPoint('TOPLEFT',14,-actionY-32);t.lootMode:SetWidth(sharedMode and 132 or 272);t.lootMode:SetShown(lootMode==true)
+ t.sharedLoot:ClearAllPoints();t.sharedLoot:SetPoint('TOPLEFT',lootMode and 154 or 14,-actionY-32);t.sharedLoot:SetWidth(lootMode and 132 or 272);t.sharedLoot:SetShown(sharedMode==true)
+ t:SetHeight(actionY+((lootMode or sharedMode) and 71 or 39));t.footerLine:ClearAllPoints();t.footerLine:SetPoint('TOPLEFT',12,-y-4)
  t.prev:ClearAllPoints();t.prev:SetPoint('TOPLEFT',14,-y-9);t.prev:SetShown(paged)
  t.next:ClearAllPoints();t.next:SetPoint('TOPLEFT',251,-y-9);t.next:SetShown(paged)
  t.pageText:ClearAllPoints();t.pageText:SetPoint('TOPLEFT',55,-y-15);t.pageText:SetWidth(190);t.pageText:SetText(paged and (pin.page..' / '..pages) or '');t.pageText:SetShown(paged)

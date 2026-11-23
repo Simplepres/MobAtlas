@@ -98,8 +98,12 @@ function A:CreateLootCard()
  t.unpin=button(t,'Открепить',164,-300,122,function() local pin=self.inspectPin or self.hoverPin;if self:IsInspectionTracked(pin) then self:ClearFocus(true,true) else self:PinInspection() end end);t.unpin:Hide()
  t.lootMode=button(t,'Вся добыча',14,-300,272,function()
   local pin=self.inspectPin or self.hoverPin
-  if pin then self:FreezeInspection(pin);self.inspectPin=pin;pin.fullLoot=not pin.fullLoot;pin.page=1;self:ShowTooltip(pin,true) end
+  if pin then self:FreezeInspection(pin);self.inspectPin=pin;pin.fullLoot=not pin.fullLoot;pin.sharedLoot=nil;pin.page=1;self:ShowTooltip(pin,true) end
  end);t.lootMode:Hide()
+ t.sharedLoot=button(t,'Общий дроп',14,-300,272,function()
+  local pin=self.inspectPin or self.hoverPin
+  if pin then self:FreezeInspection(pin);self.inspectPin=pin;pin.sharedLoot=not pin.sharedLoot;pin.page=1;self:ShowTooltip(pin,true) end
+ end);t.sharedLoot:Hide()
  t.rows={}
  for i=1,7 do
   local r=CreateFrame('Button',nil,t);r:SetPoint('TOPLEFT',12,-58-(i-1)*40);r:SetSize(276,39)
@@ -117,7 +121,7 @@ function A:CreateLootCard()
   r:SetScript('OnClick',function(b)
    local p=self.inspectPin or self.hoverPin;if not p then return end
    self:FreezeInspection(p);self.inspectPin=p
-   if b.npcIndex then p.mobIndex=b.npcIndex;p.selected=true;p.page=1;p.fullLoot=nil;GameTooltip:Hide();self:ShowTooltip(p,true);if self.PreviewMobHabitat then self:PreviewMobHabitat(p) end
+   if b.npcIndex then p.mobIndex=b.npcIndex;p.selected=true;p.page=1;p.fullLoot=nil;p.sharedLoot=nil;GameTooltip:Hide();self:ShowTooltip(p,true);if self.PreviewMobHabitat then self:PreviewMobHabitat(p) end
    elseif b.itemID then GameTooltip:SetOwner(b,'ANCHOR_RIGHT');GameTooltip:SetHyperlink('item:'..b.itemID);self:ItemEvidence(GameTooltip,b.entry);GameTooltip:Show() end
   end)
   t.rows[i]=r
@@ -141,23 +145,29 @@ function A:ShowTooltip(pin,force)
  if #pin.cell.ids>1 and not pin.selected then self:ShowGroupTooltip(pin);return end
  local t=self.tip;local id=pin.cell.ids[pin.mobIndex or 1];local mob=self.mobs[id];local exact=self.focus and self.focus.itemID
  local limited=not mob.vendor and (self.db.specialMobsOnly or exact~=nil)
- local rows=self:FocusedLoot(id,pin.fullLoot)
- local n=self.db.visibleItems;local pages=math.max(1,math.ceil(#rows/n));pin.page=math.min(math.max(1,pin.page or 1),pages);pin.pages=pages
+ local rows,direct=self:FocusedLoot(id,pin.fullLoot)
+ local shared=#rows-direct
+ if shared==0 then pin.sharedLoot=nil end
+ local start=pin.sharedLoot and direct or 0
+ local count=pin.sharedLoot and shared or direct
+ local n=self.db.visibleItems;local pages=math.max(1,math.ceil(count/n));pin.page=math.min(math.max(1,pin.page or 1),pages);pin.pages=pages
  self:AnchorInspection(pin)
- local shown=math.min(n,math.max(0,#rows-(pin.page-1)*n));local multiple=#pin.cell.ids>1
+ local shown=math.min(n,math.max(0,count-(pin.page-1)*n))
 
  t.title:SetText(mob.name);t.title:SetWordWrap(false);self:SetNpcPortrait(t.portrait,id)
  t.subtitle:SetText(pin.cell.dungeon and ('Вход: '..self.instances[pin.cell.dungeon].name) or mob.vendor and 'Торговец · экипировка, сумки, ремесло' or ((mob.min>0 and ('Ур. '..mob.min..'–'..mob.max..' · ') or '')..self:CreatureKind(mob)))
- if #rows==0 then t.subtitle:SetText(not mob.vendor and #(mob.loot or {})==0 and 'Добыча пока неизвестна.' or (limited and not pin.fullLoot and 'Нет редкой добычи по фильтрам' or 'Нет вещей по текущим фильтрам')) end
+ if pin.sharedLoot then t.subtitle:SetText('Общий дроп · справочные данные')
+ elseif direct==0 and shared>0 then t.subtitle:SetText(limited and not pin.fullLoot and 'Нет данных о редкой добыче моба' or 'Нет данных о добыче этого моба')
+ elseif count==0 then t.subtitle:SetText(not mob.vendor and #(mob.loot or {})==0 and 'Добыча пока неизвестна.' or (limited and not pin.fullLoot and 'Нет редкой добычи по фильтрам' or 'Нет вещей по текущим фильтрам')) end
  for i,r in ipairs(t.rows) do
-  local e=i<=n and rows[(pin.page-1)*n+i] or nil;r:SetShown(e~=nil);r.itemID=e and e[1] or nil;r.npcID=nil;r.npcIndex=nil;r.rarityBorder:SetShown(e~=nil)
+  local e=i<=shown and rows[start+(pin.page-1)*n+i] or nil;r:SetShown(e~=nil);r.itemID=e and e[1] or nil;r.npcID=nil;r.npcIndex=nil;r.rarityBorder:SetShown(e~=nil)
   r.special=nil;r.hover:Hide();r.arrow:Hide()
   if e then
    r.icon.mobAtlasNpcID=nil;local item=self.items[e[1]];local name,icon=self:ItemDisplay(e[1]);r.icon:SetTexture(icon)
    local c=colors[item.quality] or {.6,.6,.6};self:StyleRarityBorder(r.rarityBorder,c,item.quality);r.itemQuality=item.quality
    r.name:SetText(name);r.name:SetTextColor(unpack(colors[item.quality] or {1,.8,.4}))
-   local specialRank,specialName=self:SpecialRank(e[1]);local first=specialRank>0
-   for j=1,(pin.page-1)*n+i-1 do if self:SpecialRank(rows[j][1])==specialRank then first=false;break end end
+   local specialRank,specialName=self:SpecialRank(e[1]);local first=not e[4] and specialRank>0
+   for j=start+1,start+(pin.page-1)*n+i-1 do if self:SpecialRank(rows[j][1])==specialRank then first=false;break end end
    r.special=first and specialName or nil;r.tint:SetColorTexture(c[1],c[2],c[3],first and .14 or 0)
    r.meta:SetText((e[4] and 'Общий / условный · справочник' or e[2]==5 and 'У продавца' or (e[3]<0 and not e[4] and e[2]~=8 and e[2]~=14 and 'Шанс не измерен' or self:Chance(e)))..(e[2]==2 and ' · шкуры' or e[2]==3 and ' · кража' or ''))
    r.meta:SetWordWrap(false);r.entry=e
@@ -165,7 +175,8 @@ function A:ShowTooltip(pin,force)
  end
  t.lootMode:SetText(pin.fullLoot and (exact and 'Выбранный предмет' or 'Редкая добыча') or 'Вся добыча')
  t.mobNext:SetText(pin.cell.vendor and 'К торговцам' or 'К группе мобов')
- self:LayoutLootCard(pin,shown,pages,#pin.cell.ids>1,limited);t:Show()
+ t.sharedLoot:SetText(pin.sharedLoot and 'Добыча моба' or ('Общий дроп ('..shared..')'))
+ self:LayoutLootCard(pin,shown,pages,#pin.cell.ids>1,limited,shared>0);t:Show()
 end
 function A:CreateMinimapButton()
  if not Minimap then return end
@@ -185,14 +196,15 @@ function A:UnitLootTooltip(tooltip)
  if not id or tooltip.mobAtlasID==id then return end
  if not self.mobs[id] and self.EnsureObservedNpc then self:EnsureObservedNpc(id) end
  if not self.mobs[id] then return end
- tooltip.mobAtlasID=id;local rows=self:Loot(id,self:Professions(),true,true)
+ tooltip.mobAtlasID=id;local rows,direct=self:Loot(id,self:Professions(),true,true)
  self:AddTooltipLine(tooltip,' ');self:AddTooltipLine(tooltip,self.mobs[id].vendor and 'Следопыт · в продаже' or 'Следопыт · возможная добыча',1,.8,.35)
- if #rows==0 then self:AddTooltipLine(tooltip,#(self.mobs[id].loot or {})==0 and 'Добыча пока неизвестна. Находки будут сохраняться.' or 'Нет вещей по текущим фильтрам',.7,.7,.7) end
- for i=1,math.min(#rows,self.db.visibleItems) do
+ if direct==0 then self:AddTooltipLine(tooltip,#rows>0 and 'Нет данных о добыче этого моба' or #(self.mobs[id].loot or {})==0 and 'Добыча пока неизвестна. Находки будут сохраняться.' or 'Нет вещей по текущим фильтрам',.7,.7,.7) end
+ for i=1,math.min(direct,self.db.visibleItems) do
   local e=rows[i];local item=self.items[e[1]];local name,icon=self:ItemDisplay(e[1]);local c=colors[item.quality] or {1,.8,.4}
   self:AddTooltipLine(tooltip,'|T'..icon..':18|t '..name..' · '..self:Chance(e),unpack(c))
  end
- if #rows>self.db.visibleItems then self:AddTooltipLine(tooltip,'Показано: '..self.db.visibleItems..' из '..#rows..(self.db.specialMobsOnly and not self.mobs[id].vendor and ' · на карте: «Вся добыча».' or ' · остальное в карточке на карте.'),.7,.75,.7) end
+ if direct>self.db.visibleItems then self:AddTooltipLine(tooltip,'Показано: '..self.db.visibleItems..' из '..direct..(self.db.specialMobsOnly and not self.mobs[id].vendor and ' · на карте: «Вся добыча».' or ' · остальное в карточке на карте.'),.7,.75,.7) end
+ if #rows>direct then self:AddTooltipLine(tooltip,'Общий дроп: '..(#rows-direct)..' · см. карточку на карте',.7,.75,.7) end
  self:AddTooltipLine(tooltip,'Everloot · CC BY-SA 4.0; Classic — справка',.7,.7,.7)
  tooltip:Show()
 end
@@ -321,7 +333,7 @@ function A:Update()
    self.pins[i]=pin
   end
   pin:SetParent(canvas);pin:SetFrameLevel(pinLevel);pin:SetFrameStrata(pinStrata);pin:SetScale(pinScale);pin.dot:SetSize(16,16)
-  pin.cell=cell;pin.page=1;pin.mobIndex=1;pin.selected=false;pin.fullLoot=nil;self:StyleGroupPin(pin)
+  pin.cell=cell;pin.page=1;pin.mobIndex=1;pin.selected=false;pin.fullLoot=nil;pin.sharedLoot=nil;self:StyleGroupPin(pin)
   pin:ClearAllPoints();pin:SetPoint('CENTER',canvas,'TOPLEFT',width*cell.x/100/pinScale,-height*cell.y/100/pinScale);pin:Show()
  end
  self.dirty=false;if self.focus then self:RenderFocus() end
@@ -340,14 +352,14 @@ function A:ItemEvidence(t,e)
  self:AddTooltipLine(t,self.methods[e[2]]..' · '..self:Chance(e),.8,.8,.7);self:ItemMetadataCredit(t,e[1])
  if e.alternatives and #e.alternatives>1 then
   self:AddTooltipLine(t,'Другие записи (проценты не складываются):',.7,.7,.7)
-  for _,other in ipairs(e.alternatives) do if other[2]~=e[2] then self:AddTooltipLine(t,self.methods[other[2]]..' · '..self:Chance(other),.7,.7,.7) end end
+  for _,other in ipairs(e.alternatives) do if other[2]~=e[2] or (not other[4])~=(not e[4]) then self:AddTooltipLine(t,self.methods[other[2]]..' · '..self:Chance(other),.7,.7,.7) end end
  end
  if e[2]==14 then self:AddTooltipLine(t,'Связь добавлена по сообщению игрока. Шанс и частота не измерены.',.8,.8,.7) end
  if e[2]==9 then self:AddTooltipLine(t,'vMaNGOS Classic через wow-forever-kb; требует проверки на Forever.',.7,.7,.7) end
  if e[2]==8 then self:AddTooltipLine(t,'Предмет был в окне добычи этого NPC на этом клиенте.',.8,.9,.7);self:AddTooltipLine(t,'Способ получения не определён; шанс не рассчитывается.',.7,.7,.7) end
   if e[2]==7 then self:AddTooltipLine(t,'Связь из справочника Forever; частота не измерена.',.7,.7,.7) end
  if e[4] then self:AddTooltipLine(t,'Общий или условный дроп; может зависеть от условий.',.7,.7,.7) end
- if self:SpecialRank(e[1])>0 then self:AddTooltipLine(t,'Особенное: категория / редкость, затем известный шанс.',1,.82,.45);self:AddTooltipLine(t,'№1 — первое в категории этой карточки, не BiS.',.7,.7,.7) end
+ if not e[4] and self:SpecialRank(e[1])>0 then self:AddTooltipLine(t,'Особенное: категория / редкость, затем известный шанс.',1,.82,.45);self:AddTooltipLine(t,'№1 — первое в категории этой карточки, не BiS.',.7,.7,.7) end
  if e[2]==6 then self:AddTooltipLine(t,'Цена и наличие на момент последнего визита.',.7,.7,.7) end
  if e[2]==4 then
   self:AddTooltipLine(t,e[5]..' выпадений / '..e[6]..' окон · '..e[7]..' источников',.8,.8,.7)
@@ -418,7 +430,8 @@ function A:ShowGroupTooltip(pin)
   r:SetShown(id~=nil);r.hover:Hide();r.arrow:Hide();r.tint:SetColorTexture(0,0,0,0);r.rarityBorder:Hide();r.itemID=nil;r.entry=nil;r.npcID=id;r.npcIndex=id and index or nil
   if id then
    local mob=self.mobs[id];self:SetNpcPortrait(r.icon,id);r.name:SetText(mob.name);r.name:SetTextColor(1,.86,.54)
-   r.meta:SetText((mob.vendor and 'Продавец' or ('Ур. '..mob.min..'–'..mob.max))..' · предметов: '..#self:FocusedLoot(id))
+   local _,direct=self:FocusedLoot(id)
+   r.meta:SetText((mob.vendor and 'Продавец' or ('Ур. '..mob.min..'–'..mob.max))..' · предметов: '..direct)
   end
  end
  self:LayoutLootCard(pin,count,pages,false);t:Show()
@@ -472,7 +485,7 @@ local specIcons={
  SHAMAN={'Spell_Nature_Lightning','Spell_Nature_LightningShield','Spell_Nature_MagicImmunity'},
  MAGE={'Spell_Holy_MagicalSentry','Spell_Fire_FireBolt02','Spell_Frost_FrostBolt02'},
  WARLOCK={'Spell_Shadow_DeathCoil','Spell_Shadow_Metamorphosis','Spell_Shadow_RainOfFire'},
- DRUID={'Spell_Nature_StarFall','Ability_Racial_BearForm','Spell_Nature_HealingTouch'},
+ DRUID={'Spell_Nature_StarFall','Ability_Druid_CatForm','Spell_Nature_HealingTouch','Ability_Racial_BearForm'},
  DEATHKNIGHT={'Spell_Deathknight_BloodPresence','Spell_Deathknight_FrostPresence','Spell_Deathknight_UnholyPresence'}}
 function A:SetSpecIcon(owner,index)
  local _,class=UnitClass('player');local first,second,_,fourth=self:Safe(GetTalentTabInfo,index);local native=type(first)=='number' and fourth or second
@@ -608,7 +621,7 @@ function A:CreateAtlasSourcePane(f)
   self:AddGearRatingsTooltip(GameTooltip,f.selectedItem)
   GameTooltip:Show()
  end
- f.gearRatings=button(f,'Оценки по спекам',711,-82,151,showRatings)
+ f.gearRatings=button(f,'По спекам',711,-82,151,showRatings)
  f.gearRatings:SetScript('OnEnter',showRatings)
  f.gearRatings:SetScript('OnLeave',function() GameTooltip:Hide() end)
  f.gearRatings:Hide()
@@ -645,7 +658,8 @@ function A:RefreshAtlasSources()
   self:PreviewAtlasSource(nil);for _,row in ipairs(f.sourceRows) do row:Hide() end;f.sourcePrev:Hide();f.sourceNext:Hide();return
  end
  f.sourceTitle:SetText(self:ItemDisplay(iid));f.sourceTitle:SetWordWrap(false)
- local comparison=self:CompareItem(iid);f.sourceCompare:SetText(comparison and ((comparison.score and string.format('%.1f',comparison.score)..' балл. · ' or '')..comparison.text) or '')
+ local comparison=self:CompareItem(iid);f.sourceCompare:SetText(comparison and ((comparison.percent and 'Оценка слота · ' or '')..comparison.text) or '')
+ f.sourceCompare:SetTextColor(self:ComparisonColor(comparison))
  local worn=comparison and comparison.slot and self:Safe(GetInventoryItemLink,'player',comparison.slot)
  local baseline=worn and self:ComparisonInfo(worn)
  f.sourceBaseline:SetText(baseline and comparison.delta~=nil and ('Надето: '..baseline.name) or '')
@@ -824,7 +838,7 @@ function A:CreateAtlas()
   r:SetScript('OnEnter',function(b)
    b:SetBackdropColor(.65,.48,.25,.22)
    local iid=b.itemID or f.selectedItem
-   if iid then GameTooltip:SetOwner(b,'ANCHOR_RIGHT');if self:ComparisonInfo(iid) then GameTooltip:SetHyperlink('item:'..iid) else self:AddTooltipLine(GameTooltip,self:ItemDisplay(iid));self:AddTooltipLine(GameTooltip,self.atlasLoadFailures and self.atlasLoadFailures[iid] and 'Клиент не вернул описание. Источник указан по справочнику.' or 'Описание ещё загружается. Источник взят из справочника.',.75,.8,.72);self:HydrateAtlasItem(iid) end;self:ItemMetadataCredit(GameTooltip,iid);self:AddComparisonTooltip(GameTooltip,iid);if b.source then self:ItemEvidence(GameTooltip,b.source.entry);self:AddTooltipLine(GameTooltip,b.source.location.name,1,.85,.5);self:AddTooltipLine(GameTooltip,b.source.location.kind=='entrance' and 'Клик: вход в подземелье. Позиция босса неизвестна.' or b.source.location.mapID and 'Клик: оставить на карте только этот источник.' or 'Координат пока нет.',.8,.8,.7) end;GameTooltip:Show() end
+   if iid then GameTooltip:SetOwner(b,'ANCHOR_RIGHT');if self:ComparisonInfo(iid) then GameTooltip:SetHyperlink('item:'..iid) else self:AddTooltipLine(GameTooltip,self:ItemDisplay(iid));self:AddTooltipLine(GameTooltip,self.atlasLoadFailures and self.atlasLoadFailures[iid] and 'Клиент не вернул описание. Источник указан по справочнику.' or 'Описание ещё загружается. Источник взят из справочника.',.75,.8,.72);self:HydrateAtlasItem(iid);self:ItemMetadataCredit(GameTooltip,iid) end;self:AddComparisonTooltip(GameTooltip,iid);if b.source then self:ItemEvidence(GameTooltip,b.source.entry);self:AddTooltipLine(GameTooltip,b.source.location.name,1,.85,.5);self:AddTooltipLine(GameTooltip,b.source.location.kind=='entrance' and 'Клик: вход в подземелье. Позиция босса неизвестна.' or b.source.location.mapID and 'Клик: оставить на карте только этот источник.' or 'Координат пока нет.',.8,.8,.7) end;GameTooltip:Show() end
   end)
   r:SetScript('OnLeave',function(b) b:SetBackdropColor(.42,.34,.24,.12);GameTooltip:Hide() end)
   r:SetScript('OnClick',function(b)
@@ -897,9 +911,8 @@ function A:RefreshAtlas()
    local scan=f.category=='upgrades' and f.recommendScan
    local comparison=scan and scan.scores[iid] or self:CompareItem(iid)
    local rank=scan and scan.ranks[iid]
-   local points=comparison and comparison.delta and (string.format('%+.1f',comparison.delta)..' балл. · ') or ''
-   r.detail:SetText(comparison and (rank and ('№'..rank..' · ') or '')..points..comparison.text or '')
-   local better=comparison and (comparison.state=='better' or comparison.state=='empty');r.detail:SetTextColor(better and .35 or .72,better and .95 or .73,.62)
+   r.detail:SetText(comparison and (rank and ('№'..rank..' · ') or '')..comparison.text or '')
+   r.detail:SetTextColor(self:ComparisonColor(comparison))
    local slot=equipment and f.gearSlotNames[self:GearSlot(item)]
    r.meta:SetText((slot and slot..' · ' or '')..(special or qualities[item.quality] or 'Качество неизвестно')..(item.level and item.level>0 and (' · с '..item.level..' ур.') or ''))
    r:SetBackdropColor(.42,.34,.24,iid==f.selectedItem and .35 or .12)

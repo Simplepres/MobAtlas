@@ -29,11 +29,16 @@ function UnitPosition(unit) if units[unit] and units[unit].position then return 
 function GetPlayerFacing() return math.pi/2 end
 C_Minimap={GetViewRadius=function() return 100 end};Minimap:SetSize(140,140)
 local sounds=0;function PlaySound() sounds=sounds+1 end
+function SetPortraitTexture(texture,unit) texture.portraitUnit=unit end
 A:Init();assert(cvars.nameplateMaxDistance=='80' and cvars.nameplateShowEnemies=='1','requested maximum nameplates')
 local build=A.BuildAtlasIndex;A.BuildAtlasIndex=function() error('full index rebuild in rare scan') end
 units.nameplate1={guid='Creature-0-1-2-3-999501-001',classification='rare',position=false}
 A:WatchRareUnit('nameplate1');assert(A.rareAlert:IsShown() and sounds==1,'alert on actual unit detection')
 assert(not A.rareSeen[999501].point,'no NPC position -> never fabricate at player position')
+assert(A.rareAlert.icon.portraitUnit=='nameplate1','banner uses the live nameplate portrait')
+assert(A.rareGuide:IsShown() and A.rareGuide.status:GetText()=='Место появления','uncertain navigation is labeled')
+assert(A.rareGuide.arrow:GetText()=='↓','guide is relative to the character facing')
+
 A:WatchRareUnit('nameplate1');A:RareTick();assert(sounds==1,'deduplicate repeated nameplate/target detections')
 A:UpdateRareMinimap();local mini
 for _,p in ipairs(A.rareMiniPins) do if p:IsShown() and p.entry.id==999501 then mini=p end end
@@ -49,7 +54,12 @@ assert(not A:MinimapRareOffset({1429,80,50},1429,CreateVector2D(.5,.5),false),'d
 assert(A:TrackRare(999501));assert(A.focus.ids[999501] and A.tip:IsShown(),'rare click opens loot card');assert(A:IsInspectionTracked(A.inspectPin),'rare map action explicitly pins that creature')
 local area=0;for _,f in ipairs(A.habitatAreas) do if f:IsShown() then area=area+1 end end;assert(area>0 and area<=80,'bounded soft patch pool')
 A:RenderHabitatArea({{x=10,y=10},{x=90,y=90}},canvas,1,20,'HIGH');for _,f in ipairs(A.habitatAreas) do if f:IsShown() then local pos=f.point or f.startPoint;local x=f.point and pos[4] or pos[3];assert(x<150 or x>850,'no bridge across empty map') end end
-units.nameplate1.dead=true;A:WatchRareUnit('nameplate1');assert(not A:RareLiveRecord(999501),'dead creature not live')
+local expires=MOCK.clock
+MOCK.clock=expires+25
+A:RareTick();assert(A.rareAlert:IsShown(),'living alert stays after the old 12-second timeout')
+units.nameplate1.dead=true;A.rareEvents.scripts.OnEvent(A.rareEvents,'UNIT_HEALTH','nameplate1')
+assert(not A:RareLiveRecord(999501) and not A.rareAlert:IsShown() and not A.rareGuide:IsShown(),'confirmed death hides guide and banner')
+
 units.nameplate2={guid='Creature-0-1-2-3-999501-002',classification='normal'};A:WatchRareUnit('nameplate2');assert(sounds==1,'client normal classification overrides reference rarity')
 units.nameplate2.classification='rare';units.nameplate2.position=false;A:WatchRareUnit('nameplate2');assert(sounds==2,'new spawn gets alert')
 units.secret={guid={secret=true},classification='rare'};A:WatchRareUnit('secret');assert(sounds==2,'secret GUID ignored')
@@ -69,7 +79,7 @@ button.scripts.PreClick(button)
 assert(button.attributes.type=='target' and button.attributes.unit=='nameplate2','nearby exact GUID arms a secure target click')
 units.target=units.nameplate2
 button.scripts.PostClick(button)
-assert(not A.rareAlert:IsShown() and not button.attributes.type,'successful secure target disarms click')
+assert(A.rareAlert:IsShown() and A.rareGuide:IsShown() and not button.attributes.type,'successful secure target keeps navigation and disarms click')
 local sighting=A.rareSeen[999501]
 A:ShowRareAlert(999501,sighting)
 units.nameplate2={guid='Creature-0-1-2-3-999502-003',classification='rare'}
@@ -91,7 +101,7 @@ A.rareAlert.scripts.OnClick()
 assert(A.pendingRareMap==queued and not WorldMapFrame:IsShown(),'blocked map click queues the original sighting')
 MOCK.combat=false
 A.rareEvents.scripts.OnEvent(A.rareEvents,'PLAYER_REGEN_ENABLED')
-assert(not A.pendingRareMap and WorldMapFrame:IsShown() and A.focus.ids[999501],'queue opens the right rare after combat')
+assert(not A.pendingRareMap and WorldMapFrame:IsShown() and A.focus.ids[999501] and A.rareAlert:IsShown(),'queued map opens and retains the alert')
 local plays=0
 function PlaySound() plays=plays+1;return plays>1 end
 A:PlayRareAlertSound();MOCK.timers[#MOCK.timers]();assert(plays==2,'failed primary sound falls back once')
@@ -129,10 +139,10 @@ local mob=A.mobs[999714]
 mob.loot={{262889,7,-1},{999703,1,50},{999702,7,-1},{999704,1,15},
  {999705,1,2},{999706,1,1},{999701,7,-1},{999707,1,-1,true}}
 A.db.sharedLoot=true;A.db.specialFirst=false;A.db.sort='chance'
-local list=A:FocusedLoot(999714)
-local expected={999704,999707,999706,999705,999702,999701}
-assert(#list==#expected)
-for i,id in ipairs(expected) do assert(list[i][1]==id,'map card sorts by quality, known ascending chance, then unknown') end
+local list,direct=A:FocusedLoot(999714)
+local expected={999704,999706,999705,999702,999701,999707}
+assert(#list==#expected and direct==5)
+for i,id in ipairs(expected) do assert(list[i][1]==id,'direct drops first; each group keeps quality and chance order') end
 A.focus={itemID=262889,ids={[999714]=true}}
 A:IndexLootEntry(999714,mob.loot[1])
 assert(A:FocusedLoot(999714)[1][1]==262889,'explicit item navigation remains available')
@@ -156,12 +166,57 @@ local hover=A:Loot(mastiff,A.skills,true,true)
 for i,e in ipairs(full) do assert(e[1]==hover[i][1],'full map order matches unit hover') end
 local card=CreateFrame('Button',nil,WorldMapFrame);card.cell={ids={mastiff}};card.selected=true;card.page=1
 A:ShowTooltip(card,true);assert(A.tip.lootMode:IsShown() and A.tip.lootMode:GetText()=='Вся добыча')
-A.tip.lootMode.scripts.OnClick();assert(card.fullLoot and card.pages>1)
+A.tip.lootMode.scripts.OnClick();assert(card.fullLoot and A.tip.rows[1].itemID==full[1][1] and not A.tip.rows[1].entry[4])
 A.tip.lootMode.scripts.OnClick();assert(not card.fullLoot)
 A.tip:Hide()
-A.db.specialMobsOnly=false
-assert(#A:FocusedLoot(999714)==#mob.loot,'normal card restores the full list')
+-- In Wetlands and Duskwood the same world-pool item must stay outside the creature's list.
+local raptor=1020;local wolf=628
+local raptorCard=CreateFrame('Button',nil,WorldMapFrame)
+raptorCard.cell={ids={raptor}};raptorCard.selected=true;raptorCard.page=1
+A.db.sharedLoot=false
+A:ShowTooltip(raptorCard,true)
+assert(A.tip.subtitle:GetText()=='Нет данных о редкой добыче моба' and not A.tip.rows[1]:IsShown() and A.tip.sharedLoot:IsShown())
+A.tip.sharedLoot.scripts.OnClick()
+assert(raptorCard.sharedLoot and A.tip.subtitle:GetText()=='Общий дроп · справочные данные')
+assert(A.tip.rows[1].itemID==890 and A.tip.rows[1].entry[4], 'world-pool staff is preserved under shared drops')
+A.tip.lootMode.scripts.OnClick()
+assert(raptorCard.fullLoot and not raptorCard.sharedLoot and A.tip.rows[1]:IsShown() and not A.tip.rows[1].entry[4], 'full view opens the actual creature loot')
+A.tip:Hide()
+local wolfCard=CreateFrame('Button',nil,WorldMapFrame)
+wolfCard.cell={ids={wolf}};wolfCard.selected=true;wolfCard.page=1
+A:ShowTooltip(wolfCard,true)
+assert(A.tip.rows[1].itemID==12992 and not A.tip.rows[2]:IsShown() and A.tip.sharedLoot:IsShown())
+A.tip:Hide()
+A.db.specialMobsOnly=false;A.db.sharedLoot=true
+assert(#A:FocusedLoot(999714)==#mob.loot,'normal card retains the full underlying list')
+units.target={guid='Creature-0-1-2-3-1020-004'}
+local hoverLines={};local tooltip=CreateFrame('Frame')
+function tooltip:GetUnit() return 'Mottled Raptor','target' end
+function tooltip:AddLine(line) hoverLines[#hoverLines+1]=line end
+A:UnitLootTooltip(tooltip)
+assert(table.concat(hoverLines,' '):find('Общий дроп:',1,true), 'unit tooltip points to shared drops')
+for _,line in ipairs(hoverLines) do
+ assert(not line:find('Общий или условный дроп',1,true), 'unit tooltip does not spam shared entries')
+end
+units.target=nil
 A.db.sharedLoot=false;A.db.specialFirst=true
+A:DismissRareAlert(false)
+MOCK.clock=MOCK.clock+301
+units.nameplate2={guid='Creature-0-1-2-3-999501-009',classification='rare',position=true}
+playerX=.08
+A:WatchRareUnit('nameplate2')
+local tracked=A.rareMiniByKey['guide:'..units.nameplate2.guid]
+assert(tracked.edge and tracked.entry.direction=='→','active sighting has a rim direction outside the zoomed view')
+local original=A.rareAlert.sighting
+units.nameplate3={guid='Creature-0-1-2-3-999502-010',classification='rare',position=true}
+A:WatchRareUnit('nameplate3')
+assert(A.rareAlert.sighting==original and #A.rareAlertQueue==1,'another rare cannot replace the active banner')
+units.nameplate2=nil;units.target=nil;MOCK.clock=MOCK.clock+320;A:RareTick()
+assert(A.rareAlert:IsShown() and A.rareGuide.status:GetText()=='Последняя точка','leaving range keeps the last point and banner')
+local world=A:RareMapEntries(1429)[1]
+assert(world.sighting==original and world.guideMode=='last' and not world.exact,'active last position remains first on the world map')
+A:DismissRareAlert(true);assert(A.rareAlert.npcID==999502,'next detection appears after dismissal')
+A:DismissRareAlert(false);playerX=.5
 -- Two visible spawns of one NPC must retain their own coordinates and frames.
 A.rareCatalog[999601]={points={{1429,45,54},{1429,55,54}}}
 A.rareZones[1429]={999601};A.rareMiniAnchorCache={};A.rareSeen={}
