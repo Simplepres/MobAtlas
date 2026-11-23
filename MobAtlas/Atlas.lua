@@ -113,6 +113,7 @@ function A:SourceLocations(id)
   local instance=(self.instances or {})[area]
   if instance then
    local maps={};for _,p in ipairs(instance.entrances) do if not maps[p[1]] then maps[p[1]]=true;result[#result+1]={mapID=p[1],name=instance.name,kind='entrance',area=area} end end
+   if not next(maps) then result[#result+1]={name=instance.name,kind='instance',area=area} end
   end
  end
  if #result==0 then result[1]={name='Место пока неизвестно',kind='unknown'} end
@@ -154,14 +155,17 @@ function A:HasAccessibleAtlasSource(iid,scope,requireMap)
   local entry=links[i+1]
   if not entry[4] then
    local hasWorld=#(mob.points or {})>0
-   local hasEntrance=false
+   local hasDungeon,hasEntrance=false,false
    if sourceScope=='dungeons' or sourceScope=='all' and requireMap and not hasWorld then
     for _,area in ipairs(mob.instances or {}) do
      local instance=(self.instances or {})[area]
-     if instance and #(instance.entrances or {})>0 then hasEntrance=true;break end
+     if instance then
+      hasDungeon=true
+      if #(instance.entrances or {})>0 then hasEntrance=true;break end
+     end
     end
    end
-   if (sourceScope=='all' and (not requireMap or hasWorld or hasEntrance) or sourceScope=='world' and hasWorld or sourceScope=='dungeons' and hasEntrance)
+   if (sourceScope=='all' and (not requireMap or hasWorld or hasEntrance) or sourceScope=='world' and hasWorld or sourceScope=='dungeons' and (hasEntrance or not requireMap and hasDungeon))
     and self:AtlasSourceAccessible({npcID=npcID,entry=entry}) then accessible=true;break end
   end
  end
@@ -389,7 +393,7 @@ function A:AtlasSources(iid,scope)
  local rows={}
  for _,source in ipairs(self:ItemSources(iid)) do
   for _,loc in ipairs(self:SourceLocations(source.npcID)) do
-   if not scope or scope=='all' or scope=='dungeons' and loc.kind=='entrance' or scope=='world' and loc.kind=='spawn' then
+   if not scope or scope=='all' or scope=='dungeons' and (loc.kind=='entrance' or loc.kind=='instance') or scope=='world' and loc.kind=='spawn' then
     rows[#rows+1]={npcID=source.npcID,entry=self:SourceEntry(source),location=loc}
    end
   end

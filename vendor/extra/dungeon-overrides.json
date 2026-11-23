@@ -34,35 +34,35 @@
       "minLevel": 28,
       "maxLevel": 33
     },
-    "-10002": {
+    "16550": {
       "name": "The Drowned City",
       "minLevel": 35,
       "maxLevel": 40,
       "internalID": true,
       "entrances": []
     },
-    "-10003": {
+    "16842": {
       "name": "Krol'dok Stronghold",
       "minLevel": 40,
       "maxLevel": 45,
       "internalID": true,
       "entrances": []
     },
-    "-10004": {
+    "16620": {
       "name": "Alcaz Prison",
       "minLevel": 48,
       "maxLevel": 53,
       "internalID": true,
       "entrances": []
     },
-    "-10005": {
+    "16554": {
       "name": "Blackmaw Hold",
       "minLevel": 55,
       "maxLevel": 60,
       "internalID": true,
       "entrances": []
     },
-    "-10006": {
+    "16667": {
       "name": "Shaper's Terrace",
       "minLevel": 58,
       "maxLevel": 60,
@@ -251,217 +251,217 @@
     },
     "95775": {
       "dungeons": [
-        -10002
+        16550
       ],
       "recommendedMin": 35
     },
     "95776": {
       "dungeons": [
-        -10002
+        16550
       ],
       "recommendedMin": 35
     },
     "95787": {
       "dungeons": [
-        -10002
+        16550
       ],
       "recommendedMin": 35
     },
     "95788": {
       "dungeons": [
-        -10002
+        16550
       ],
       "recommendedMin": 35
     },
     "95789": {
       "dungeons": [
-        -10002
+        16550
       ],
       "recommendedMin": 35
     },
     "95791": {
       "dungeons": [
-        -10002
+        16550
       ],
       "recommendedMin": 35
     },
     "96774": {
       "dungeons": [
-        -10002
+        16550
       ],
       "recommendedMin": 35
     },
     "97130": {
       "dungeons": [
-        -10002
+        16550
       ],
       "recommendedMin": 35
     },
     "94968": {
       "dungeons": [
-        -10003
+        16842
       ],
       "recommendedMin": 40
     },
     "94972": {
       "dungeons": [
-        -10003
+        16842
       ],
       "recommendedMin": 40
     },
     "94975": {
       "dungeons": [
-        -10003
+        16842
       ],
       "recommendedMin": 40
     },
     "94982": {
       "dungeons": [
-        -10003
+        16842
       ],
       "recommendedMin": 40
     },
     "94983": {
       "dungeons": [
-        -10003
+        16842
       ],
       "recommendedMin": 40
     },
     "94984": {
       "dungeons": [
-        -10003
+        16842
       ],
       "recommendedMin": 40
     },
     "96771": {
       "dungeons": [
-        -10003
+        16842
       ],
       "recommendedMin": 40
     },
     "95262": {
       "dungeons": [
-        -10004
+        16620
       ],
       "recommendedMin": 48
     },
     "95309": {
       "dungeons": [
-        -10004
+        16620
       ],
       "recommendedMin": 48
     },
     "95454": {
       "dungeons": [
-        -10004
+        16620
       ],
       "recommendedMin": 48
     },
     "96332": {
       "dungeons": [
-        -10004
+        16620
       ],
       "recommendedMin": 48
     },
     "96334": {
       "dungeons": [
-        -10004
+        16620
       ],
       "recommendedMin": 48
     },
     "96335": {
       "dungeons": [
-        -10004
+        16620
       ],
       "recommendedMin": 48
     },
     "96381": {
       "dungeons": [
-        -10004
+        16620
       ],
       "recommendedMin": 48
     },
     "96772": {
       "dungeons": [
-        -10004
+        16620
       ],
       "recommendedMin": 48
     },
     "92066": {
       "dungeons": [
-        -10005
+        16554
       ],
       "recommendedMin": 55
     },
     "92343": {
       "dungeons": [
-        -10005
+        16554
       ],
       "recommendedMin": 55
     },
     "92344": {
       "dungeons": [
-        -10005
+        16554
       ],
       "recommendedMin": 55
     },
     "97173": {
       "dungeons": [
-        -10005
+        16554
       ],
       "recommendedMin": 55
     },
     "97198": {
       "dungeons": [
-        -10005
+        16554
       ],
       "recommendedMin": 55
     },
     "97327": {
       "dungeons": [
-        -10005
+        16554
       ],
       "recommendedMin": 55
     },
     "99187": {
       "dungeons": [
-        -10005
+        16554
       ],
       "recommendedMin": 55
     },
     "95790": {
       "dungeons": [
-        -10006
+        16667
       ],
       "recommendedMin": 58
     },
     "95924": {
       "dungeons": [
-        -10006
+        16667
       ],
       "recommendedMin": 58
     },
     "95925": {
       "dungeons": [
-        -10006
+        16667
       ],
       "recommendedMin": 58
     },
     "95926": {
       "dungeons": [
-        -10006
+        16667
       ],
       "recommendedMin": 58
     },
     "95928": {
       "dungeons": [
-        -10006
+        16667
       ],
       "recommendedMin": 58
     },
     "97049": {
       "dungeons": [
-        -10006
+        16667
       ],
       "recommendedMin": 58
     }

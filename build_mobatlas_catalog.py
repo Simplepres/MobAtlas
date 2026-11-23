@@ -28,9 +28,15 @@ trace_paths=[]
 # Generated delta-base contains Forever replacements absent from the inherited raw tables.
 # Apply declarative fields before static traces, which retain their higher precedence.
 L.globals().modules.QuestieDB.npcRanks=L.table_from({'ELITE':1,'RARE_ELITE':2,'BOSS':3,'RARE':4})
-L.globals().modules.ZoneDB.zoneIDs=L.table() # symbolic zoneID hints are ignored; explicit spawn areas drive geometry
+roster_path=R/'vendor/extra/forever-dungeon-roster.json'
+roster=json.loads(roster_path.read_text())
+instance_maps={int(map_id):d['area'] for map_id,d in roster['instances'].items()}
+symbols={re.sub(r'[^A-Z0-9 ]','',d['name'].upper()).replace(' ','_'):d['area'] for d in roster['instances'].values()}
+symbols['SHAPERS_TERRACE']=instance_maps[3001]
+symbols['HALL_OF_THANES']=instance_maps[3065]
+L.globals().modules.ZoneDB.zoneIDs=L.table_from(symbols)
 for kind,table,fields,additions in [
- ('Npc',npcs,{'name':1,'minLevel':4,'maxLevel':5,'rank':6,'spawns':7,'questStarts':10,'questEnds':11,'friendlyToFaction':13,'npcFlags':15}, {'questStarts_add':10,'questEnds_add':11}),
+ ('Npc',npcs,{'name':1,'minLevel':4,'maxLevel':5,'rank':6,'spawns':7,'zoneID':9,'questStarts':10,'questEnds':11,'friendlyToFaction':13,'npcFlags':15}, {'questStarts_add':10,'questEnds_add':11}),
  ('Item',items,{'name':1,'npcDrops':2,'objectDrops':3,'itemDrops':4,'startQuest':5,'questRewards':6,'itemLevel':9,'requiredLevel':10,'class':12,'subClass':13,'vendors':14}, {'npcDrops_add':2,'objectDrops_add':3,'itemDrops_add':4,'questRewards_add':6,'vendors_add':14})]:
  path=Q/f'src/corrections/Forever/generated/foreverBase{kind}.lua';trace_paths.append(path)
  L.execute(path.read_text());module=L.globals().modules['ForeverBase'+kind]
@@ -71,6 +77,22 @@ for area,d in dungeons.items():
  instances[area]={'name':d[1],'entrances':entrances}
  area_instance[area]=area
  for alias in d[2].values() if d[2] else []:area_instance[alias]=area
+boss_areas={}
+boss_names={}
+known_areas={}
+for dungeon in roster['instances'].values():
+ area=dungeon['area']
+ instances.setdefault(area,{'name':dungeon['name'],'entrances':[]})
+ for subarea in dungeon['areas']:area_instance[subarea]=area
+ for npc in dungeon.get('additionalNpcs',[]):
+  if npcs[npc]:known_areas[npc]=area
+ for encounter in dungeon['encounters']:
+  members=encounter.get('members') or ([encounter['npc']] if encounter['npc'] else [])
+  for npc in members:
+   assert npcs[npc], npc
+   known_areas[npc]=area
+   boss_areas[npc]=area
+   if len(members)==1:boss_names[npc]=[encounter['name'],encounter['ruName']]
 classic={n['id']:n for n in json.load(open(R/'vendor/source-snapshots/npcs.json'))['records']}
 baseitems={x['numericId']:x for x in json.load(open(R/'vendor/source-snapshots/items.json'))['items'] if isinstance(x.get('numericId'),int)}
 client_layer=json.load(open(R/'vendor/forever-live/client-layer.json'));client={x[0]:x for x in client_layer['items']}
@@ -118,18 +140,30 @@ for id in sorted(set(classic)|set(vendors)|set(drops)|new_metadata):
    key=(zone,x,y)
    if key not in seen:seen.add(key);coords.append(list(key))
  if npc[9] in area_instance:instance_ids.add(area_instance[npc[9]])
+ if id in known_areas:instance_ids.add(known_areas[id])
+ if id in boss_areas:
+  # Some reference traces place instanced bosses on an outdoor wrapper map.
+  coords=[]
  rec={'name':npc[1] or f'NPC #{id}', 'min':npc[4] or 0,'max':npc[5] or 0,'points':sorted(coords),'instances':sorted(instance_ids),'friendly':npc[13] or '', 'kind':classic.get(id,{}).get('type','Unknown'),'family':classic.get(id,{}).get('family') or '', 'vendor':id in vendors}
  rec['service']=bool((npc[15] or 0)>0 or (npc[10] and len(npc[10])>0) or (npc[11] and len(npc[11])>0))
  rec.update(curated.get(str(id),{}))
  if id in vendors:rec['stock']=sorted(vendors[id])
  if id in drops:rec['referenceLoot']=sorted(drops[id])
  catalog[id]=rec;points+=len(coords)
-(out/'Catalog.lua').write_text('-- QuestieDB Forever reference + static traces; see Licenses/QuestieDB-LICENSE.md.\nlocal _,A=...\nA.catalog='+lua(catalog)+'\nA.vendorItems='+lua(newitems)+'\nA.instances='+lua(instances)+'\nA.mapNames='+lua(mapnames)+'\nA.commonWorldItems='+lua(common)+'\n')
+instance_names={}
+for npc,c in catalog.items():
+ for area in c['instances']:
+  if area not in instance_maps.values():continue
+  scoped=instance_names.setdefault(area,{})
+  for name in [c['name'],*boss_names.get(npc,[]),*roster['npcAliases'].get(str(npc),[])]:
+   if name and name not in scoped:scoped[name]=npc
+   elif name and scoped[name]!=npc:scoped[name]=False
+(out/'Catalog.lua').write_text('-- QuestieDB Forever reference + static traces; see Licenses/QuestieDB-LICENSE.md.\nlocal _,A=...\nA.catalog='+lua(catalog)+'\nA.vendorItems='+lua(newitems)+'\nA.instances='+lua(instances)+'\nA.mapNames='+lua(mapnames)+'\nA.commonWorldItems='+lua(common)+'\nA.foreverInstanceMaps='+lua(instance_maps)+'\nA.instanceNpcNames='+lua(instance_names)+'\nA.instanceBosses='+lua(boss_areas)+'\n')
 if (Q/'snapshot.json').exists() and not (Q/'.git').exists():rev=json.loads((Q/'snapshot.json').read_text())['revision']
 else:
  try:rev=subprocess.check_output(['git','-C',str(Q),'rev-parse','HEAD'],text=True,stderr=subprocess.DEVNULL).strip()
  except (subprocess.CalledProcessError,FileNotFoundError):rev=json.loads((Q/'snapshot.json').read_text())['revision']
-report={'schemaVersion':2,'questieDBRevision':rev,'geometry':'Explicit areaId -> uiMapId; Forever raw + trace coordinates; no rectangle inference','corrections':'Generated Forever NPC/Item delta-base then static traces applied; character-dependent and full authored correction stack not applied','catalogNPCs':len(catalog),'referenceDropItems':len({iid for ids in drops.values() for iid in ids}),'referenceDropLinks':sum(len(ids) for ids in drops.values()),'dungeonSourceNPCs':sum(bool(c['instances']) and bool(c.get('referenceLoot')) for c in catalog.values()),'dungeonsWithDrops':len({a for c in catalog.values() if c.get('referenceLoot') for a in c['instances']}),'vendorNPCs':sum(x['vendor'] for x in catalog.values()),'points':points,'rejectedCoordinates':bad,'foreverIdFloor':200000,'foreverMetadata':sum(id>=200000 for id in catalog),'foreverWithCoordinates':sum(id>=200000 and bool(v['points']) for id,v in catalog.items()),'foreverWithReferenceLoot':sum(id>=200000 and bool(v.get('referenceLoot')) for id,v in catalog.items()),'inputs':{str(p.relative_to(R)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [np,ip,zp,dp,curated_path]+trace_paths+locale_paths},'vendorSource':'QuestieDB reference; prices/stock unknown until observed in game','dungeonGeometry':'Outside entrances only; no invented boss floor coordinates'}
+report={'schemaVersion':2,'questieDBRevision':rev,'geometry':'Explicit areaId -> uiMapId; Forever raw + trace coordinates; no rectangle inference','corrections':'Generated Forever NPC/Item delta-base then static traces applied; character-dependent and full authored correction stack not applied','catalogNPCs':len(catalog),'referenceDropItems':len({iid for ids in drops.values() for iid in ids}),'referenceDropLinks':sum(len(ids) for ids in drops.values()),'dungeonSourceNPCs':sum(bool(c['instances']) and bool(c.get('referenceLoot')) for c in catalog.values()),'dungeonsWithDrops':len({a for c in catalog.values() if c.get('referenceLoot') for a in c['instances']}),'vendorNPCs':sum(x['vendor'] for x in catalog.values()),'points':points,'rejectedCoordinates':bad,'foreverIdFloor':200000,'foreverMetadata':sum(id>=200000 for id in catalog),'foreverWithCoordinates':sum(id>=200000 and bool(v['points']) for id,v in catalog.items()),'foreverWithReferenceLoot':sum(id>=200000 and bool(v.get('referenceLoot')) for id,v in catalog.items()),'inputs':{str(p.relative_to(R)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [np,ip,zp,dp,curated_path,roster_path]+trace_paths+locale_paths},'vendorSource':'QuestieDB reference; prices/stock unknown until observed in game','dungeonGeometry':'Outside entrances only; no invented boss floor coordinates'}
 (out/'Catalog-BUILD.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 for f in ['LICENSE.md','gpl-3.0.md','PROVENANCE.md']:shutil.copy2(Q/f,out/'Licenses'/('QuestieDB-'+f))
 print(json.dumps({k:v for k,v in report.items() if k not in ['inputs','corrections','geometry']},ensure_ascii=False))

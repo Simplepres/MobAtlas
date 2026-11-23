@@ -1,6 +1,6 @@
 local _,A=...
 -- Independent entrance/quest layer. Never change another addon's pins or routes.
-local supported={2437,1581,718,717,209,719,721,491,796,722,1337,1176,2100,1477,1584,1583,2557,2057,2017,16919,16611,16732,16544,-10002,-10003,-10004,-10005,-10006}
+local supported={2437,1581,718,717,209,719,721,491,796,722,1337,1176,2100,1477,1584,1583,2557,2057,2017,16919,16611,16732,16544,16550,16842,16620,16554,16667}
 function A:BuildDungeonPinIndex()
  self.dungeonPinIndex={};self.dungeonPinAreas={};local grouped={}
  for _,area in ipairs(supported) do

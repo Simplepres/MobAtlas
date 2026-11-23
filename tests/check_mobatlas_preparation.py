@@ -68,7 +68,7 @@ assert(A:ShowQuestOnMap(98423) and A.focus.kind=='entrance','vault item maps ent
 assert(A:ShowQuestOnMap(96393) and A.focus.questID==96391,'prerequisite item drop sources navigable')
 MOCK.done[96391]=true;A:UnpinQuest();assert(A:ShowQuestOnMap(96393) and mapID==1426,'completed map leads to Farsen');MOCK.done[96391]=nil
 MOCK.faction='Horde';assert(#A:DungeonQuestList(16919,false)==2,'only two neutral Hall quests');MOCK.faction='Alliance'
-local expectedDungeons={16919,16611,16732,16544,-10002,-10003,-10004,-10005,-10006}
+local expectedDungeons={16919,16611,16732,16544,16550,16842,16620,16554,16667}
 for _,id in ipairs(expectedDungeons) do
  assert(A.instances[id] and A.instances[id].minLevel,'all nine Forever dungeons registered')
  local n=0;for qid,q in pairs(A.dungeonQuests) do for _,d in ipairs(q.dungeons) do if d==id then n=n+1 end end end

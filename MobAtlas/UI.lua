@@ -190,20 +190,57 @@ function A:CreateMinimapButton()
  b:SetScript('OnEnter',function() GameTooltip:SetOwner(b,'ANCHOR_LEFT');self:AddTooltipLine(GameTooltip,'MobAtlas · Следопыт');self:AddTooltipLine(GameTooltip,'ЛКМ: атлас · ПКМ: отслеживание');self:AddTooltipLine(GameTooltip,'Перетащи: переместить кнопку');GameTooltip:Show() end)
  b:SetScript('OnLeave',function() GameTooltip:Hide() end)
 end
-function A:UnitLootTooltip(tooltip)
- if not self.db.unitLoot then return end
- local _,unit=tooltip:GetUnit();unit=unit or 'mouseover';local id=self:NpcID(unit)
+local function readableString(value)
+ return not (issecretvalue and issecretvalue(value)) and type(value)=='string'
+end
+
+function A:TooltipLootNpc(tooltip,data,area,isCorpse)
+ if issecretvalue and issecretvalue(data) then data=nil end
+ local guid=data and data.guid
+ if readableString(guid) and guid~='' then
+  local id=self:NpcIDFromGUID(guid)
+  if id or not guid:find('^Corpse%-') then return id end
+ end
+
+ local name,unit=self:Safe(tooltip.GetUnit,tooltip)
+ if not readableString(unit) then unit=nil end
+ if not unit and not isCorpse then unit='mouseover' end
+ if unit then
+  local unitGUID=self:Safe(UnitGUID,unit)
+  if readableString(unitGUID) and unitGUID~='' then
+   local id=self:NpcIDFromGUID(unitGUID)
+   if id or not unitGUID:find('^Corpse%-') then return id end
+  end
+  local isPlayer=self:Safe(UnitIsPlayer,unit)
+  if not (issecretvalue and issecretvalue(isPlayer)) and isPlayer then return end
+ end
+ local names=area and (self.instanceNpcNames or {})[area]
+ if not names then return end
+ if readableString(name) and names[name] then return names[name] end
+ local line=data and data.lines and data.lines[1]
+ local title=line and line.leftText
+ if readableString(title) then return names[(title:gsub('|c%x%x%x%x%x%x%x%x',''):gsub('|r',''))] end
+end
+
+function A:UnitLootTooltip(tooltip,data,isCorpse)
+ if not self.db or not self.db.unitLoot then return end
+ local area=self:CurrentForeverDungeon()
+ local id=self:TooltipLootNpc(tooltip,data,area,isCorpse)
  if not id or tooltip.mobAtlasID==id then return end
  if not self.mobs[id] and self.EnsureObservedNpc then self:EnsureObservedNpc(id) end
  if not self.mobs[id] then return end
- tooltip.mobAtlasID=id;local rows,direct=self:Loot(id,self:Professions(),true,true)
+ local boss=area and (self.instanceBosses or {})[id]==area
+ tooltip.mobAtlasID=id;local rows,direct=self:Loot(id,self:Professions(),true,true,false,boss)
  self:AddTooltipLine(tooltip,' ');self:AddTooltipLine(tooltip,self.mobs[id].vendor and 'Следопыт · в продаже' or 'Следопыт · возможная добыча',1,.8,.35)
  if direct==0 then self:AddTooltipLine(tooltip,#rows>0 and 'Нет данных о добыче этого моба' or #(self.mobs[id].loot or {})==0 and 'Добыча пока неизвестна. Находки будут сохраняться.' or 'Нет вещей по текущим фильтрам',.7,.7,.7) end
  for i=1,math.min(direct,self.db.visibleItems) do
   local e=rows[i];local item=self.items[e[1]];local name,icon=self:ItemDisplay(e[1]);local c=colors[item.quality] or {1,.8,.4}
   self:AddTooltipLine(tooltip,'|T'..icon..':18|t '..name..' · '..self:Chance(e),unpack(c))
  end
- if direct>self.db.visibleItems then self:AddTooltipLine(tooltip,'Показано: '..self.db.visibleItems..' из '..direct..(self.db.specialMobsOnly and not self.mobs[id].vendor and ' · на карте: «Вся добыча».' or ' · остальное в карточке на карте.'),.7,.75,.7) end
+ if direct>self.db.visibleItems then
+  local hint=not area and (self.db.specialMobsOnly and not self.mobs[id].vendor and ' · на карте: «Вся добыча».' or ' · остальное в карточке на карте.') or ''
+  self:AddTooltipLine(tooltip,'Показано: '..self.db.visibleItems..' из '..direct..hint,.7,.75,.7)
+ end
  if #rows>direct then self:AddTooltipLine(tooltip,'Общий дроп: '..(#rows-direct)..' · см. карточку на карте',.7,.75,.7) end
  self:AddTooltipLine(tooltip,'Everloot · CC BY-SA 4.0; Classic — справка',.7,.7,.7)
  tooltip:Show()
@@ -213,8 +250,12 @@ function A:HookUnitLoot()
  if GameTooltip.HookScript then
   GameTooltip:HookScript('OnTooltipCleared',function(t) t.mobAtlasID=nil end)
  end
- if TooltipDataProcessor and Enum and Enum.TooltipDataType then
-  TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit,function(t) self:UnitLootTooltip(t) end)
+ if TooltipDataProcessor and TooltipDataProcessor.AddTooltipPostCall and Enum and Enum.TooltipDataType and Enum.TooltipDataType.Unit then
+  local types=Enum.TooltipDataType
+  TooltipDataProcessor.AddTooltipPostCall(types.Unit,function(t,data) self:UnitLootTooltip(t,data) end)
+  if types.Corpse then
+   TooltipDataProcessor.AddTooltipPostCall(types.Corpse,function(t,data) self:UnitLootTooltip(t,data,true) end)
+  end
  elseif GameTooltip.HookScript then
   GameTooltip:HookScript('OnTooltipSetUnit',function(t) self:UnitLootTooltip(t) end)
  end
@@ -667,7 +708,7 @@ function A:RefreshAtlasSources()
  local key=tostring(iid)..':'..f.scope..':'..f.category..':'..tostring(f.knownOnly)
  if not f.sourceCache or f.sourceCacheKey~=key then
   local sources=self:AtlasSources(iid,f.scope);if f.knownOnly or (f.category=='gear' or f.category=='upgrades') then local mapped={};for _,source in ipairs(sources) do if (not f.knownOnly or source.location.mapID) and (f.category~='gear' and f.category~='upgrades' or self:AtlasSourceAccessible(source)) then mapped[#mapped+1]=source end end;sources=mapped end;local current=self:Safe(C_Map and C_Map.GetBestMapForUnit,'player')
-  for _,source in ipairs(sources) do source.group=(source.location.kind=='entrance' and 'Подземелье: ' or '')..source.location.name end
+  for _,source in ipairs(sources) do source.group=((source.location.kind=='entrance' or source.location.kind=='instance') and 'Подземелье: ' or '')..source.location.name end
   table.sort(sources,function(a,b)
    local aMap,bMap=a.location.mapID~=nil,b.location.mapID~=nil;if aMap~=bMap then return aMap end
    local ae,be=self:SourceEvidenceTier(a.entry),self:SourceEvidenceTier(b.entry);if ae~=be then return ae>be end

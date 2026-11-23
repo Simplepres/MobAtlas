@@ -1,11 +1,11 @@
 local _,A=...
 _G.MobAtlas=A
-A.version='0.7.21';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
+A.version='0.7.22';A.font='Interface\\AddOns\\MobAtlas\\Art\\NotoSans-Regular.ttf'
 A.profNames={[129]='Первая помощь',[164]='Кузнечное дело',[165]='Кожевничество',[171]='Алхимия',[185]='Кулинария',[197]='Портняжное дело',[202]='Инженерное дело',[333]='Наложение чар'}
 A.methods={[1]='Добыча',[2]='Снятие шкур',[3]='Карманная кража',[4]='Forever · способ не разделён',[5]='Продажа · справочник QuestieDB',[6]='Продажа · личное наблюдение',[7]='Добыча · справочник Forever',[8]='Личная находка · способ не определён',[9]='Classic · vMaNGOS через KB',[10]='Награда за задание',[11]='Изготовление',[12]='Сундук / объект · Classic',[13]='Содержимое предмета',[14]='Forever · сообщение игрока'}
 function A:Safe(fn,...)
  if type(fn)~='function' then return end
- local ok,a,b,c,d,e,f,g=pcall(fn,...);if ok then return a,b,c,d,e,f,g end
+ local ok,a,b,c,d,e,f,g,h=pcall(fn,...);if ok then return a,b,c,d,e,f,g,h end
 end
 function A:Professions()
  local result={}
@@ -388,7 +388,7 @@ function A:AddComparisonTooltip(t,iid)
  local result=self:CompareItem(iid);if not result then return end
  self:AddTooltipLine(t,'Следопыт · '..result.text..(result.percent and ' к оценке слота' or ''),self:ComparisonColor(result))
 end
-function A:Matches(entry,skills,includeRareFinds)
+function A:Matches(entry,skills,includeRareFinds,ignoreClass)
  if entry[4] and not self.db.sharedLoot then return false end
  if entry[2]==4 and not self.db.observed then return false end
  local item=self.items[entry[1]];if not item then return false end
@@ -398,7 +398,7 @@ function A:Matches(entry,skills,includeRareFinds)
  if not self.db.qualities[item.quality] then return false end
  if entry[2]==2 and not self.db.skinning or entry[2]==3 and not self.db.pickpocket then return false end
  local rareFind=includeRareFinds and (entry[2]==8 or entry[2]==14) and self:SpecialRank(entry[1])>0
- if not rareFind and not self:ClassFits(item,entry[1]) then return false end
+ if not rareFind and not ignoreClass and not self:ClassFits(item,entry[1]) then return false end
  local prof=self.db.prof
  if prof~=0 then
   local found=false
@@ -410,11 +410,11 @@ end
 function A:IsSpecialMapDrop(entry)
  return not entry[4] and self:SpecialRank(entry[1])>0
 end
-function A:Loot(id,skills,forceSpecial,includeRareFinds,rareOnly)
+function A:Loot(id,skills,forceSpecial,includeRareFinds,rareOnly,ignoreClass)
  local mob=self.mobs[id];local list=mob and (mob.vendor and mob.stock or mob.loot) or {}
  local unique={};local out={}
  rareOnly=rareOnly and mob and not mob.vendor
- for _,entry in ipairs(list or {}) do if rareOnly and self:SpecialRank(entry[1])>0 or not rareOnly and self:Matches(entry,skills or self.skills or {},includeRareFinds) then
+ for _,entry in ipairs(list or {}) do if rareOnly and self:SpecialRank(entry[1])>0 or not rareOnly and self:Matches(entry,skills or self.skills or {},includeRareFinds,ignoreClass) then
   local previous=unique[entry[1]]
   local priority=entry[4] and 0 or entry[2]==8 and 5 or entry[2]==6 and 4 or entry[2]==4 and 3 or entry[2]==14 and 2 or 1
   if not previous then
@@ -622,11 +622,20 @@ function A:ItemDisplay(id)
  local icon=self:Safe(C_Item and C_Item.GetItemIconByID or GetItemIcon,id)
  return item and (self:Safe(GetLocale)=='ruRU' and item.ruName or item.name) or ('Предмет #'..id),(not icon or icon==134400) and 'Interface\\AddOns\\MobAtlas\\Art\\TrackAtlas.tga' or icon
 end
-function A:NpcID(unit)
- local guid=self:Safe(UnitGUID,unit)
- if type(guid)~='string' then return end
+function A:NpcIDFromGUID(guid)
+ if issecretvalue and issecretvalue(guid) or type(guid)~='string' then return end
  local kind,id=guid:match('^(%a+)%-[^%-]*%-[^%-]*%-[^%-]*%-[^%-]*%-(%d+)%-')
  if kind=='Creature' or kind=='Vehicle' then return tonumber(id) end
+end
+
+function A:NpcID(unit)
+ return self:NpcIDFromGUID(self:Safe(UnitGUID,unit))
+end
+
+function A:CurrentForeverDungeon()
+ local _,kind,_,_,_,_,_,instanceID=self:Safe(GetInstanceInfo)
+ if issecretvalue and (issecretvalue(kind) or issecretvalue(instanceID)) or kind~='party' then return end
+ return (self.foreverInstanceMaps or {})[instanceID]
 end
 
 function A:ApplyCatalog()

@@ -1,0 +1,535 @@
+{
+  "generatedAt": "2026-11-23T09:45:40.963Z",
+  "dataAsOf": "2026-11-23T09:40:52.733Z",
+  "stats": {
+    "uploads": 1359,
+    "lootWindows": 20013,
+    "records": 119152,
+    "unreachable": false,
+    "dataAsOf": "2026-11-23T09:40:52.733Z"
+  },
+  "unreachable": false,
+  "rates": [],
+  "measuredZeros": [
+    {
+      "sourceNpcId": 939,
+      "kills": 2,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 1026,
+      "kills": 2,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Bluegill Forager",
+      "sourceNameTier": "verified"
+    },
+    {
+      "sourceNpcId": 2270,
+      "kills": 2,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Hillsbrad Sentry",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 2716,
+      "kills": 2,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Chasseur Wyrm Crache-poussières",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 3823,
+      "kills": 2,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Ghostpaw Runner",
+      "sourceNameTier": "confirmed"
+    },
+    {
+      "sourceNpcId": 3928,
+      "kills": 2,
+      "reporters": 2,
+      "tier": "verified",
+      "public": false,
+      "sourceName": "Rotting Slime",
+      "sourceNameTier": "confirmed"
+    },
+    {
+      "sourceNpcId": 4114,
+      "kills": 2,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Gravelsnout Forager",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 5308,
+      "kills": 2,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Hurleur des vallées insoumis",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 7328,
+      "kills": 2,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 256801,
+      "kills": 2,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Guerrier murloc",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 595,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 691,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Lesser Water Elemental",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 775,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Kurzen's Agent",
+      "sourceNameTier": "confirmed"
+    },
+    {
+      "sourceNpcId": 910,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Defias Enchanter",
+      "sourceNameTier": "verified"
+    },
+    {
+      "sourceNpcId": 941,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 942,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 943,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Kurzen Wrangler",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 1031,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Crimson Ooze",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 1035,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Dragonmaw Swamprunner",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 1550,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 2335,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Magistrate Burnside",
+      "sourceNameTier": "verified"
+    },
+    {
+      "sourceNpcId": 2547,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Oeil de fer",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 2548,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Capitaine Keelhaul",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 2549,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Garr Salthoof",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 2558,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Witherbark Berserker",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 2559,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Highland Strider",
+      "sourceNameTier": "confirmed"
+    },
+    {
+      "sourceNpcId": 2578,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Young Mesa Buzzard",
+      "sourceNameTier": "confirmed"
+    },
+    {
+      "sourceNpcId": 2764,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Sleeby",
+      "sourceNameTier": "verified"
+    },
+    {
+      "sourceNpcId": 3748,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Foulweald Shaman",
+      "sourceNameTier": "verified"
+    },
+    {
+      "sourceNpcId": 3770,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Bleakheart Shadowstalker",
+      "sourceNameTier": "confirmed"
+    },
+    {
+      "sourceNpcId": 3791,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Terrowulf Shadow Weaver",
+      "sourceNameTier": "verified"
+    },
+    {
+      "sourceNpcId": 3808,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Forsaken Dark Stalker",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 3855,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 3857,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 4011,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Young Pridewing",
+      "sourceNameTier": "verified"
+    },
+    {
+      "sourceNpcId": 4034,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Enraged Stone Spirit",
+      "sourceNameTier": "verified"
+    },
+    {
+      "sourceNpcId": 4073,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "XT:4",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 4118,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Venomous Cloud Serpent",
+      "sourceNameTier": "confirmed"
+    },
+    {
+      "sourceNpcId": 4289,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 4699,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Scorpashi Venomlash",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 4726,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 5045,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 5307,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Hurleur des vallées",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 5422,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Scorpide chasseur",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 6547,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 9377,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Swirling Vortex",
+      "sourceNameTier": "verified"
+    },
+    {
+      "sourceNpcId": 11578,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Whirlwind Shredder",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 12896,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Silverwing Sentinel",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 255898,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Oracle murloc",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 257910,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Mousquetaire des mers de l'Est",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 258100,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 258522,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Sootfur",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 260996,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 263307,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Glade Viper",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 266357,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Barton",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 268602,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Skypriest Faladiel",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 272313,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 272315,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false,
+      "sourceName": "Pinceur saumécaille",
+      "sourceNameTier": "reported"
+    },
+    {
+      "sourceNpcId": 275045,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    },
+    {
+      "sourceNpcId": 276003,
+      "kills": 1,
+      "reporters": 1,
+      "tier": "reported",
+      "public": false
+    }
+  ],
+  "queued": 0,
+  "offset": 3000,
+  "limit": 500,
+  "total": 3060,
+  "totalRates": 2981,
+  "totalMeasuredZeros": 79,
+  "next": null,
+  "attribution": {
+    "licence": "CC BY-SA 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "credit": "Data from Everloot (https://everloot.app), CC BY-SA 4.0.",
+    "source": "https://everloot.app/database/drops",
+    "terms": "https://everloot.app/terms#licences"
+  }
+}
