@@ -2,29 +2,29 @@
 
 # MobAtlas · Следопыт
 
-Атлас добычи, экипировки и заданий для **WoW Forever**. **Бета 0.7.22.**
+Атлас добычи, экипировки и заданий для **WoW Forever**. **Бета 0.7.23.**
 
-A loot atlas, gear finder and dungeon quest guide for **WoW Forever**. **Beta 0.7.22.**
+A loot atlas, gear finder and dungeon quest guide for **WoW Forever**. **Beta 0.7.23.**
 
 [**Скачать / Download**](https://github.com/Simplepres/MobAtlas/releases/latest) · [Скриншоты / Gallery](#скриншоты--gallery) · [Сообщить о баге / Report an issue](https://github.com/Simplepres/MobAtlas/issues)
 
-## Что нового в 0.7.22
+## Что нового в 0.7.23
 
-- **Добыча в подземельях.** Во всех девяти новых инстах Forever подсказки живых мобов и трупов показывают известную добычу.
-- **Источники боссов.** Атлас показывает, в каком подземелье искать предмет. Карта открывается, когда известны координаты входа.
+- **Редкая добыча на карте.** Синие вещи и питомцы видны при любых фильтрах класса, качества и профессии. Общий дроп сам по себе не создаёт метку моба.
+- **Точнее источники.** Измеренный шанс конкретного моба больше не теряется из-за справочной записи без шанса.
 
-## What’s new in 0.7.22
+## What’s new in 0.7.23
 
-- **Dungeon loot.** Live creature and corpse tooltips show known drops in all nine new Forever dungeons.
-- **Boss sources.** The atlas lists the dungeon for each known drop and opens the entrance map when coordinates are available.
+- **Rare loot on the map.** Blue drops and pets stay visible under class, quality and profession filters. Shared loot alone does not create a creature marker.
+- **More accurate sources.** A measured creature drop rate no longer loses to an unmeasured reference link.
 
 [Как работает подбор экипировки / Gear discovery and comparison](docs/DEVELOPMENT-NOTES.ru.md#как-атлас-помогает-выбрать-экипировку)
 
 ## Установка / Install
 
-Распакуй **MobAtlas-0.7.22.zip** в `Interface/AddOns/` клиента Forever и полностью перезапусти WoW. Открой атлас через книжку у миникарты или `/mobatlas`. ПКМ по книжке открывает настройки отслеживания.
+Распакуй **MobAtlas-0.7.23.zip** в `Interface/AddOns/` клиента Forever и полностью перезапусти WoW. Открой атлас через книжку у миникарты или `/mobatlas`. ПКМ по книжке открывает настройки отслеживания.
 
-Extract **MobAtlas-0.7.22.zip** into the Forever client’s `Interface/AddOns/` folder and restart WoW. Click the minimap book or type `/mobatlas`. Right-click the book for tracking settings.
+Extract **MobAtlas-0.7.23.zip** into the Forever client’s `Interface/AddOns/` folder and restart WoW. Click the minimap book or type `/mobatlas`. Right-click the book for tracking settings.
 
 ## Скриншоты / Gallery
 

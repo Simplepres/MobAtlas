@@ -97,7 +97,9 @@ end
 function A:SourceEntry(source)
  local best,rank
  for _,e in ipairs(source.entries) do
-  local value=e[2]==8 and 6 or e[2]==4 and 5 or e[2]==14 and 4 or e[2]==6 and 4 or e[4] and 0 or e[2]==7 and 3 or 2
+  -- A measured NPC-specific rate outranks an unmeasured reference link.
+  -- Never promote a shared/conditional world-pool link over a direct source.
+  local value=e[4] and 0 or e[2]==8 and 7 or e[2]==4 and 6 or e[2]==14 and 5 or e[2]==6 and 5 or e[2]==1 and e[3]>=0 and 4 or e[2]==7 and 3 or 2
   if not best or value>rank then best=e;rank=value end
  end
  return best

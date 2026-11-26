@@ -118,6 +118,14 @@ A.zoneIndex[1429]={999711,999712,999713}
 local matched={}
 for _,cell in ipairs(A:BuildMap(1429)) do for _,id in ipairs(cell.ids) do matched[id]=true end end
 assert(matched[999711] and matched[999712] and not matched[999713],'map toggle keeps blue and pet drops only')
+-- The map's rare-loot switch must match the card even when personal filters are narrow.
+A.db.qualities={[2]=true};A.db.classOnly=true;A.db.specOnly=true;A.db.prof=197
+assert(A:HasSpecialMapLoot(999711) and A:HasSpecialMapLoot(999712),'all pets and blue loot remain discoverable regardless of personal filters')
+matched={};for _,cell in ipairs(A:BuildMap(1429)) do for _,id in ipairs(cell.ids) do matched[id]=true end end
+assert(matched[999711] and matched[999712] and not matched[999713],'the actual map keeps special drops under narrow filters')
+local rarePet=A:FocusedLoot(999711);local rareBlue=A:FocusedLoot(999712)
+assert(rarePet[1][1]==999701 and rareBlue[1][1]==999702,'map pins and rare cards use the same special-loot rule')
+A.db.qualities={[-1]=true,[0]=true,[1]=true,[2]=true,[3]=true,[4]=true,[5]=true,[6]=true,[7]=true};A.db.classOnly=false;A.db.specOnly=false;A.db.prof=0
 -- The shared writ is still searchable and visible as ordinary loot.
 assert(A.items[262888].quality==3 and A:SpecialRank(262888)==0,'shared writ is not special')
 A.mobs[999714]={name='Writ source',points={{1429,65,65}},loot={{262888,7,-1},{999703,1,12}}}

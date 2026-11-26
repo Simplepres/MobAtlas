@@ -17,6 +17,10 @@ for _,s in ipairs(sources) do if s.npcID==639 then found=s end end
 assert(found and found.location.kind=='entrance' and found.location.mapID==1436)
 assert(#A.mobs[639].points==0,'legacy dungeon alias never becomes a boss position')
 assert(A:Chance(found.entry):find('неизвестен',1,true),'do not invent dungeon chance')
+local reference={5191,7,-1,false};local measured={5191,1,12.5,false};local shared={5191,1,-1,true}
+assert(A:SourceEntry({entries={reference,measured,shared}})==measured,'atlas prefers an exact measured rate over an unmeasured reference')
+assert(A:SourceEntry({entries={shared,reference}})==reference,'atlas prefers direct reference over shared pool')
+assert(A:SourceEntry({entries={{5191,9,20,false},reference}})==reference,'legacy expansion chance cannot replace a Forever boss reference')
 A.db.qualities={};A.db.prof=197;A.db.classOnly=true
 assert(A:FindItems('5191','all','dungeons')[1]==5191,'atlas independent of map filters')
 local canvas=CreateFrame('Frame');canvas:SetSize(1000,700);canvas:SetScale(.625)

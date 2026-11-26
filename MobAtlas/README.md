@@ -1,4 +1,4 @@
-# MobAtlas 0.7.11 / Следопыт
+# MobAtlas 0.7.23 / Следопыт (beta)
 
 Offline loot atlas for World of Warcraft: Forever (Interface 16001).
 
@@ -9,6 +9,8 @@ Install this MobAtlas folder inside your Forever client’s Interface/AddOns/ fo
 Download, documentation and bug reports: https://github.com/Simplepres/MobAtlas
 
 Early test build. Data is incomplete and is not a live creature radar. Classic reference percentages are not measured Forever rates. Unknown chances and coordinates remain unknown. Personal observations stay in local MobAtlasDB SavedVariables; the addon does not upload them. No separate Questie installation is required.
+
+In 0.7.23, the rare-loot map mode shows creatures with direct blue-or-better or pet drops regardless of personal filters. The atlas prefers a measured creature rate over an unmeasured reference. Shared world drops remain in a separate card section.
 
 Source details and third-party licensing notices: SOURCES.md and Licenses/. A GitHub copy does not remove upstream license conditions. Item metadata from AHledger (ahledger.com). Independent community project, not endorsed by Blizzard or upstream data projects.
 
